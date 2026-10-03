@@ -1,0 +1,241 @@
+<section class="sld panel" aria-labelledby="sld-title">
+  <div class="panel-header">
+    <h2 id="sld-title">Single-line diagram</h2>
+    <ul class="legend" aria-label="Legend">
+      <li><span class="swatch energized"></span>Solid: energized</li>
+      <li><span class="swatch deenergized"></span>Dashed grey: de-energized</li>
+      <li><span class="swatch earthed"></span>Dotted: earthed</li>
+      <li>Angled blade: open, straight blade: closed</li>
+    </ul>
+  </div>
+
+  @if (model(); as diagram) {
+    <p class="hint">
+      Arrow keys move between equipment. Enter or Space on a switch asks to operate it.
+    </p>
+    <svg
+      class="diagram"
+      [attr.viewBox]="'0 0 ' + diagram.width + ' ' + diagram.height"
+      preserveAspectRatio="xMidYMin meet"
+      role="group"
+      aria-label="Single-line diagram of the substation. Each busbar, switch and feeder is a button."
+    >
+      <g class="wires">
+        @for (wire of diagram.wires; track wire.id) {
+          <path class="wire" [attr.data-condition]="wire.condition" [attr.d]="wire.d" />
+        }
+        @for (junction of diagram.junctions; track $index) {
+          <circle
+            class="junction"
+            [attr.data-condition]="junction.condition"
+            [attr.cx]="junction.x"
+            [attr.cy]="junction.y"
+            r="3.5"
+          />
+        }
+      </g>
+
+      @for (busbar of diagram.busbars; track busbar.key) {
+        <g
+          class="item busbar"
+          role="button"
+          [attr.data-key]="busbar.key"
+          [attr.data-sld-busbar]="busbar.node"
+          [attr.data-condition]="busbar.condition"
+          [attr.tabindex]="tabIndexOf(busbar.key)"
+          [attr.aria-label]="busbar.ariaLabel"
+          [attr.aria-current]="busbar.selected ? 'true' : null"
+          [class.selected]="busbar.selected"
+          [class.hovered]="busbar.hovered"
+          (click)="activate(busbar.key)"
+          (keydown)="onKeydown($event, busbar.key)"
+          (focus)="onFocus(busbar.key)"
+          (blur)="onBlur()"
+          (mouseenter)="hover(busbar.key)"
+          (mouseleave)="hover(null)"
+        >
+          <rect
+            class="hit"
+            [attr.x]="busbar.x1 - 4"
+            [attr.y]="busbar.y - 9"
+            [attr.width]="busbar.x2 - busbar.x1 + 8"
+            height="18"
+            rx="4"
+          />
+          <line
+            class="bar"
+            [attr.x1]="busbar.x1"
+            [attr.x2]="busbar.x2"
+            [attr.y1]="busbar.y"
+            [attr.y2]="busbar.y"
+          />
+        </g>
+      }
+
+      @for (item of diagram.switches; track item.key) {
+        <g
+          class="item switch"
+          role="button"
+          [attr.data-key]="item.key"
+          [attr.data-sld-switch]="item.id"
+          [attr.data-position]="item.position"
+          [attr.data-condition]="item.condition"
+          [attr.tabindex]="tabIndexOf(item.key)"
+          [attr.aria-label]="item.ariaLabel"
+          [attr.aria-current]="item.selected ? 'true' : null"
+          [class.selected]="item.selected"
+          [class.hovered]="item.hovered"
+          (click)="activate(item.key)"
+          (keydown)="onKeydown($event, item.key)"
+          (focus)="onFocus(item.key)"
+          (blur)="onBlur()"
+          (mouseenter)="hover(item.key)"
+          (mouseleave)="hover(null)"
+        >
+          @if (item.symbol; as symbol) {
+            <rect
+              class="hit"
+              [attr.x]="item.x - 19"
+              [attr.y]="item.y - 19"
+              width="38"
+              height="38"
+              rx="5"
+            />
+            <g [attr.transform]="'translate(' + item.x + ' ' + item.y + ')'">
+              <path class="stub" [attr.d]="symbol.stubs" />
+              <path class="blade" [attr.d]="symbol.blade" />
+              <path class="contact" [attr.d]="symbol.contact" />
+            </g>
+          }
+          @if (item.earthing; as earthing) {
+            <rect
+              class="hit"
+              [attr.x]="item.x - 15"
+              [attr.y]="item.y - 7"
+              width="30"
+              height="36"
+              rx="5"
+            />
+            <g [attr.transform]="'translate(' + item.x + ' ' + item.y + ')'">
+              <path class="blade" [attr.d]="earthing.blade" />
+              <path class="ground" [attr.d]="earthing.ground" />
+            </g>
+          }
+        </g>
+      }
+
+      @for (terminal of diagram.terminals; track terminal.key) {
+        <g
+          class="item terminal"
+          role="button"
+          [attr.data-key]="terminal.key"
+          [attr.data-sld-terminal]="terminal.bay"
+          [attr.data-condition]="terminal.condition"
+          [attr.tabindex]="tabIndexOf(terminal.key)"
+          [attr.aria-label]="terminal.ariaLabel"
+          [attr.aria-current]="terminal.selected ? 'true' : null"
+          [class.selected]="terminal.selected"
+          [class.hovered]="terminal.hovered"
+          [class.overloaded]="terminal.overloaded"
+          (click)="activate(terminal.key)"
+          (keydown)="onKeydown($event, terminal.key)"
+          (focus)="onFocus(terminal.key)"
+          (blur)="onBlur()"
+          (mouseenter)="hover(terminal.key)"
+          (mouseleave)="hover(null)"
+        >
+          <rect
+            class="hit"
+            [attr.x]="terminal.x - 19"
+            [attr.y]="terminal.y - 2"
+            width="38"
+            height="36"
+            rx="5"
+          />
+          <g [attr.transform]="'translate(' + terminal.x + ' ' + terminal.y + ')'">
+            @if (terminal.symbol.outline) {
+              <path
+                class="terminal-shape"
+                [class.filled]="terminal.symbol.filled"
+                [attr.d]="terminal.symbol.outline"
+              />
+            }
+            @for (circle of terminal.symbol.circles; track $index) {
+              <circle
+                class="terminal-shape"
+                [attr.cx]="circle.cx"
+                [attr.cy]="circle.cy"
+                [attr.r]="circle.r"
+              />
+            }
+          </g>
+        </g>
+      }
+
+      <g class="labels" aria-hidden="true">
+        @for (busbar of diagram.busbars; track busbar.key) {
+          <text
+            class="busbar-label"
+            [attr.x]="busbar.x1 - 12"
+            [attr.y]="busbar.y - 2"
+            text-anchor="end"
+          >
+            {{ busbar.name }}
+          </text>
+          <text
+            class="busbar-sub"
+            [attr.x]="busbar.x1 - 12"
+            [attr.y]="busbar.y + 12"
+            text-anchor="end"
+          >
+            bus {{ busbar.bus }}
+          </text>
+        }
+        @for (item of diagram.switches; track item.key) {
+          <text
+            class="switch-label"
+            [attr.x]="item.labelX"
+            [attr.y]="item.labelY"
+            [attr.text-anchor]="item.labelAnchor"
+          >
+            {{ item.shortName }}
+          </text>
+        }
+        @for (terminal of diagram.terminals; track terminal.key) {
+          @for (line of terminal.readout; track $index) {
+            <text
+              class="readout"
+              [class.overload]="terminal.overloaded"
+              [attr.x]="terminal.x + 22"
+              [attr.y]="terminal.y + 14 + $index * 14"
+            >
+              {{ line }}{{ $index === 1 && terminal.overloaded ? ' !' : '' }}
+            </text>
+          }
+        }
+        @for (caption of diagram.captions; track caption.bay) {
+          <text class="caption" [attr.x]="caption.x" [attr.y]="caption.y" text-anchor="middle">
+            @for (line of caption.lines; track $index) {
+              <tspan
+                [attr.x]="caption.x"
+                [attr.dy]="$index === 0 ? 0 : 14"
+                [class.bay-id]="$index === 0"
+              >
+                {{ line }}
+              </tspan>
+            }
+            <tspan class="status" [attr.x]="caption.x" dy="15">{{ caption.status }}</tspan>
+          </text>
+        }
+      </g>
+    </svg>
+  } @else {
+    <p class="muted">
+      @if (store.caseDetail() === null) {
+        Loading the diagram.
+      } @else {
+        This network has no substation drawing.
+      }
+    </p>
+  }
+</section>

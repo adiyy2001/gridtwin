@@ -11,6 +11,10 @@ const logicFiles = [
   'src/app/shared/sorting.ts',
   'src/app/panels/n1-sorting.ts',
   'src/app/panels/inspector-model.ts',
+  'src/app/sld/keyboard.ts',
+  'src/app/sld/layout.ts',
+  'src/app/sld/state-model.ts',
+  'src/app/sld/symbols.ts',
 ];
 
 const logicThresholds = Object.fromEntries(

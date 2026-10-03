@@ -1,0 +1,153 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.swatch {
+  display: inline-block;
+  width: 22px;
+  height: 0;
+  margin-right: 6px;
+  vertical-align: middle;
+  border-top: 3px solid var(--sld-energized);
+}
+
+.swatch.deenergized {
+  border-top: 3px dashed var(--sld-deenergized);
+}
+
+.swatch.earthed {
+  border-top: 3px dotted var(--sld-earthed);
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.diagram {
+  width: 100%;
+  height: auto;
+  max-height: 640px;
+  display: block;
+  font-size: 12px;
+}
+
+[data-condition='ENERGIZED'] {
+  --sld-colour: var(--sld-energized);
+  --sld-dash: none;
+}
+
+[data-condition='DEENERGIZED'] {
+  --sld-colour: var(--sld-deenergized);
+  --sld-dash: 7 5;
+}
+
+[data-condition='EARTHED'] {
+  --sld-colour: var(--sld-earthed);
+  --sld-dash: 1.5 5;
+}
+
+.wire,
+.bar,
+.stub,
+.blade,
+.contact,
+.ground,
+.terminal-shape {
+  fill: none;
+  stroke: var(--sld-colour);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.wire {
+  stroke-dasharray: var(--sld-dash);
+}
+
+.bar {
+  stroke-width: 6;
+  stroke-linecap: butt;
+  stroke-dasharray: var(--sld-dash);
+}
+
+.blade {
+  stroke-width: 3;
+}
+
+.terminal-shape.filled {
+  fill: var(--sld-colour);
+}
+
+.junction {
+  fill: var(--sld-colour);
+}
+
+.hit {
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 2;
+  cursor: pointer;
+}
+
+.item:hover .hit,
+.item.hovered .hit {
+  fill: rgb(18 66 127 / 10%);
+}
+
+.item.selected .hit {
+  fill: rgb(18 66 127 / 14%);
+  stroke: var(--accent);
+}
+
+.item:focus {
+  outline: none;
+}
+
+.item:focus-visible .hit {
+  stroke: var(--focus);
+  stroke-width: 3;
+}
+
+.item.overloaded .terminal-shape {
+  stroke: var(--danger);
+}
+
+.busbar-label,
+.caption .bay-id {
+  font-weight: 600;
+  fill: var(--text);
+}
+
+.busbar-sub,
+.switch-label,
+.status {
+  fill: var(--text-muted);
+}
+
+.readout {
+  fill: var(--text);
+  font-size: 11px;
+}
+
+.readout.overload {
+  fill: var(--danger);
+  font-weight: 700;
+}
+
+.caption {
+  fill: var(--text);
+}

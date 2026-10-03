@@ -10,6 +10,7 @@ import { LoadSlider } from './panels/load-slider';
 import { N1Table } from './panels/n1-table';
 import { StatusBar } from './panels/status-bar';
 import { SummaryBar } from './panels/summary-bar';
+import { SingleLineDiagram } from './sld/sld';
 
 @Component({
   selector: 'gt-root',
@@ -20,6 +21,7 @@ import { SummaryBar } from './panels/summary-bar';
     LoadSlider,
     N1Table,
     NetworkView,
+    SingleLineDiagram,
     StatusBar,
     SummaryBar,
   ],

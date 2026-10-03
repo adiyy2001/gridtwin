@@ -11,6 +11,9 @@
   --ok: #1f7a43;
   --warn: #8a5a00;
   --danger: #b3261e;
+  --sld-energized: #0b5cad;
+  --sld-deenergized: #6b7280;
+  --sld-earthed: #7a3ea1;
   --radius: 8px;
   --gap: 12px;
   font-family:

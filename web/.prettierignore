@@ -1,0 +1,4 @@
+src/app/model/api-schema.ts
+coverage
+dist
+.angular

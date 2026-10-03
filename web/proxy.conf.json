@@ -1,0 +1,15 @@
+{
+  "/api": {
+    "target": "http://127.0.0.1:18480",
+    "secure": false
+  },
+  "/q": {
+    "target": "http://127.0.0.1:18480",
+    "secure": false
+  },
+  "/ws": {
+    "target": "ws://127.0.0.1:18480",
+    "ws": true,
+    "secure": false
+  }
+}

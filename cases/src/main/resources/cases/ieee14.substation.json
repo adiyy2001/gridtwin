@@ -1,0 +1,445 @@
+{
+  "id": "ieee14-bus4",
+  "name": "Bus 4 double busbar substation (fictional)",
+  "note": "Invented arrangement that replaces bus 4 of the IEEE 14-bus case. It does not describe any real installation.",
+  "bus": 4,
+  "baseKv": 132,
+  "busbars": [
+    {
+      "node": "BB1",
+      "bus": 4,
+      "name": "Busbar 1",
+      "row": 0
+    },
+    {
+      "node": "BB2",
+      "bus": 40,
+      "name": "Busbar 2",
+      "row": 1
+    }
+  ],
+  "nodes": [
+    {
+      "id": "BB1"
+    },
+    {
+      "id": "BB2"
+    },
+    {
+      "id": "L2-4.A"
+    },
+    {
+      "id": "L2-4.B"
+    },
+    {
+      "id": "L2-4.T"
+    },
+    {
+      "id": "L3-4.A"
+    },
+    {
+      "id": "L3-4.B"
+    },
+    {
+      "id": "L3-4.T"
+    },
+    {
+      "id": "L4-5.A"
+    },
+    {
+      "id": "L4-5.B"
+    },
+    {
+      "id": "L4-5.T"
+    },
+    {
+      "id": "T4-7.A"
+    },
+    {
+      "id": "T4-7.B"
+    },
+    {
+      "id": "T4-7.T"
+    },
+    {
+      "id": "T4-9.A"
+    },
+    {
+      "id": "T4-9.B"
+    },
+    {
+      "id": "T4-9.T"
+    },
+    {
+      "id": "LOAD.A"
+    },
+    {
+      "id": "LOAD.B"
+    },
+    {
+      "id": "LOAD.T"
+    },
+    {
+      "id": "CPL.A"
+    },
+    {
+      "id": "CPL.B"
+    }
+  ],
+  "bays": [
+    {
+      "id": "L2-4",
+      "name": "Line to bus 2",
+      "kind": "FEEDER",
+      "column": 0,
+      "terminal": {
+        "node": "L2-4.T",
+        "kind": "BRANCH",
+        "equipment": "L2-4"
+      }
+    },
+    {
+      "id": "L3-4",
+      "name": "Line to bus 3",
+      "kind": "FEEDER",
+      "column": 1,
+      "terminal": {
+        "node": "L3-4.T",
+        "kind": "BRANCH",
+        "equipment": "L3-4"
+      }
+    },
+    {
+      "id": "L4-5",
+      "name": "Line to bus 5",
+      "kind": "FEEDER",
+      "column": 2,
+      "terminal": {
+        "node": "L4-5.T",
+        "kind": "BRANCH",
+        "equipment": "L4-5"
+      }
+    },
+    {
+      "id": "CPL",
+      "name": "Bus coupler",
+      "kind": "COUPLER",
+      "column": 3
+    },
+    {
+      "id": "T4-7",
+      "name": "Transformer to bus 7",
+      "kind": "FEEDER",
+      "column": 4,
+      "terminal": {
+        "node": "T4-7.T",
+        "kind": "BRANCH",
+        "equipment": "T4-7"
+      }
+    },
+    {
+      "id": "T4-9",
+      "name": "Transformer to bus 9",
+      "kind": "FEEDER",
+      "column": 5,
+      "terminal": {
+        "node": "T4-9.T",
+        "kind": "BRANCH",
+        "equipment": "T4-9"
+      }
+    },
+    {
+      "id": "LOAD",
+      "name": "Load feeder",
+      "kind": "FEEDER",
+      "column": 6,
+      "terminal": {
+        "node": "LOAD.T",
+        "kind": "LOAD",
+        "equipment": ""
+      }
+    }
+  ],
+  "switches": [
+    {
+      "id": "L2-4.QB1",
+      "kind": "DISCONNECTOR",
+      "bay": "L2-4",
+      "from": "BB1",
+      "to": "L2-4.A",
+      "position": "OPEN"
+    },
+    {
+      "id": "L2-4.QB2",
+      "kind": "DISCONNECTOR",
+      "bay": "L2-4",
+      "from": "BB2",
+      "to": "L2-4.A",
+      "position": "CLOSED"
+    },
+    {
+      "id": "L2-4.QA1",
+      "kind": "BREAKER",
+      "bay": "L2-4",
+      "from": "L2-4.A",
+      "to": "L2-4.B",
+      "position": "CLOSED"
+    },
+    {
+      "id": "L2-4.QB9",
+      "kind": "DISCONNECTOR",
+      "bay": "L2-4",
+      "from": "L2-4.B",
+      "to": "L2-4.T",
+      "position": "CLOSED"
+    },
+    {
+      "id": "L2-4.QE1",
+      "kind": "EARTHING_SWITCH",
+      "bay": "L2-4",
+      "from": "L2-4.T",
+      "to": "EARTH",
+      "position": "OPEN"
+    },
+    {
+      "id": "L3-4.QB1",
+      "kind": "DISCONNECTOR",
+      "bay": "L3-4",
+      "from": "BB1",
+      "to": "L3-4.A",
+      "position": "CLOSED"
+    },
+    {
+      "id": "L3-4.QB2",
+      "kind": "DISCONNECTOR",
+      "bay": "L3-4",
+      "from": "BB2",
+      "to": "L3-4.A",
+      "position": "OPEN"
+    },
+    {
+      "id": "L3-4.QA1",
+      "kind": "BREAKER",
+      "bay": "L3-4",
+      "from": "L3-4.A",
+      "to": "L3-4.B",
+      "position": "CLOSED"
+    },
+    {
+      "id": "L3-4.QB9",
+      "kind": "DISCONNECTOR",
+      "bay": "L3-4",
+      "from": "L3-4.B",
+      "to": "L3-4.T",
+      "position": "CLOSED"
+    },
+    {
+      "id": "L3-4.QE1",
+      "kind": "EARTHING_SWITCH",
+      "bay": "L3-4",
+      "from": "L3-4.T",
+      "to": "EARTH",
+      "position": "OPEN"
+    },
+    {
+      "id": "L4-5.QB1",
+      "kind": "DISCONNECTOR",
+      "bay": "L4-5",
+      "from": "BB1",
+      "to": "L4-5.A",
+      "position": "CLOSED"
+    },
+    {
+      "id": "L4-5.QB2",
+      "kind": "DISCONNECTOR",
+      "bay": "L4-5",
+      "from": "BB2",
+      "to": "L4-5.A",
+      "position": "OPEN"
+    },
+    {
+      "id": "L4-5.QA1",
+      "kind": "BREAKER",
+      "bay": "L4-5",
+      "from": "L4-5.A",
+      "to": "L4-5.B",
+      "position": "CLOSED"
+    },
+    {
+      "id": "L4-5.QB9",
+      "kind": "DISCONNECTOR",
+      "bay": "L4-5",
+      "from": "L4-5.B",
+      "to": "L4-5.T",
+      "position": "CLOSED"
+    },
+    {
+      "id": "L4-5.QE1",
+      "kind": "EARTHING_SWITCH",
+      "bay": "L4-5",
+      "from": "L4-5.T",
+      "to": "EARTH",
+      "position": "OPEN"
+    },
+    {
+      "id": "T4-7.QB1",
+      "kind": "DISCONNECTOR",
+      "bay": "T4-7",
+      "from": "BB1",
+      "to": "T4-7.A",
+      "position": "OPEN"
+    },
+    {
+      "id": "T4-7.QB2",
+      "kind": "DISCONNECTOR",
+      "bay": "T4-7",
+      "from": "BB2",
+      "to": "T4-7.A",
+      "position": "CLOSED"
+    },
+    {
+      "id": "T4-7.QA1",
+      "kind": "BREAKER",
+      "bay": "T4-7",
+      "from": "T4-7.A",
+      "to": "T4-7.B",
+      "position": "CLOSED"
+    },
+    {
+      "id": "T4-7.QB9",
+      "kind": "DISCONNECTOR",
+      "bay": "T4-7",
+      "from": "T4-7.B",
+      "to": "T4-7.T",
+      "position": "CLOSED"
+    },
+    {
+      "id": "T4-7.QE1",
+      "kind": "EARTHING_SWITCH",
+      "bay": "T4-7",
+      "from": "T4-7.T",
+      "to": "EARTH",
+      "position": "OPEN"
+    },
+    {
+      "id": "T4-9.QB1",
+      "kind": "DISCONNECTOR",
+      "bay": "T4-9",
+      "from": "BB1",
+      "to": "T4-9.A",
+      "position": "OPEN"
+    },
+    {
+      "id": "T4-9.QB2",
+      "kind": "DISCONNECTOR",
+      "bay": "T4-9",
+      "from": "BB2",
+      "to": "T4-9.A",
+      "position": "CLOSED"
+    },
+    {
+      "id": "T4-9.QA1",
+      "kind": "BREAKER",
+      "bay": "T4-9",
+      "from": "T4-9.A",
+      "to": "T4-9.B",
+      "position": "CLOSED"
+    },
+    {
+      "id": "T4-9.QB9",
+      "kind": "DISCONNECTOR",
+      "bay": "T4-9",
+      "from": "T4-9.B",
+      "to": "T4-9.T",
+      "position": "CLOSED"
+    },
+    {
+      "id": "T4-9.QE1",
+      "kind": "EARTHING_SWITCH",
+      "bay": "T4-9",
+      "from": "T4-9.T",
+      "to": "EARTH",
+      "position": "OPEN"
+    },
+    {
+      "id": "LOAD.QB1",
+      "kind": "DISCONNECTOR",
+      "bay": "LOAD",
+      "from": "BB1",
+      "to": "LOAD.A",
+      "position": "OPEN"
+    },
+    {
+      "id": "LOAD.QB2",
+      "kind": "DISCONNECTOR",
+      "bay": "LOAD",
+      "from": "BB2",
+      "to": "LOAD.A",
+      "position": "CLOSED"
+    },
+    {
+      "id": "LOAD.QA1",
+      "kind": "BREAKER",
+      "bay": "LOAD",
+      "from": "LOAD.A",
+      "to": "LOAD.B",
+      "position": "CLOSED"
+    },
+    {
+      "id": "LOAD.QB9",
+      "kind": "DISCONNECTOR",
+      "bay": "LOAD",
+      "from": "LOAD.B",
+      "to": "LOAD.T",
+      "position": "CLOSED"
+    },
+    {
+      "id": "LOAD.QE1",
+      "kind": "EARTHING_SWITCH",
+      "bay": "LOAD",
+      "from": "LOAD.T",
+      "to": "EARTH",
+      "position": "OPEN"
+    },
+    {
+      "id": "CPL.QB1",
+      "kind": "DISCONNECTOR",
+      "bay": "CPL",
+      "from": "BB1",
+      "to": "CPL.A",
+      "position": "CLOSED"
+    },
+    {
+      "id": "CPL.QA1",
+      "kind": "BREAKER",
+      "bay": "CPL",
+      "from": "CPL.A",
+      "to": "CPL.B",
+      "position": "CLOSED"
+    },
+    {
+      "id": "CPL.QB2",
+      "kind": "DISCONNECTOR",
+      "bay": "CPL",
+      "from": "CPL.B",
+      "to": "BB2",
+      "position": "CLOSED"
+    },
+    {
+      "id": "CPL.QE1",
+      "kind": "EARTHING_SWITCH",
+      "bay": "CPL",
+      "from": "CPL.A",
+      "to": "EARTH",
+      "position": "OPEN"
+    },
+    {
+      "id": "CPL.QE2",
+      "kind": "EARTHING_SWITCH",
+      "bay": "CPL",
+      "from": "CPL.B",
+      "to": "EARTH",
+      "position": "OPEN"
+    }
+  ]
+}

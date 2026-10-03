@@ -7,7 +7,9 @@ import dev.gridtwin.domain.model.Generator;
 import dev.gridtwin.domain.model.Load;
 import dev.gridtwin.domain.model.Network;
 import dev.gridtwin.domain.model.Shunt;
+import dev.gridtwin.domain.topology.Substation;
 import java.util.List;
+import java.util.Optional;
 
 record CaseDocument(
         String id,
@@ -21,7 +23,7 @@ record CaseDocument(
         List<BranchRow> branches,
         List<BusPosition> layout) {
 
-    CaseData toCaseData() {
+    CaseData toCaseData(Optional<Substation> substation) {
         Network network =
                 new Network(
                         this.id,
@@ -31,7 +33,7 @@ record CaseDocument(
                         this.shunts.stream().map(ShuntRow::toShunt).toList(),
                         this.generators.stream().map(GeneratorRow::toGenerator).toList(),
                         this.branches.stream().map(BranchRow::toBranch).toList());
-        return new CaseData(this.id, this.title, this.provenance, network, this.layout);
+        return new CaseData(this.id, this.title, this.provenance, network, this.layout, substation);
     }
 
     record BusRow(

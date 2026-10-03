@@ -69,7 +69,7 @@ settle() {
     node "$ROOT/tools/reference/compare.mjs" "$destination" "$staged"
   else
     mkdir -p "$destination"
-    find "$destination" -maxdepth 1 -name '*.json' -delete
+    find "$destination" -maxdepth 1 -name '*.json' ! -name '*.substation.json' -delete
     cp "$staged"/*.json "$destination"/
     echo "wrote $(find "$destination" -maxdepth 1 -name '*.json' | wc -l) files to ${destination#"$ROOT"/}"
   fi

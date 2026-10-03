@@ -48,3 +48,9 @@ test('a file that exists on one side only is a problem', () => {
     'new.json: regenerated but not committed',
   ]);
 });
+
+test('hand-written substation files are not part of the comparison', () => {
+  const committed = directoryWith({ 'a.json': { v: 1 }, 'a.substation.json': { nodes: [] } });
+  const regenerated = directoryWith({ 'a.json': { v: 1 } });
+  assert.deepEqual(compareDirectories(committed, regenerated), { checked: 1, problems: [] });
+});

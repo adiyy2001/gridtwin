@@ -35,8 +35,12 @@ function isObject(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+const HAND_WRITTEN = /\.substation\.json$/;
+
 function jsonFiles(directory) {
-  return readdirSync(directory).filter((name) => name.endsWith('.json')).sort();
+  return readdirSync(directory)
+    .filter((name) => name.endsWith('.json') && !HAND_WRITTEN.test(name))
+    .sort();
 }
 
 export function compareDirectories(committedDirectory, regeneratedDirectory) {

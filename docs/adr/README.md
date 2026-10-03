@@ -19,3 +19,4 @@ Each record has four parts: context, decision, alternatives and consequences. Re
 | [0013](0013-three-js-with-webglrenderer.md) | Three.js with WebGLRenderer |
 | [0014](0014-dependency-license-policy.md) | Dependency license policy and the JMH decision |
 | [0015](0015-toolchain-pins.md) | Toolchain pins |
+| [0016](0016-build-gates-and-toolchain-findings-from-the-skeleton.md) | Build gates and toolchain findings from the skeleton |

@@ -18,6 +18,7 @@ import dev.gridtwin.domain.topology.NetworkTopology;
 import dev.gridtwin.domain.topology.TopologySource;
 import dev.gridtwin.domain.twin.GridModel;
 import dev.gridtwin.domain.twin.GridSolution;
+import dev.gridtwin.domain.twin.IslandState;
 import dev.gridtwin.domain.twin.TwinSolver;
 import dev.gridtwin.domain.twin.TwinState;
 import dev.gridtwin.validation.contingency.N1Reference.OutageSolution;
@@ -40,10 +41,10 @@ class ContingencyAgainstMatpowerTest {
 
     static Stream<Arguments> referenceFiles() {
         return Stream.of(
-                Arguments.of("ieee14", "plain", 24),
-                Arguments.of("ieee14", "qlim", 23),
-                Arguments.of("ieee30", "plain", 44),
-                Arguments.of("ieee30", "qlim", 43));
+                Arguments.of("ieee14", "plain", 25),
+                Arguments.of("ieee14", "qlim", 24),
+                Arguments.of("ieee30", "plain", 47),
+                Arguments.of("ieee30", "qlim", 46));
     }
 
     static Stream<Arguments> substationFiles() {
@@ -72,7 +73,7 @@ class ContingencyAgainstMatpowerTest {
         ContingencyReport report = analyse(solver, source, solver.solve(source.topology()));
 
         List<OutageSolution> solved =
-                reference.outages().stream().filter(OutageSolution::solved).toList();
+                reference.outages().stream().filter(OutageSolution::hasSolution).toList();
         assertThat(solved).hasSize(solvedCount);
         for (OutageSolution expected : solved) {
             ContingencyResult actual = report.find(expected.outageId()).orElseThrow();
@@ -95,7 +96,7 @@ class ContingencyAgainstMatpowerTest {
         ContingencyReport report = analyse(solver, state, solver.solve(state).grid());
 
         for (OutageSolution expected : reference.outages()) {
-            if (expected.solved()) {
+            if (expected.hasSolution()) {
                 compare(expected, report.find(expected.outageId()).orElseThrow().solution());
             }
         }
@@ -103,24 +104,40 @@ class ContingencyAgainstMatpowerTest {
 
     @ParameterizedTest(name = "{0} ({1})")
     @MethodSource("referenceFiles")
-    void outagesThatIslandTheNetworkAreSplitIntoIslandsHere(
+    void outagesThatIslandTheNetworkLeaveTheCutOffBusesInTheirOwnIslands(
             String caseId, String variant, int solvedCount) {
         N1Reference reference = N1References.load(caseId, variant);
         TwinSolver solver = solverFor(reference.enforceQLimits());
         NetworkTopology source = new NetworkTopology(CaseLoader.load(caseId).network());
         ContingencyReport report = analyse(solver, source, solver.solve(source.topology()));
+        var network = CaseLoader.load(caseId).network();
 
-        reference.outages().stream()
-                .filter(outage -> outage.status().equals("islanded"))
-                .forEach(
-                        outage ->
-                                assertThat(
-                                                report.find(outage.outageId())
-                                                        .orElseThrow()
-                                                        .solution()
-                                                        .islands())
-                                        .as(outage.outageId())
-                                        .hasSizeGreaterThan(1));
+        List<OutageSolution> islanding =
+                reference.outages().stream()
+                        .filter(outage -> outage.status().equals("islanded"))
+                        .toList();
+
+        assertThat(islanding).isNotEmpty();
+        for (OutageSolution outage : islanding) {
+            GridSolution solution = report.find(outage.outageId()).orElseThrow().solution();
+            assertThat(solution.islands()).as(outage.outageId()).hasSize(2);
+            for (int bus : outage.unreachable()) {
+                var island = solution.islandOf(bus).orElseThrow();
+                boolean hasGenerator =
+                        network.generators().stream().anyMatch(generator -> generator.bus() == bus);
+                double load =
+                        network.loads().stream()
+                                .filter(candidate -> candidate.bus() == bus)
+                                .mapToDouble(candidate -> candidate.activePowerMw())
+                                .sum();
+                assertThat(island.state() == IslandState.ENERGIZED)
+                        .as("%s island of bus %d is energized", outage.outageId(), bus)
+                        .isEqualTo(hasGenerator);
+                assertThat(island.shedLoadMw())
+                        .as("%s load shed at bus %d", outage.outageId(), bus)
+                        .isCloseTo(hasGenerator ? 0.0 : load, within(1e-9));
+            }
+        }
     }
 
     @ParameterizedTest(name = "{0}")
@@ -181,9 +198,12 @@ class ContingencyAgainstMatpowerTest {
                     .as("%s P to of %s", name, branch.id())
                     .isCloseTo(branch.pToMw(), within(FLOW_TOLERANCE_MW));
         }
-        for (int index = 0; index < expected.generators().size(); index++) {
-            GeneratorSolution generator = expected.generators().get(index);
-            GeneratorResult result = actual.generators().get(index);
+        for (GeneratorSolution generator : expected.generators()) {
+            GeneratorResult result =
+                    actual.generators().stream()
+                            .filter(candidate -> candidate.bus() == generator.bus())
+                            .findFirst()
+                            .orElseThrow();
             assertThat(result.activeMw())
                     .as("%s P of the generator at bus %d", name, generator.bus())
                     .isCloseTo(generator.pMw(), within(GENERATION_TOLERANCE_MW));

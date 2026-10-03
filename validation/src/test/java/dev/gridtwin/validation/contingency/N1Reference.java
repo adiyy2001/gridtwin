@@ -31,6 +31,7 @@ public record N1Reference(
             String kind,
             String id,
             String status,
+            List<Integer> unreachableBuses,
             Integer referenceBus,
             Integer iterations,
             Double totalLoadMw,
@@ -42,6 +43,14 @@ public record N1Reference(
 
         public boolean solved() {
             return this.status.equals("solved");
+        }
+
+        public boolean hasSolution() {
+            return this.buses != null;
+        }
+
+        public List<Integer> unreachable() {
+            return this.unreachableBuses == null ? List.of() : this.unreachableBuses;
         }
 
         public String outageId() {

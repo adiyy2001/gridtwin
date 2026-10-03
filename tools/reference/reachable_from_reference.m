@@ -1,4 +1,4 @@
-function connected = connected_from_reference(mpc)
+function reachable = reachable_from_reference(mpc)
   define_constants;
   buses = mpc.bus(:, BUS_I);
   reachable = false(rows(buses), 1);
@@ -16,5 +16,4 @@ function connected = connected_from_reference(mpc)
       end
     end
   end
-  connected = all(reachable);
 end

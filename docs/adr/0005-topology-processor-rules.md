@@ -4,7 +4,7 @@ Status: accepted
 
 ## Context
 
-Bus 4 of IEEE 14 is replaced by a node-breaker substation. A topology processor has to turn switch states into the bus-branch model the power flow understands. The rules for what counts as energized, which generator takes the slack role and what a half-open branch means are not in the brief, so they are written down here before any code exists.
+Bus 4 of IEEE 14 is replaced by a node-breaker substation. A topology processor has to turn switch states into the bus-branch model the power flow understands. The rules for what counts as energized, which generator takes the slack role and what a half-open branch means are not given by the requirements, so they are written down here before any code exists.
 
 ## Decision
 
@@ -25,7 +25,7 @@ Interlocks. A switching command is refused with a machine-readable reason and a 
 
 ## Alternatives
 
-Keeping the charging current of an open-ended line is physically right. It also needs a branch model with one end open, which the solver otherwise has no use for, and the brief asks for the line to show as de-energized.
+Keeping the charging current of an open-ended line is physically right. It also needs a branch model with one end open, which the solver otherwise has no use for, and a line with an open breaker is meant to show as de-energized.
 
 Distributed slack, or choosing the slack by a user setting, adds options the educational model does not need.
 
@@ -33,7 +33,7 @@ Distributed slack, or choosing the slack by a user setting, adds options the edu
 
 Two islands that each contain a generator both energize, and each picks its own slack. An island that lost its only generator goes dark even when its loads are large. This is the behaviour the cascade replay relies on.
 
-## Implementation notes from milestone 3
+## Implementation notes
 
 The rules above are implemented in `dev.gridtwin.domain.topology` (processor, interlocks) and `dev.gridtwin.domain.twin` (state, per-island solver). The fictional substation is data, in `cases/src/main/resources/cases/ieee14.substation.json`: 22 nodes, 35 switches, six feeder bays and the coupler.
 
@@ -45,5 +45,5 @@ Things the first version of this record left open:
 - Live sections. An energized island makes every node set connected to it live. A set without a busbar is also live when it holds the terminal of a branch whose own status is on and whose far end is in an energized island, or the terminal of a generator that is in service with a positive Pmax. This is what refuses an earthing switch on a line that is open at the breaker but still fed from the other end.
 - Interlocks. The disconnector rule applies to opening and to closing, and the coupler bay follows its own breaker. Closing a breaker or a disconnector is refused when one side is earthed and the other is live, in either order. Closing a switch whose two ends are already in one node set is accepted. Operating a switch that already has the requested position is accepted without a change. Two energized islands can be joined without a synchronism check, which is out of scope. Refusals are a sealed interface with the codes `UNKNOWN_SWITCH`, `BREAKER_CLOSED`, `SECTION_ENERGIZED` and `EARTHED_SECTION_WOULD_BE_ENERGIZED`, each with a readable message.
 - Islands. Islands are numbered `I1`, `I2` and so on by their lowest bus. Each energized island gets its own `Network` with exactly one reference bus (the slack), PV buses where an in-service generator sits, and PQ buses elsewhere. `PowerFlow` solves each one, with the warm start of the previous solution (keyed by bus number, so merged and split buses are fine). A collapsed island reports its own collapse and sheds its load. The others are solved as usual.
-- Solver tolerance. `TwinSolver.standard()` iterates to a mismatch of 1e-10 pu instead of the 1e-8 of the brief. The reason is the open and close property: with 1e-8 a roundtrip differed by up to 1.04e-9 in one of 3000 random sequences, because Newton stops at the first iterate below the tolerance and the state error is about the mismatch divided by the Jacobian. At 1e-10 the roundtrip agrees to 1e-9 in 9000 random sequences. The 1e-8 limit stays the default of `PowerFlow` and is what the MATPOWER validation uses.
+- Solver tolerance. `TwinSolver.standard()` iterates to a mismatch of 1e-10 pu instead of the specified 1e-8. The reason is the open and close property: with 1e-8 a roundtrip differed by up to 1.04e-9 in one of 3000 random sequences, because Newton stops at the first iterate below the tolerance and the state error is about the mismatch divided by the Jacobian. At 1e-10 the roundtrip agrees to 1e-9 in 9000 random sequences. The 1e-8 limit stays the default of `PowerFlow` and is what the MATPOWER validation uses.
 - Load factor. `TwinState` accepts 0.5 to 1.5, the range of the slider.

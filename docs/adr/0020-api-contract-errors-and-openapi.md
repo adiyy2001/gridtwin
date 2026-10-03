@@ -4,7 +4,7 @@ Status: accepted
 
 ## Context
 
-The web client in M6 is generated from the API description, so the description has to be exact: which fields are always present, which are optional, and which errors a call can return. The contract also has to stay honest as the code changes.
+The web client is generated from the API description, so the description has to be exact: which fields are always present, which are optional, and which errors a call can return. The contract also has to stay honest as the code changes.
 
 ## Decision
 
@@ -16,6 +16,10 @@ The web client in M6 is generated from the API description, so the description h
 - The schema is generated at build time, post-processed by a small `OASFilter` that marks every non-optional property as required, and compared with `docs/api/openapi.json` by a test. A difference fails the build. `tools/gen-api-types.sh --refresh` regenerates the file (`-Dgridtwin.openapi.update=true`) and then the TypeScript types with `openapi-typescript` 7.13.0.
 - Coverage is measured with the JaCoCo Maven plugin only. Adding `quarkus-jacoco` on top wrote a second, empty report into the same folder, so the extension is left out and the plugin attaches to the test JVM that Quarkus starts.
 - Architecture rules (ArchUnit) fail the build when the domain imports an adapter or a framework, or when the adapters depend on each other in the wrong direction.
+
+## Alternatives
+
+Writing the OpenAPI file first and generating the server from it would make the contract the source of truth, at the price of generated server code that fights the hexagonal layout. Writing the TypeScript types by hand is quick and drifts silently the first time a field changes. Returning domain types from the resources would save the DTO records and tie the contract to every refactor of the model. Serializing empty optionals as `null` is the Jackson default for many setups, and it makes every optional field nullable in the generated types.
 
 ## Consequences
 

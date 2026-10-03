@@ -18,8 +18,8 @@ When WebGL is not available the 3D panel shows a message and the rest of the app
 
 ## Alternatives
 
-`WebGPURenderer` is the direction of the library. It is not needed by anything in the brief, it cannot be verified widely on this machine and it would make the screenshot job depend on a software adapter that may not exist in CI.
+`WebGPURenderer` is the direction of the library. Nothing in the project needs it, it cannot be verified widely on this machine and it would make the screenshot job depend on a software adapter that may not exist in CI.
 
 ## Consequences
 
-Frame rates measured here come from a software renderer and say nothing about an integrated GPU. The 60 fps target is measured by `bench/web/fps.mjs` on Adrian's machine, and the README states which numbers came from where.
+Frame rates measured here come from a software renderer and say nothing about an integrated GPU. The 60 fps target is measured by `bench/web/fps.mjs` on a machine with a real GPU, and the README states which numbers came from where.

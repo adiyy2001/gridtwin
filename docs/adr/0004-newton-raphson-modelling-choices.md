@@ -22,13 +22,13 @@ The solver has to reproduce MATPOWER to 1e-6 pu in voltage magnitude and 1e-4 de
 
 Distributed slack would spread the imbalance over several generators. It is closer to operation practice and it is further from the reference data.
 
-A rectangular formulation avoids trigonometric functions. The brief asks for polar form.
+A rectangular formulation avoids trigonometric functions. The solver is specified in polar form.
 
 ## Consequences
 
 The solver follows MATPOWER's conventions, and the validation suite checks that it reaches the same numbers. It does not model reactive limits that relax again after a load decrease, so a generator that hit its limit at 150% load stays a PQ bus in that solve. Each solve starts from the topology it is given, so moving the load slider back down starts a fresh solve.
 
-## Implementation notes from milestone 2
+## Implementation notes
 
 The validation suite (`MatpowerComparisonTest`) matches the references at load factors 0.5, 1.0, 1.2 and 1.5, with and without reactive limits, for both cases. Voltage magnitudes agree to 1e-6 pu and angles to 1e-4 degrees, as required, and so do branch flows, generator outputs, which generators sit at a limit and the losses. No tolerance had to be widened, including IEEE 30 at 150% with Q limits (lowest voltage 0.7072 pu).
 
@@ -43,4 +43,4 @@ Details the first version of this ADR left open:
 - Branch currents in kA use the base voltage of the bus at each end.
 - The synthetic ratings of ADR 0006 follow from the solution without reactive limits. IEEE 30 has a generator at its limit in the base case, so the limited solution would give other flows and other ratings.
 - A warm start is a hint. Buses missing from it take the angle of a neighbour that has one. If the warm-started run fails, or converges to a solution with a bus below 0.5 pu, the power flow runs again from a flat start and returns that result when it converges. The reason is a property test on random, heavily loaded networks: restoring a branch from the solution of its outage twice ended on the second, low-voltage root of the power flow equations (about 0.4 pu) while the flat start found the operating point. Below 0.5 pu a solution is treated as the non-physical root. The threshold is a heuristic, not a proof, and it does not change results above it.
-- The twin solves with a tolerance of 1e-10 so that switching operations reproduce each other to 1e-9 (ADR 0005). The default of `PowerFlow` stays at 1e-8, as the brief says.
+- The twin solves with a tolerance of 1e-10 so that switching operations reproduce each other to 1e-9 (ADR 0005). The default of `PowerFlow` stays at 1e-8, the tolerance the solver is specified with.

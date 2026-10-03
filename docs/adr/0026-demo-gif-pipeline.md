@@ -4,7 +4,7 @@ Status: accepted
 
 ## Context
 
-The README opens with a short recording of the application in use. The brief asks for a GIF under 8 MB, recorded with Playwright and converted with ffmpeg. The recording has to show something worth watching: a closed coupler, the same coupler opened, a line going red, a breaker operated in the 3D view, the N-1 table and the cascade replay. It also has to be repeatable, so that a change in the interface does not leave a stale GIF behind.
+The README opens with a short recording of the application in use. The GIF has to stay under 8 MB and is recorded with Playwright and converted with ffmpeg. The recording has to show something worth watching: a closed coupler, the same coupler opened, a line going red, a breaker operated in the 3D view, the N-1 table and the cascade replay. It also has to be repeatable, so that a change in the interface does not leave a stale GIF behind.
 
 ## Decision
 

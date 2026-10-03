@@ -4,7 +4,7 @@ Status: accepted
 
 ## Context
 
-The brief names IEEE 14-bus and IEEE 30-bus from MATPOWER and describes them as BSD licensed. MATPOWER's LICENSE file says something narrower: the code is BSD 3-clause, the case files are not covered by that license, and their data "has either been included with permission or has been converted from data available from a public source". Both case files used here say they were converted from the IEEE Common Data Format files in the University of Washington Power Systems Test Case Archive.
+I use IEEE 14-bus and IEEE 30-bus from MATPOWER, which I first took to be BSD licensed. MATPOWER's LICENSE file says something narrower: the code is BSD 3-clause, the case files are not covered by that license, and their data "has either been included with permission or has been converted from data available from a public source". Both case files used here say they were converted from the IEEE Common Data Format files in the University of Washington Power Systems Test Case Archive.
 
 MATPOWER has two 30-bus files. `case30` follows Alsac and Stott (1974), has no off-nominal taps and carries line limits. `case_ieee30` follows the IEEE 30-bus data from the same archive as `case14`, has four transformers with taps (0.978, 0.969, 0.932 and 0.968) and reactive limits that bind: with the slack limits widened, the generator at bus 2 sits at its upper limit in the base case. Version 2 of that file (2025-06-14) sets three more tap values to 1.0.
 
@@ -22,8 +22,8 @@ Neither file carries thermal ratings. `case14` has no base voltages either (`bas
 
 `case30` carries published line limits. Using them would remove one synthetic parameter and would bring Alsac and Stott's data, whose redistribution terms are less clear than the UW archive's, into a repository that is public.
 
-Another factor than 1.25 was considered. The brief gives 125% as an example. The bus 4 exploration in PLAN.md shows that this value gives a demo scenario with exactly one overloaded line, so it stays.
+Another factor than 1.25 was considered. 125% of the base case flow was the starting point. Trying it on the bus 4 substation shows that this value gives a demo scenario with exactly one overloaded line, so it stays.
 
 ## Consequences
 
-Every rating and voltage level in the UI is labelled as synthetic. The README repeats that the model is educational. Adrian should read the CREDITS.md wording on the case data before the repository goes public.
+Every rating and voltage level in the UI is labelled as synthetic. The README repeats that the model is educational. The CREDITS.md wording on the case data says the same.

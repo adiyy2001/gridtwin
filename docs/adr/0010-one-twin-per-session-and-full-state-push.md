@@ -4,7 +4,7 @@ Status: accepted
 
 ## Context
 
-The brief asks for REST commands and a WebSocket that pushes the full versioned state after every solve. The twin has mutable state: switch positions and the load factor. A public demo with one shared twin would let one visitor open a breaker under another visitor's hands, and parallel end-to-end tests would interfere with each other.
+The API takes REST commands and a WebSocket pushes the full versioned state after every solve. The twin has mutable state: switch positions and the load factor. A public demo with one shared twin would let one visitor open a breaker under another visitor's hands, and parallel end-to-end tests would interfere with each other.
 
 ## Decision
 

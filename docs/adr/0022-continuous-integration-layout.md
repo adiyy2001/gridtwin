@@ -17,7 +17,7 @@ One workflow, `ci.yml`, with independent jobs so a failure names its cause:
 - `docker`: `docker compose up --build --wait`, the API smoke script against the container, `docker compose down`.
 - `changes` and `references`: `changes` compares the reference inputs with the base commit, and `references` regenerates the MATPOWER references and compares them only when those inputs changed or the run is started by hand.
 
-Every job calls the same commands as the table in PLAN.md. Action versions are major tags. The workflow is checked with `rhysd/actionlint` in its Docker image, since `act` cannot run here.
+Every job calls the same commands as the README. Action versions are major tags. The workflow is checked with `rhysd/actionlint` in its Docker image, since `act` cannot run here.
 
 ## Alternatives
 

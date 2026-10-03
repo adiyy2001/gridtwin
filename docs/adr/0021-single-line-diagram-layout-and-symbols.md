@@ -4,7 +4,7 @@ Status: accepted
 
 ## Context
 
-The diagram has to show the substation described by the case file: two busbars, a coupler and feeder bays with a bus disconnector per busbar, a breaker, a line disconnector and an earthing switch. It has to stay correct for any substation description the API sends, show open and closed positions and the electrical state of every section, and never rely on colour alone. The brief rules out commercial diagram libraries, so the symbols and the renderer are written from scratch.
+The diagram has to show the substation described by the case file: two busbars, a coupler and feeder bays with a bus disconnector per busbar, a breaker, a line disconnector and an earthing switch. It has to stay correct for any substation description the API sends, show open and closed positions and the electrical state of every section, and never rely on colour alone. Commercial diagram libraries are ruled out, so the symbols and the renderer are written from scratch.
 
 ## Decision
 

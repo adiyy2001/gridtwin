@@ -4,7 +4,7 @@ Status: accepted
 
 ## Context
 
-The validation suite compares voltages to 1e-6 pu and angles to 1e-4 degrees against reference solutions. The brief says to produce them with MATPOWER under GNU Octave in Docker and to fall back to pandapower.
+The validation suite compares voltages to 1e-6 pu and angles to 1e-4 degrees against reference solutions. The plan was to produce them with MATPOWER under GNU Octave in Docker and to fall back to pandapower.
 
 What was checked on 2026-10-03:
 
@@ -36,7 +36,7 @@ pandapower needs a Python environment and uses its own case conversions. A hand-
 
 The image is large. The script pulls it once and the CI job is not part of every push. Comparisons for outages that change the slack must use angle differences from the island's reference bus, because MATPOWER fixes the new slack at the angle stored for that bus in the case file.
 
-## Implementation notes from milestone 4
+## Implementation notes
 
 - N-1 references are in `validation/src/test/resources/reference/n1/`: `ieee14-n1-plain.json`, `ieee14-n1-qlim.json`, `ieee30-n1-plain.json` and `ieee30-n1-qlim.json`, written by `tools/reference/generate_n1_references.m` (`tools/reference/run.sh n1`). Each file lists every branch outage and every generator outage at 100% load.
 - A branch outage that cuts buses off is solved on the part that still contains the reference bus, and the file names the unreachable buses. The twin must put those buses in their own islands: energized when a generator is there, dark and shed when not.

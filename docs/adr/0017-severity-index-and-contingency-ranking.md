@@ -4,7 +4,7 @@ Status: accepted
 
 ## Context
 
-N-1 analysis produces one solved snapshot per outage. The table in the UI has to put the outages in an order a person trusts: a collapse before an overload, an overload before a mild voltage dip, and the same order on every run. The brief asks for a documented severity index. No standard index is fixed by the brief, and the classic overload performance index (a sum of powers of the loading ratio) says nothing about voltage, shed load or a collapsed solution.
+N-1 analysis produces one solved snapshot per outage. The table in the UI has to put the outages in an order a person trusts: a collapse before an overload, an overload before a mild voltage dip, and the same order on every run. The requirement is a documented severity index. No standard index is given, and the classic overload performance index (a sum of powers of the loading ratio) says nothing about voltage, shed load or a collapsed solution.
 
 ## Decision
 

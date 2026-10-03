@@ -4,7 +4,7 @@ Status: accepted
 
 ## Context
 
-The brief lists three stretch goals: a fast decoupled power flow with a speed and accuracy comparison, IEEE 30 as a second selectable network with its own substation, and weighted least squares state estimation. It also says that when the scope grows, stretch goals are cut and tests and correctness never are.
+I had three stretch goals: a fast decoupled power flow with a speed and accuracy comparison, IEEE 30 as a second selectable network with its own substation, and weighted least squares state estimation. When the scope grew, stretch goals were cut, and tests and correctness never were.
 
 ## Decision
 

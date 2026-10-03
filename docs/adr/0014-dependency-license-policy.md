@@ -4,7 +4,7 @@ Status: accepted
 
 ## Context
 
-The brief allows only permissive dependencies (MIT, Apache 2.0, BSD, ISC). Several standard tools in the Java and browser ecosystems use other licenses. Checked in Maven POMs and the npm registry on 2026-10-03:
+The project allows only permissive dependencies (MIT, Apache 2.0, BSD, ISC). Several standard tools in the Java and browser ecosystems use other licenses. Checked in Maven POMs and the npm registry on 2026-10-03:
 
 - JUnit Jupiter 6.1.3, JaCoCo 0.8.15 and jqwik: EPL-2.0
 - Checkstyle 14.3.0: LGPL-2.1 or later
@@ -21,7 +21,7 @@ JMH is not used even though it is only a benchmark tool. The `bench` module has 
 
 ## Alternatives
 
-Accept JMH as a tool. It measures more carefully than a hand-made harness. The harness documents its method, and the targets in the brief (10 ms and 500 ms) are far above the noise.
+Accept JMH as a tool. It measures more carefully than a hand-made harness. The harness documents its method, and the timing targets (10 ms and 500 ms) are far above the noise.
 
 ## Consequences
 

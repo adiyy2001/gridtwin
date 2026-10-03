@@ -4,7 +4,7 @@ Status: accepted
 
 ## Context
 
-The brief asks for a Quarkus back end where the math and topology live in a domain module with no framework imports. The domain also has to load case data, and the validation suite has to read both case data and reference solutions. Jackson is a library, so the brief would allow it in the domain. Keeping it out makes the claim simpler to state and to enforce.
+The back end is a Quarkus application where the math and topology live in a domain module with no framework imports. The domain also has to load case data, and the validation suite has to read both case data and reference solutions. Jackson is a library, so nothing forbids it in the domain. Keeping it out makes the claim simpler to state and to enforce.
 
 ## Decision
 

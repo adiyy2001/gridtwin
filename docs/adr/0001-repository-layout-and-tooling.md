@@ -20,7 +20,7 @@ The project has a Java back end, an Angular front end, browser tests, and a smal
 
 Nx 23.2.1 supports Angular 22, but this repository has one Angular application and one end-to-end package. The task graph and generators would add configuration without removing any work, and the Java side would sit outside the graph anyway.
 
-Gradle is a valid build tool for Quarkus. The brief and the daily stack use Maven, so Maven stays.
+Gradle is a valid build tool for Quarkus. Maven is what I use every day, so Maven stays.
 
 ## Consequences
 

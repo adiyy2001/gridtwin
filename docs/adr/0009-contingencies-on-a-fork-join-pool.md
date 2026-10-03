@@ -24,9 +24,9 @@ Virtual threads, with the argument above. Plain `parallelStream()` on the common
 
 The parallel path adds a pool lifecycle to the application layer (created at startup and closed at shutdown). The speed-up is whatever the bench measures.
 
-## Implementation notes from milestone 4
+## Implementation notes
 
 - `ContingencyAnalysis.run(source, base)` runs sequentially. `run(source, base, pool)` submits the parallel stream to the pool it is given and `run(source, base, parallelism)` creates and closes a pool for one call. The application layer owns a long-lived pool.
 - Tasks share nothing but immutable data. `PowerFlow` creates one `SparseLinearSolver` per solve, so there is no solver to share. A property test runs random networks through a sequential and a parallel analysis and requires equal reports, and the same is checked for IEEE 14 and IEEE 30 at 2, 4 and 8 threads.
 - The outage list is built from the base topology, in network order: branches first, then generators. Equipment that is already out of service in the base state gets no outage.
-- `bench/results/java.json` has the measured times, with the hardware header. On the machine named there the parallel run is faster than the sequential one for both cases, including IEEE 14 where a solve takes well under a millisecond. The numbers are in the milestone note of `PLAN.md` and in that file.
+- `bench/results/java.json` has the measured times, with the hardware header. On the machine named there the parallel run is faster than the sequential one for both cases, including IEEE 14 where a solve takes well under a millisecond. The README quotes them.

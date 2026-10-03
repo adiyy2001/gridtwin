@@ -4,7 +4,7 @@ Status: accepted
 
 ## Context
 
-The brief asks for a cascade replay: trip the worst branch above a threshold, solve again, repeat, and store the steps so the front end can replay them. A real cascade depends on protection settings, time, frequency and voltage dynamics. None of that is in a steady-state power flow, and dynamics are out of scope.
+The application has a cascade replay: trip the worst branch above a threshold, solve again, repeat, and store the steps so the front end can replay them. A real cascade depends on protection settings, time, frequency and voltage dynamics. None of that is in a steady-state power flow, and dynamics are out of scope.
 
 ## Decision
 

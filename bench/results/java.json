@@ -1,6 +1,6 @@
 {
   "suite" : "java",
-  "generatedAt" : "2026-10-04T00:32:59.319704129+02:00[Europe/Warsaw]",
+  "generatedAt" : "2026-10-04T00:59:49.400043550+02:00[Europe/Warsaw]",
   "hardware" : {
     "cpuModel" : "12th Gen Intel(R) Core(TM) i7-12700H",
     "logicalCores" : 20,
@@ -19,11 +19,11 @@
     "warmupRuns" : 300,
     "statistics" : {
       "samples" : 300,
-      "medianMs" : 0.233807,
-      "p95Ms" : 0.5449346000000007,
-      "meanMs" : 0.29578875,
-      "minMs" : 0.144306,
-      "maxMs" : 3.732153
+      "medianMs" : 0.244511,
+      "p95Ms" : 0.6163646500000003,
+      "meanMs" : 0.3296531833333333,
+      "minMs" : 0.146552,
+      "maxMs" : 6.109854
     }
   }, {
     "name" : "ieee14 solve, warm start",
@@ -31,11 +31,11 @@
     "warmupRuns" : 300,
     "statistics" : {
       "samples" : 300,
-      "medianMs" : 0.079772,
-      "p95Ms" : 0.2813248500000001,
-      "meanMs" : 0.11071272,
-      "minMs" : 0.05567,
-      "maxMs" : 0.941042
+      "medianMs" : 0.065777,
+      "p95Ms" : 0.11908795000000003,
+      "meanMs" : 0.07517813666666667,
+      "minMs" : 0.058365,
+      "maxMs" : 0.381674
     }
   }, {
     "name" : "ieee14 twin solve, flat start",
@@ -43,11 +43,11 @@
     "warmupRuns" : 300,
     "statistics" : {
       "samples" : 300,
-      "medianMs" : 0.2108195,
-      "p95Ms" : 0.5264394499999999,
-      "meanMs" : 0.26843005,
-      "minMs" : 0.141173,
-      "maxMs" : 4.592918
+      "medianMs" : 0.213238,
+      "p95Ms" : 0.5804824500000005,
+      "meanMs" : 0.2957059833333333,
+      "minMs" : 0.144664,
+      "maxMs" : 4.862644
     }
   }, {
     "name" : "ieee30 solve, flat start",
@@ -55,11 +55,11 @@
     "warmupRuns" : 300,
     "statistics" : {
       "samples" : 300,
-      "medianMs" : 0.726755,
-      "p95Ms" : 0.9694251000000003,
-      "meanMs" : 0.7760083633333332,
-      "minMs" : 0.623902,
-      "maxMs" : 4.030149
+      "medianMs" : 0.837446,
+      "p95Ms" : 1.3339808999999998,
+      "meanMs" : 0.9158568733333333,
+      "minMs" : 0.700323,
+      "maxMs" : 5.457308
     }
   }, {
     "name" : "ieee30 solve, warm start",
@@ -67,11 +67,11 @@
     "warmupRuns" : 300,
     "statistics" : {
       "samples" : 300,
-      "medianMs" : 0.5779385,
-      "p95Ms" : 0.8956824,
-      "meanMs" : 0.6269001133333333,
-      "minMs" : 0.46999,
-      "maxMs" : 3.181981
+      "medianMs" : 0.6003125,
+      "p95Ms" : 0.8591634000000002,
+      "meanMs" : 0.6390498733333333,
+      "minMs" : 0.502604,
+      "maxMs" : 3.346694
     }
   }, {
     "name" : "ieee30 twin solve, flat start",
@@ -79,11 +79,11 @@
     "warmupRuns" : 300,
     "statistics" : {
       "samples" : 300,
-      "medianMs" : 0.881689,
-      "p95Ms" : 1.0237376500000002,
-      "meanMs" : 0.89899584,
-      "minMs" : 0.748238,
-      "maxMs" : 3.304769
+      "medianMs" : 0.9796335,
+      "p95Ms" : 1.3141588,
+      "meanMs" : 1.0432755366666666,
+      "minMs" : 0.854985,
+      "maxMs" : 3.885128
     }
   }, {
     "name" : "ieee14 N-1 sequential",
@@ -91,11 +91,11 @@
     "warmupRuns" : 300,
     "statistics" : {
       "samples" : 300,
-      "medianMs" : 5.8334675,
-      "p95Ms" : 6.9814289500000015,
-      "meanMs" : 5.8493739866666665,
-      "minMs" : 4.649205,
-      "maxMs" : 8.854738
+      "medianMs" : 5.6768165,
+      "p95Ms" : 7.04777045,
+      "meanMs" : 5.7884322699999995,
+      "minMs" : 4.616462,
+      "maxMs" : 9.869384
     }
   }, {
     "name" : "ieee14 N-1 parallel, 2 threads",
@@ -103,11 +103,11 @@
     "warmupRuns" : 300,
     "statistics" : {
       "samples" : 300,
-      "medianMs" : 4.1796795,
-      "p95Ms" : 5.038930950000001,
-      "meanMs" : 4.2574647,
-      "minMs" : 3.396985,
-      "maxMs" : 7.406658
+      "medianMs" : 4.9341685,
+      "p95Ms" : 7.74518665,
+      "meanMs" : 5.367732996666667,
+      "minMs" : 4.140521,
+      "maxMs" : 11.161347
     }
   }, {
     "name" : "ieee14 N-1 parallel, 4 threads",
@@ -115,11 +115,11 @@
     "warmupRuns" : 300,
     "statistics" : {
       "samples" : 300,
-      "medianMs" : 3.03153,
-      "p95Ms" : 3.4847941000000002,
-      "meanMs" : 3.0846302000000003,
-      "minMs" : 2.50691,
-      "maxMs" : 4.869752
+      "medianMs" : 7.526648,
+      "p95Ms" : 10.30983715,
+      "meanMs" : 7.66010986,
+      "minMs" : 4.695861,
+      "maxMs" : 14.310711
     }
   }, {
     "name" : "ieee14 N-1 parallel, 8 threads",
@@ -127,11 +127,11 @@
     "warmupRuns" : 300,
     "statistics" : {
       "samples" : 300,
-      "medianMs" : 2.752818,
-      "p95Ms" : 3.1964579,
-      "meanMs" : 2.793846846666667,
-      "minMs" : 2.204465,
-      "maxMs" : 5.070031
+      "medianMs" : 3.3645165,
+      "p95Ms" : 4.33816225,
+      "meanMs" : 3.489985283333333,
+      "minMs" : 2.597601,
+      "maxMs" : 6.671507
     }
   }, {
     "name" : "ieee14 N-1 parallel, 20 threads",
@@ -139,11 +139,11 @@
     "warmupRuns" : 300,
     "statistics" : {
       "samples" : 300,
-      "medianMs" : 2.882909,
-      "p95Ms" : 3.4670261500000006,
-      "meanMs" : 2.9410040633333336,
-      "minMs" : 2.349064,
-      "maxMs" : 5.209813
+      "medianMs" : 3.424849,
+      "p95Ms" : 5.362080150000001,
+      "meanMs" : 3.7008511533333333,
+      "minMs" : 2.811359,
+      "maxMs" : 6.65604
     }
   }, {
     "name" : "ieee30 N-1 sequential",
@@ -151,11 +151,11 @@
     "warmupRuns" : 300,
     "statistics" : {
       "samples" : 300,
-      "medianMs" : 47.5380425,
-      "p95Ms" : 128.8244759,
-      "meanMs" : 54.24920781666667,
-      "minMs" : 38.929996,
-      "maxMs" : 212.152879
+      "medianMs" : 52.1243935,
+      "p95Ms" : 117.11469385000012,
+      "meanMs" : 62.59650114,
+      "minMs" : 39.686873,
+      "maxMs" : 452.522822
     }
   }, {
     "name" : "ieee30 N-1 parallel, 2 threads",
@@ -163,11 +163,11 @@
     "warmupRuns" : 300,
     "statistics" : {
       "samples" : 300,
-      "medianMs" : 30.7786845,
-      "p95Ms" : 99.52874430000003,
-      "meanMs" : 39.13711532,
-      "minMs" : 25.424369,
-      "maxMs" : 131.197365
+      "medianMs" : 32.5452115,
+      "p95Ms" : 41.46825365,
+      "meanMs" : 33.48352873666667,
+      "minMs" : 26.948403,
+      "maxMs" : 59.803244
     }
   }, {
     "name" : "ieee30 N-1 parallel, 4 threads",
@@ -175,11 +175,11 @@
     "warmupRuns" : 300,
     "statistics" : {
       "samples" : 300,
-      "medianMs" : 17.9222435,
-      "p95Ms" : 67.44979925000001,
-      "meanMs" : 25.642650086666666,
-      "minMs" : 13.552611,
-      "maxMs" : 95.16676
+      "medianMs" : 18.294841,
+      "p95Ms" : 22.859575900000003,
+      "meanMs" : 18.506472326666668,
+      "minMs" : 13.293377,
+      "maxMs" : 34.08681
     }
   }, {
     "name" : "ieee30 N-1 parallel, 8 threads",
@@ -187,11 +187,11 @@
     "warmupRuns" : 300,
     "statistics" : {
       "samples" : 300,
-      "medianMs" : 10.0886395,
-      "p95Ms" : 12.1739952,
-      "meanMs" : 10.162953286666667,
-      "minMs" : 7.738064,
-      "maxMs" : 13.845161
+      "medianMs" : 14.528272,
+      "p95Ms" : 19.693121250000004,
+      "meanMs" : 14.594152390000001,
+      "minMs" : 8.894901,
+      "maxMs" : 24.721437
     }
   }, {
     "name" : "ieee30 N-1 parallel, 20 threads",
@@ -199,11 +199,11 @@
     "warmupRuns" : 300,
     "statistics" : {
       "samples" : 300,
-      "medianMs" : 7.967332,
-      "p95Ms" : 10.645435200000001,
-      "meanMs" : 8.023203116666666,
-      "minMs" : 5.789692,
-      "maxMs" : 13.318798
+      "medianMs" : 9.8683295,
+      "p95Ms" : 12.997800400000001,
+      "meanMs" : 10.029797003333334,
+      "minMs" : 6.937421,
+      "maxMs" : 18.658191
     }
   }, {
     "name" : "ieee14 cascade from the outage of L2-4",
@@ -211,30 +211,30 @@
     "warmupRuns" : 300,
     "statistics" : {
       "samples" : 300,
-      "medianMs" : 1.461239,
-      "p95Ms" : 1.6815831,
-      "meanMs" : 1.4722386566666668,
-      "minMs" : 1.248601,
-      "maxMs" : 4.106761
+      "medianMs" : 2.0567495,
+      "p95Ms" : 3.69947595,
+      "meanMs" : 2.25450265,
+      "minMs" : 1.697709,
+      "maxMs" : 4.561221
     }
   } ],
   "targets" : [ {
     "name" : "IEEE 30 solve",
     "measurement" : "ieee30 solve, warm start",
     "limitMs" : 10.0,
-    "actualP95Ms" : 0.8956824,
+    "actualP95Ms" : 0.8591634000000002,
     "met" : true
   }, {
     "name" : "IEEE 30 N-1 sequential",
     "measurement" : "ieee30 N-1 sequential",
     "limitMs" : 500.0,
-    "actualP95Ms" : 128.8244759,
+    "actualP95Ms" : 117.11469385000012,
     "met" : true
   }, {
     "name" : "IEEE 30 N-1 on all cores",
     "measurement" : "ieee30 N-1 parallel, 20 threads",
     "limitMs" : 500.0,
-    "actualP95Ms" : 10.645435200000001,
+    "actualP95Ms" : 12.997800400000001,
     "met" : true
   } ]
 }

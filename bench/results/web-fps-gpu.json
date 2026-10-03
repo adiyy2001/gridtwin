@@ -1,0 +1,69 @@
+{
+  "suite": "web-fps",
+  "generatedAt": "2026-10-03T23:01:57.607Z",
+  "url": "http://127.0.0.1:18480",
+  "hardware": {
+    "cpuModel": "12th Gen Intel(R) Core(TM) i7-12700H",
+    "logicalCores": 20,
+    "physicalMemoryMegabytes": 15825,
+    "operatingSystem": "linux 6.6.87.2-microsoft-standard-WSL2 (x64)",
+    "node": "v24.21.0",
+    "browser": "chromium",
+    "version": "148.0.7778.167",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
+    "renderer": "ANGLE (Microsoft Corporation, D3D12 (Intel(R) Iris(R) Xe Graphics), OpenGL ES 3.0)",
+    "deviceMemoryGigabytes": 16
+  },
+  "settings": {
+    "runs": 3,
+    "durationMs": 3000,
+    "width": 1920,
+    "height": 1080,
+    "gpu": true
+  },
+  "definition": "continuous orbit of the camera around the substation, one render per animation frame, frame intervals from requestAnimationFrame timestamps",
+  "target": "at least 60 fps at 1920x1080 on an integrated GPU, confirm with tools/bench.sh web --gpu on the target machine",
+  "summary": {
+    "medianFps": 52.045349068487695,
+    "frameTime": {
+      "samples": 3,
+      "medianMs": 16.699999999999818,
+      "p95Ms": 16.700000000000728,
+      "meanMs": 16.70000000000012,
+      "minMs": 16.699999999999818,
+      "maxMs": 16.700000000000728
+    }
+  },
+  "measurements": [
+    {
+      "width": 1920,
+      "height": 1080,
+      "frames": 178,
+      "durationMs": 3016.4999999999995,
+      "averageFps": 59.00878501574674,
+      "medianFrameMs": 16.699999999999818,
+      "p95FrameMs": 16.800000000000182,
+      "renderer": "ANGLE (Microsoft Corporation, D3D12 (Intel(R) Iris(R) Xe Graphics), OpenGL ES 3.0)"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "frames": 157,
+      "durationMs": 3016.6000000000004,
+      "averageFps": 52.045349068487695,
+      "medianFrameMs": 16.699999999999818,
+      "p95FrameMs": 33.399999999999636,
+      "renderer": "ANGLE (Microsoft Corporation, D3D12 (Intel(R) Iris(R) Xe Graphics), OpenGL ES 3.0)"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "frames": 133,
+      "durationMs": 3033.2000000000007,
+      "averageFps": 43.84808123433996,
+      "medianFrameMs": 16.700000000000728,
+      "p95FrameMs": 33.399999999999636,
+      "renderer": "ANGLE (Microsoft Corporation, D3D12 (Intel(R) Iris(R) Xe Graphics), OpenGL ES 3.0)"
+    }
+  ]
+}

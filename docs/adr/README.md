@@ -28,3 +28,6 @@ Each record has four parts: context, decision, alternatives and consequences. Re
 | [0022](0022-continuous-integration-layout.md) | Continuous integration layout |
 | [0023](0023-procedural-3d-substation-scene.md) | Procedural 3D substation scene |
 | [0024](0024-diagnostics-hook-and-frame-measurement.md) | Diagnostics hook and frame measurement |
+| [0025](0025-readme-numbers-come-from-scripts.md) | Every number in the README comes from a script |
+| [0026](0026-demo-gif-pipeline.md) | Demo GIF pipeline |
+| [0027](0027-stretch-goals-not-built.md) | Stretch goals were not built |

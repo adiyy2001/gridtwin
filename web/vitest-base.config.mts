@@ -11,6 +11,9 @@ const logicFiles = [
   'src/app/shared/sorting.ts',
   'src/app/panels/n1-sorting.ts',
   'src/app/panels/inspector-model.ts',
+  'src/app/scene/picking.ts',
+  'src/app/scene/scene-plan.ts',
+  'src/app/scene/scene-state.ts',
   'src/app/sld/keyboard.ts',
   'src/app/sld/layout.ts',
   'src/app/sld/state-model.ts',
@@ -25,7 +28,12 @@ export default defineConfig({
   test: {
     coverage: {
       reporters: ['text', 'json-summary', 'lcov'],
-      exclude: ['src/app/testing/**', 'src/app/model/api-schema.ts'],
+      exclude: [
+        'src/app/testing/**',
+        'src/app/model/api-schema.ts',
+        'src/app/scene/webgl-renderer.ts',
+        'src/app/scene/label-texture.ts',
+      ],
       thresholds: {
         lines: 80,
         statements: 80,

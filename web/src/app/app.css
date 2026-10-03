@@ -92,3 +92,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.scene-placeholder {
+  min-height: 360px;
+}

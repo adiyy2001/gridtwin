@@ -1,0 +1,45 @@
+<section class="scene panel" aria-labelledby="scene-title">
+  <div class="panel-header">
+    <h2 id="scene-title">3D substation</h2>
+    <div class="view-buttons" role="group" aria-label="Camera">
+      <button type="button" data-action="reset-view" (click)="resetView()">Reset view</button>
+      <button type="button" data-action="top-view" (click)="topView()">Top view</button>
+      <button
+        type="button"
+        data-action="focus-selection"
+        [disabled]="focusTarget() === null"
+        (click)="focusSelection()"
+      >
+        Focus selection
+      </button>
+    </div>
+  </div>
+  <ul class="legend" aria-label="Legend">
+    <li><span class="swatch energized"></span>Blue: energized</li>
+    <li><span class="swatch deenergized"></span>Grey: de-energized</li>
+    <li><span class="swatch earthed"></span>Purple: earthed</li>
+    <li>Angled blade: open, straight blade: closed</li>
+  </ul>
+  <div class="viewport" [class.unavailable]="unavailable()">
+    <canvas
+      #canvas
+      class="canvas"
+      data-scene-canvas
+      tabindex="0"
+      role="img"
+      aria-label="3D view of the substation. Operate equipment from the diagram or the inspector. With this view focused, arrow keys pan and the plus and minus keys zoom."
+      (pointerdown)="onPointerDown($event)"
+      (pointermove)="onPointerMove($event)"
+      (pointerup)="onPointerUp($event)"
+      (pointerleave)="onPointerLeave()"
+      (pointercancel)="onPointerLeave()"
+    ></canvas>
+    @if (unavailable()) {
+      <p class="fallback" role="status" data-testid="scene-unavailable">
+        The 3D view needs WebGL, which this browser does not provide. The diagram, the inspector and
+        the network view show the same state and can operate every switch.
+      </p>
+    }
+  </div>
+  <p class="readout" data-testid="scene-readout">{{ readout() }}</p>
+</section>

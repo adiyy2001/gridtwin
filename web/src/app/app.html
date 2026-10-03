@@ -11,6 +11,13 @@
   <div class="stage">
     <gt-status-bar />
     <gt-sld />
+    @defer (on idle) {
+      <gt-scene />
+    } @placeholder {
+      <section class="panel scene-placeholder" aria-label="3D substation">
+        <p>Loading the 3D view</p>
+      </section>
+    }
     <gt-network-view />
   </div>
   <div class="side">

@@ -10,6 +10,7 @@ import { LoadSlider } from './panels/load-slider';
 import { N1Table } from './panels/n1-table';
 import { StatusBar } from './panels/status-bar';
 import { SummaryBar } from './panels/summary-bar';
+import { SceneView } from './scene/scene-view';
 import { SingleLineDiagram } from './sld/sld';
 
 @Component({
@@ -21,6 +22,7 @@ import { SingleLineDiagram } from './sld/sld';
     LoadSlider,
     N1Table,
     NetworkView,
+    SceneView,
     SingleLineDiagram,
     StatusBar,
     SummaryBar,

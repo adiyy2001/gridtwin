@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import type { Subscription } from 'rxjs';
 
 import { toApiError } from './api-error';
+import { Diagnostics } from './diagnostics';
 import type { ApiError } from './api-error';
 import { TwinApi } from './twin-api';
 import { TwinSocket } from './twin-socket';
@@ -194,6 +195,7 @@ export const TwinStore = signalStore(
     const api = inject(TwinApi);
     const socket = inject(TwinSocket);
     const announcer = inject(LiveAnnouncer);
+    const diagnostics = inject(Diagnostics);
     const destroyRef = inject(DestroyRef);
 
     let subscription: Subscription | null = null;
@@ -357,16 +359,19 @@ export const TwinStore = signalStore(
         if (pending === null || sessionId === null) {
           return;
         }
+        diagnostics.beginCommand();
         await guarded(
           async () => {
             const result = await firstValueFrom(
               api.operateSwitch(sessionId, pending.switchId, pending.position),
             );
             applyVersioned(result);
+            diagnostics.commandApplied();
             const verb = pending.position === 'OPEN' ? 'opened' : 'closed';
             notify('info', `${pending.switchId} ${verb}: ${describeOutcome(result.state)}.`);
           },
           (error) => {
+            diagnostics.abandonCommand();
             if (error.status === 409) {
               patchState(store, {
                 refusal: {

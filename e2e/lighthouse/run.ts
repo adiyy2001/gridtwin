@@ -11,18 +11,22 @@ const base = process.env.GRIDTWIN_BASE_URL ?? 'http://127.0.0.1:18480';
 const threshold = Number(process.env.GRIDTWIN_A11Y_MIN ?? '0.95');
 const outputDirectory = resolve(here, 'out');
 
-function freePort() {
+function freePort(): Promise<number> {
   return new Promise((done, fail) => {
     const probe = createServer();
     probe.once('error', fail);
     probe.listen(0, '127.0.0.1', () => {
-      const { port } = probe.address();
-      probe.close(() => done(port));
+      const address = probe.address();
+      if (address === null || typeof address === 'string') {
+        fail(new Error('no port was assigned'));
+        return;
+      }
+      probe.close(() => { done(address.port); });
     });
   });
 }
 
-async function waitForDebugger(port) {
+async function waitForDebugger(port: number): Promise<void> {
   const deadline = Date.now() + 15_000;
   while (Date.now() < deadline) {
     try {

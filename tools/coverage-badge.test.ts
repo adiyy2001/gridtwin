@@ -7,7 +7,7 @@ import {
   parseJacocoCsv,
   percentage,
   renderBadge,
-} from './coverage-badge.mjs';
+} from './coverage-badge.ts';
 
 const CSV = [
   'GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED',

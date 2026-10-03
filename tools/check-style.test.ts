@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { findComments, findDashes, findViolations, isChecked } from './check-style.mjs';
+import {
+  findComments,
+  findDashes,
+  findMissingAdrHeadings,
+  findNullReturns,
+  findProcessLanguage,
+  findViolations,
+  isChecked,
+} from './check-style.ts';
 
 const EM_DASH = '\u2014';
 const EN_DASH = '\u2013';
@@ -126,4 +134,41 @@ test('vendored and binary files are skipped', () => {
   assert.equal(isChecked('web/pnpm-lock.yaml'), false);
   assert.equal(isChecked('docs/demo.gif'), false);
   assert.equal(isChecked('domain/src/main/java/A.java'), true);
+});
+
+const COMPLETE_ADR = '# 0001 Title\n\n## Context\n\n## Decision\n\n## Alternatives\n\n## Consequences\n';
+
+test('a decision record with the four headings passes', () => {
+  assert.deepEqual(findMissingAdrHeadings('docs/adr/0001-title.md', COMPLETE_ADR), []);
+});
+
+test('a decision record without alternatives is reported', () => {
+  const text = COMPLETE_ADR.replace('## Alternatives\n\n', '');
+  assert.deepEqual(findMissingAdrHeadings('docs/adr/0001-title.md', text), ['## Alternatives']);
+});
+
+test('the decision record index and other files are not held to the four headings', () => {
+  assert.deepEqual(findMissingAdrHeadings('docs/adr/README.md', '# Index\n'), []);
+  assert.deepEqual(findMissingAdrHeadings('docs/physics.md', '# Physics\n'), []);
+});
+
+test('a null return in Java is reported on its line', () => {
+  assert.deepEqual(findNullReturns('class A {\n  Object a() {\n    return null;\n  }\n}\n'), [3]);
+  assert.deepEqual(findNullReturns('class A {\n  Object a() { return nullable; }\n}\n'), []);
+});
+
+test('wording from the making of the repository is reported in prose files only', () => {
+  const text = 'Line one.\nSee PLAN.md for the milestone list.\nAdrian should read this.\n';
+  assert.deepEqual(findProcessLanguage('docs/adr/0002-x.md', text), [2, 3]);
+  assert.deepEqual(findProcessLanguage('README.md', 'The brief asks for it.\n'), [1]);
+  assert.deepEqual(findProcessLanguage('web/src/app/a.ts', text), []);
+});
+
+test('a placeholder for the author is not reported as wording from the making', () => {
+  assert.deepEqual(findProcessLanguage('README.md', 'Text. <!-- ADRIAN: Adrian question -->\n'), []);
+});
+
+test('violations of every kind carry their path and line', () => {
+  const violations = findViolations('A.java', 'class A {\n  Object a() {\n    return null;\n  }\n}\n');
+  assert.deepEqual(violations, [{ path: 'A.java', line: 3, message: 'null returned instead of an Optional' }]);
 });

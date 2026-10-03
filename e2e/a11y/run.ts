@@ -1,8 +1,9 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import AxeBuilder from '@axe-core/playwright';
-import { launchChrome } from '../scripts/browser.mjs';
+import { AxeBuilder } from '@axe-core/playwright';
+import { launchChrome } from '../scripts/browser.ts';
+import type { Page } from '../scripts/browser.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const base = process.env.GRIDTWIN_BASE_URL ?? 'http://127.0.0.1:18480';
@@ -10,16 +11,27 @@ const outputDirectory = resolve(here, 'out');
 const blocking = new Set(['serious', 'critical']);
 const tags = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'];
 
-async function operate(page, switchId) {
+async function operate(page: Page, switchId: string): Promise<void> {
   await page.locator(`[data-sld-switch="${switchId}"]`).click();
   await page.locator('[data-action="confirm"]').click();
   await page.locator('[data-testid="notice"]').filter({ hasNotText: 'Ready' }).waitFor();
 }
 
-const scenarios = [
+interface Scenario {
+  name: string;
+  prepare?: (page: Page) => Promise<void>;
+}
+
+interface ViolationSummary {
+  id: string;
+  impact: string | null | undefined;
+  help: string;
+  nodes: string[];
+}
+
+const scenarios: Scenario[] = [
   {
     name: 'application shell with the diagram',
-    prepare: async () => {},
   },
   {
     name: 'confirmation dialog',
@@ -66,7 +78,7 @@ const scenarios = [
 ];
 
 const browser = await launchChrome();
-const report = [];
+const report: { scenario: string; checked: number; violations: ViolationSummary[] }[] = [];
 let blockingCount = 0;
 
 try {
@@ -75,7 +87,7 @@ try {
     const page = await context.newPage();
     await page.goto(base);
     await page.locator('[data-sld-switch]').first().waitFor();
-    await scenario.prepare(page);
+    await scenario.prepare?.(page);
     const result = await new AxeBuilder({ page }).withTags(tags).analyze();
     const violations = result.violations.map((violation) => ({
       id: violation.id,
@@ -83,7 +95,7 @@ try {
       help: violation.help,
       nodes: violation.nodes.map((node) => node.target.join(' ')),
     }));
-    const failing = violations.filter((violation) => blocking.has(violation.impact));
+    const failing = violations.filter((violation) => violation.impact != null && blocking.has(violation.impact));
     blockingCount += failing.length;
     report.push({ scenario: scenario.name, checked: result.passes.length, violations });
     console.log(

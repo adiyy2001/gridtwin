@@ -4,13 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "cypress:open": "node scripts/with-server.mjs -- cypress open --browser chrome",
-    "cypress:ci": "node scripts/with-server.mjs -- cypress run --browser chrome --headless",
-    "lighthouse": "node scripts/with-server.mjs -- node lighthouse/run.mjs",
+    "cypress:open": "node scripts/with-server.ts -- cypress open --browser chrome",
+    "cypress:ci": "node scripts/with-server.ts -- cypress run --browser chrome --headless",
+    "lighthouse": "node scripts/with-server.ts -- node lighthouse/run.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "a11y": "node scripts/with-server.mjs -- node a11y/run.mjs",
-    "visual": "node scripts/with-server.mjs -- node visual/run.mjs",
-    "demo": "node scripts/with-server.mjs -- node demo/run.mjs"
+    "a11y": "node scripts/with-server.ts -- node a11y/run.ts",
+    "visual": "node scripts/with-server.ts -- node visual/run.ts",
+    "demo": "node scripts/with-server.ts -- node demo/run.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",

@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import type { ChildProcess } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,11 +14,11 @@ const separator = process.argv.indexOf('--');
 const command = separator === -1 ? [] : process.argv.slice(separator + 1);
 
 if (command.length === 0) {
-  console.error('usage: with-server.mjs -- <command> [arguments]');
+  console.error('usage: with-server.ts -- <command> [arguments]');
   process.exit(2);
 }
 
-async function isReady() {
+async function isReady(): Promise<boolean> {
   try {
     const response = await fetch(`${base}/q/health/ready`);
     return response.ok;
@@ -26,7 +27,7 @@ async function isReady() {
   }
 }
 
-async function waitUntilReady(server) {
+async function waitUntilReady(server: ChildProcess): Promise<void> {
   const deadline = Date.now() + startupTimeoutMs;
   while (Date.now() < deadline) {
     if (server.exitCode !== null) {
@@ -40,18 +41,19 @@ async function waitUntilReady(server) {
   throw new Error(`the server did not answer on ${base} within ${startupTimeoutMs} ms`);
 }
 
-function runCommand() {
+function runCommand(): Promise<number> {
+  const [executable = '', ...argumentsList] = command;
   return new Promise((done) => {
-    const child = spawn(command[0], command.slice(1), {
+    const child = spawn(executable, argumentsList, {
       stdio: 'inherit',
       cwd: resolve(root, 'e2e'),
       env: { ...process.env, GRIDTWIN_BASE_URL: base },
     });
-    child.on('exit', (code, signal) => done(code ?? (signal === null ? 1 : 130)));
+    child.on('exit', (code, signal) => { done(code ?? (signal === null ? 1 : 130)); });
   });
 }
 
-async function main() {
+async function main(): Promise<number> {
   if (await isReady()) {
     console.log(`using the server already running on ${base}`);
     return runCommand();
@@ -70,7 +72,7 @@ async function main() {
     console.log(`server pid ${server.pid} is ready on ${base}`);
     return await runCommand();
   } catch (error) {
-    console.error(error.message);
+    console.error(error instanceof Error ? error.message : String(error));
     return 1;
   } finally {
     if (server.exitCode === null) {

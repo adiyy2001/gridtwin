@@ -20,7 +20,7 @@ run_web() {
   cd "$ROOT"
   local script
   for script in command-latency fps; do
-    node e2e/scripts/with-server.mjs -- node "$ROOT/bench/web/${script}.mjs" "$@"
+    node e2e/scripts/with-server.ts -- node "$ROOT/bench/web/${script}.ts" "$@"
   done
 }
 

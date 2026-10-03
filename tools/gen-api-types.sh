@@ -18,5 +18,5 @@ fi
 
 mkdir -p "$(dirname "$OUTPUT")"
 npx --yes "$GENERATOR" "$SPEC" --output "$OUTPUT"
-node "$ROOT/tools/strip-comments.mjs" "$OUTPUT"
+node "$ROOT/tools/strip-comments.ts" "$OUTPUT"
 echo "wrote $OUTPUT"

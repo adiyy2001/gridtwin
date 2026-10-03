@@ -3,9 +3,9 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { compareDirectories, differences } from './compare.mjs';
+import { compareDirectories, differences } from './compare.ts';
 
-function directoryWith(files) {
+function directoryWith(files: Record<string, unknown>): string {
   const directory = mkdtempSync(join(tmpdir(), 'gridtwin-compare-'));
   for (const [name, content] of Object.entries(files)) {
     writeFileSync(join(directory, name), JSON.stringify(content));

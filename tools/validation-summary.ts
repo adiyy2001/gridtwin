@@ -1,11 +1,37 @@
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
-export function scientific(value) {
+export interface Deviation {
+  voltagePu: number;
+  angleDegrees: number;
+  flowMw: number;
+}
+
+export interface BaseCaseDeviation extends Deviation {
+  case: string;
+}
+
+export interface ContingencyDeviation extends Deviation {
+  case: string;
+  reactiveLimits: boolean;
+  outagesCompared: number;
+}
+
+export interface ValidationReport {
+  reference: string;
+  environment: { jvm: string; operatingSystem: string; logicalCores: number };
+  tolerances: Deviation;
+  baseCases: BaseCaseDeviation[];
+  contingencies: ContingencyDeviation[];
+  worstOverall: Deviation;
+}
+
+export function scientific(value: number): string {
   return value.toExponential(2);
 }
 
-export function summarise(report) {
-  const lines = [];
+export function summarise(report: ValidationReport): string {
+  const lines: string[] = [];
   lines.push(`reference: ${report.reference}`);
   lines.push(`jvm: ${report.environment.jvm}, ${report.environment.operatingSystem}, ${report.environment.logicalCores} logical cores`);
   lines.push('');
@@ -36,7 +62,7 @@ export function summarise(report) {
   return lines.join('\n');
 }
 
-if (process.argv[1] === new URL(import.meta.url).pathname) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const path = process.argv[2] ?? 'validation/target/validation-report.json';
-  console.log(summarise(JSON.parse(readFileSync(path, 'utf8'))));
+  console.log(summarise(JSON.parse(readFileSync(path, 'utf8')) as ValidationReport));
 }

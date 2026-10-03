@@ -1,4 +1,4 @@
-import { base, hardware, launch, openScene, parseOptions, printHardware, resultName, statistics, writeResult } from './common.mjs';
+import { base, hardware, launch, openScene, parseOptions, printHardware, resultName, statistics, writeResult } from './common.ts';
 
 const options = parseOptions(process.argv.slice(2));
 const runs = options.quick ? 1 : 3;
@@ -11,10 +11,16 @@ try {
   const { context, page } = await openScene(browser, { width: 1920, height: 1200 });
   const info = await hardware(browser, page);
   printHardware(info);
-  const measurements = [];
+  const measurements: GridtwinFrameMeasurement[] = [];
   for (let run = 0; run < runs; run += 1) {
     const result = await page.evaluate(
-      (settings) => window.__gridtwin.scene.measureFrames(settings),
+      (settings: GridtwinFrameMeasureOptions) => {
+        const scene = window.__gridtwin?.scene;
+        if (scene === undefined) {
+          throw new Error('the 3D scene hook is missing');
+        }
+        return scene.measureFrames(settings);
+      },
       { width, height, durationMs },
     );
     measurements.push(result);
@@ -33,7 +39,7 @@ try {
     definition:
       'continuous orbit of the camera around the substation, one render per animation frame, frame intervals from requestAnimationFrame timestamps',
     target: 'at least 60 fps at 1920x1080 on an integrated GPU, confirm with tools/bench.sh web --gpu on the target machine',
-    summary: { medianFps: fps[Math.floor(fps.length / 2)], frameTime: statistics(frameTimes) },
+    summary: { medianFps: fps[Math.floor(fps.length / 2)] ?? 0, frameTime: statistics(frameTimes) },
     measurements,
   });
   console.log(`wrote ${file}`);

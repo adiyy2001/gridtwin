@@ -1,5 +1,8 @@
 import { existsSync } from 'node:fs';
 import { chromium } from 'playwright';
+import type { Browser, BrowserContext, Page, ViewportSize } from 'playwright';
+
+export type { Browser, BrowserContext, Page, ViewportSize };
 
 export const chromePath = process.env.CHROME_PATH ?? '/usr/bin/google-chrome';
 
@@ -22,11 +25,14 @@ export const wslGpuEnvironment = {
   LD_LIBRARY_PATH: [WSL_LIBRARY_DIRECTORY, process.env.LD_LIBRARY_PATH].filter(Boolean).join(':'),
 };
 
-export function runsOnWsl() {
+export function runsOnWsl(): boolean {
   return existsSync('/dev/dxg');
 }
 
-export function launchChrome(extraArguments = webglArguments, environment = {}) {
+export function launchChrome(
+  extraArguments: string[] = webglArguments,
+  environment: Record<string, string> = {},
+): Promise<Browser> {
   return chromium.launch({
     executablePath: chromePath,
     args: extraArguments,
@@ -34,20 +40,29 @@ export function launchChrome(extraArguments = webglArguments, environment = {}) 
   });
 }
 
-export function launchGpuChrome() {
+export function launchGpuChrome(): Promise<Browser> {
   return runsOnWsl() ? launchChrome(wslGpuArguments, wslGpuEnvironment) : launchChrome(gpuArguments);
 }
 
-export async function describeBrowser(browser, page) {
+export interface BrowserDescription {
+  browser: string;
+  version: string;
+  userAgent: string;
+  renderer: string;
+  logicalCores: number;
+  deviceMemoryGigabytes: number | null;
+}
+
+export async function describeBrowser(browser: Browser, page: Page): Promise<BrowserDescription> {
   const info = await page.evaluate(() => {
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl2') ?? canvas.getContext('webgl');
     const extension = gl?.getExtension('WEBGL_debug_renderer_info');
     return {
       userAgent: navigator.userAgent,
-      renderer: gl && extension ? gl.getParameter(extension.UNMASKED_RENDERER_WEBGL) : 'no WebGL',
+      renderer: gl && extension ? String(gl.getParameter(extension.UNMASKED_RENDERER_WEBGL)) : 'no WebGL',
       logicalCores: navigator.hardwareConcurrency,
-      deviceMemoryGigabytes: navigator.deviceMemory ?? null,
+      deviceMemoryGigabytes: (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? null,
     };
   });
   return { browser: 'chromium', version: browser.version(), ...info };

@@ -1,37 +1,38 @@
 import { mkdirSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { launchChrome, launchGpuChrome } from '../scripts/browser.mjs';
+import { launchChrome, launchGpuChrome } from '../scripts/browser.ts';
+import type { Page } from '../scripts/browser.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const base = process.env.GRIDTWIN_BASE_URL ?? 'http://127.0.0.1:18480';
 const outputDirectory = resolve(here, 'out');
 const viewport = { width: 1280, height: 800 };
 const pause = Number(process.env.GRIDTWIN_DEMO_PAUSE_MS ?? '1200');
-const steps = [];
+const steps: { name: string; file: string }[] = [];
 let failures = 0;
 
-function check(condition, message) {
+function check(condition: boolean, message: string): void {
   if (!condition) {
     failures += 1;
     console.log(`FAIL ${message}`);
   }
 }
 
-async function settleScene(page) {
+async function settleScene(page: Page): Promise<void> {
   await page.waitForFunction(() => {
     const description = window.__gridtwin?.scene?.describe();
     return description !== undefined && description.webgl && !description.animating;
   });
 }
 
-async function confirm(page) {
+async function confirm(page: Page): Promise<void> {
   await page.locator('[data-action="confirm"]').click();
   await page.locator('[data-testid="notice"]').filter({ hasNotText: 'Ready' }).waitFor();
   await settleScene(page);
 }
 
-async function step(page, name, action) {
+async function step(page: Page, name: string, action: () => Promise<void>): Promise<void> {
   await action();
   await page.waitForTimeout(pause);
   const file = `${String(steps.length + 1).padStart(2, '0')}-${name}.png`;
@@ -40,8 +41,17 @@ async function step(page, name, action) {
   console.log(`step ${steps.length}: ${name}`);
 }
 
-async function sceneItem(page, id) {
-  return page.evaluate((target) => window.__gridtwin.scene.describe().items.find((item) => item.id === target), id);
+function sceneItem(page: Page, id: string): Promise<GridtwinSceneItem | undefined> {
+  return page.evaluate((target: string) => window.__gridtwin?.scene?.describe().items.find((item) => item.id === target), id);
+}
+
+async function clickInScene(page: Page, id: string): Promise<void> {
+  await page.locator('[data-scene-canvas]').scrollIntoViewIfNeeded();
+  const point = await page.evaluate((target: string) => window.__gridtwin?.scene?.screenPointOf(target) ?? null, id);
+  if (point === null) {
+    throw new Error(`no screen position for ${id}`);
+  }
+  await page.mouse.click(point.clientX, point.clientY);
 }
 
 mkdirSync(outputDirectory, { recursive: true });
@@ -77,17 +87,13 @@ try {
   check((await sceneItem(page, 'terminal:L2-4'))?.selected === true, 'the overloaded line is selected in the scene');
 
   await step(page, 'line-opened-in-the-scene', async () => {
-    await page.locator('[data-scene-canvas]').scrollIntoViewIfNeeded();
-    const point = await page.evaluate(() => window.__gridtwin.scene.screenPointOf('L3-4.QA1'));
-    await page.mouse.click(point.clientX, point.clientY);
+    await clickInScene(page, 'L3-4.QA1');
     await confirm(page);
   });
   check((await sceneItem(page, 'terminal:L3-4'))?.condition === 'DEENERGIZED', 'the opened line is de-energized');
 
   await step(page, 'line-closed-again', async () => {
-    await page.locator('[data-scene-canvas]').scrollIntoViewIfNeeded();
-    const point = await page.evaluate(() => window.__gridtwin.scene.screenPointOf('L3-4.QA1'));
-    await page.mouse.click(point.clientX, point.clientY);
+    await clickInScene(page, 'L3-4.QA1');
     await confirm(page);
   });
   check((await sceneItem(page, 'terminal:L3-4'))?.condition !== 'DEENERGIZED', 'the closed line is energized again');

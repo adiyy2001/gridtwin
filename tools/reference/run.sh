@@ -66,7 +66,7 @@ settle() {
   local staged="$1"
   local destination="$2"
   if [ "$mode" = "check" ]; then
-    node "$ROOT/tools/reference/compare.mjs" "$destination" "$staged"
+    node "$ROOT/tools/reference/compare.ts" "$destination" "$staged"
   else
     mkdir -p "$destination"
     find "$destination" -maxdepth 1 -name '*.json' ! -name '*.substation.json' -delete

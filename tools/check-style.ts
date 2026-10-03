@@ -21,14 +21,14 @@ const VENDORED_PATHS = [
 const REGEX_PRECEDING_CHARACTERS = new Set('(,=:[!&|?{};+-*%<>~^'.split(''));
 const REGEX_PRECEDING_WORDS = new Set(['return', 'typeof', 'case', 'in', 'of', 'delete', 'void', 'throw']);
 
-function isWordCharacter(character) {
+function isWordCharacter(character: string | undefined): boolean {
   return character !== undefined && /[A-Za-z0-9_$]/.test(character);
 }
 
-function skipQuoted(text, start, quote) {
+function skipQuoted(text: string, start: number, quote: string): number {
   let index = start + 1;
   while (index < text.length) {
-    const character = text[index];
+    const character = text.charAt(index);
     if (character === '\\') {
       index += 2;
     } else if (character === quote) {
@@ -42,7 +42,7 @@ function skipQuoted(text, start, quote) {
   return text.length;
 }
 
-function skipTextBlock(text, start) {
+function skipTextBlock(text: string, start: number): number {
   let index = start + 3;
   while (index < text.length) {
     if (text[index] === '\\') {
@@ -56,11 +56,11 @@ function skipTextBlock(text, start) {
   return text.length;
 }
 
-function skipRegexLiteral(text, start) {
+function skipRegexLiteral(text: string, start: number): number {
   let index = start + 1;
   let inClass = false;
   while (index < text.length) {
-    const character = text[index];
+    const character = text.charAt(index);
     if (character === '\\') {
       index += 2;
     } else if (character === '\n') {
@@ -84,13 +84,20 @@ function skipRegexLiteral(text, start) {
   return text.length;
 }
 
-function scanCLike(text, options) {
-  const found = [];
+interface CLikeOptions {
+  textBlocks: boolean;
+  templates: boolean;
+  regexLiterals: boolean;
+  urlFunction: boolean;
+}
 
-  function scanTemplate(start) {
+function scanCLike(text: string, options: CLikeOptions): number[] {
+  const found: number[] = [];
+
+  function scanTemplate(start: number): number {
     let index = start + 1;
     while (index < text.length) {
-      const character = text[index];
+      const character = text.charAt(index);
       if (character === '\\') {
         index += 2;
       } else if (character === '`') {
@@ -104,14 +111,14 @@ function scanCLike(text, options) {
     return text.length;
   }
 
-  function scanCode(start, untilClosingBrace) {
+  function scanCode(start: number, untilClosingBrace: boolean): number {
     let index = start;
     let depth = 0;
     let lastSignificant = '';
     let lastWord = '';
     while (index < text.length) {
-      const character = text[index];
-      const next = text[index + 1];
+      const character = text.charAt(index);
+      const next = text.charAt(index + 1);
       if (character === '/' && next === '/') {
         found.push(index);
         const end = text.indexOf('\n', index);
@@ -156,7 +163,7 @@ function scanCLike(text, options) {
           end += 1;
         }
         lastWord = text.slice(index, end);
-        lastSignificant = text[end - 1];
+        lastSignificant = text.charAt(end - 1);
         index = end;
       } else {
         lastSignificant = character;
@@ -171,13 +178,13 @@ function scanCLike(text, options) {
   return found;
 }
 
-function isOctaveTranspose(text, index) {
+function isOctaveTranspose(text: string, index: number): boolean {
   const previous = text[index - 1];
   return previous !== undefined && /[A-Za-z0-9_)\]}'.]/.test(previous);
 }
 
-function scanOctave(text) {
-  const found = [];
+function scanOctave(text: string): number[] {
+  const found: number[] = [];
   const lines = text.split('\n');
   let offset = 0;
   let inBlock = false;
@@ -194,7 +201,7 @@ function scanOctave(text) {
     } else {
       let index = 0;
       while (index < line.length) {
-        const character = line[index];
+        const character = line.charAt(index);
         if (character === '%' || character === '#') {
           found.push(offset + index);
           break;
@@ -222,13 +229,13 @@ function scanOctave(text) {
   return found;
 }
 
-function scanShell(text) {
-  const found = [];
-  const pendingHeredocs = [];
+function scanShell(text: string): number[] {
+  const found: number[] = [];
+  const pendingHeredocs: string[] = [];
   let index = 0;
   let atLineStart = true;
   while (index < text.length) {
-    const character = text[index];
+    const character = text.charAt(index);
     if (character === '\n') {
       index += 1;
       while (pendingHeredocs.length > 0) {
@@ -270,7 +277,7 @@ function scanShell(text) {
     } else if (character === '<' && text[index + 1] === '<' && text[index + 2] !== '<') {
       const match = /^<<-?\s*(['"]?)([A-Za-z_][A-Za-z0-9_]*)\1/.exec(text.slice(index, index + 80));
       if (match) {
-        pendingHeredocs.push(match[2]);
+        pendingHeredocs.push(match[2] ?? '');
         index += match[0].length;
       } else {
         index += 2;
@@ -286,8 +293,8 @@ function scanShell(text) {
   return found;
 }
 
-function scanMarkup(text) {
-  const found = [];
+function scanMarkup(text: string): number[] {
+  const found: number[] = [];
   let index = text.indexOf('<!--');
   while (index >= 0) {
     found.push(index);
@@ -297,14 +304,19 @@ function scanMarkup(text) {
   return found;
 }
 
-function scanHashLines(text, options) {
-  const found = [];
+interface HashLineOptions {
+  quotes: boolean;
+  afterWhitespace: boolean;
+}
+
+function scanHashLines(text: string, options: HashLineOptions): number[] {
+  const found: number[] = [];
   let offset = 0;
   for (const line of text.split('\n')) {
     let index = 0;
     let quote = '';
     while (index < line.length) {
-      const character = line[index];
+      const character = line.charAt(index);
       if (quote) {
         if (character === '\\' && quote === '"') {
           index += 1;
@@ -314,7 +326,7 @@ function scanHashLines(text, options) {
       } else if (options.quotes && (character === '"' || character === "'")) {
         quote = character;
       } else if (character === '#') {
-        const previous = line[index - 1];
+        const previous = line.charAt(index - 1);
         const startsComment = line.slice(0, index).trim() === '' || (options.afterWhitespace && /\s/.test(previous));
         if (startsComment) {
           found.push(offset + index);
@@ -332,7 +344,9 @@ const C_LIKE_SCRIPT = { textBlocks: false, templates: true, regexLiterals: true,
 const C_LIKE_STYLE = { textBlocks: false, templates: false, regexLiterals: false, urlFunction: true };
 const C_LIKE_JAVA = { textBlocks: true, templates: false, regexLiterals: false, urlFunction: false };
 
-const SCANNERS_BY_EXTENSION = new Map([
+type Scanner = (text: string) => number[];
+
+const SCANNERS_BY_EXTENSION = new Map<string, Scanner>([
   ['.java', (text) => scanCLike(text, C_LIKE_JAVA)],
   ['.ts', (text) => scanCLike(text, C_LIKE_SCRIPT)],
   ['.mts', (text) => scanCLike(text, C_LIKE_SCRIPT)],
@@ -355,7 +369,7 @@ const SCANNERS_BY_EXTENSION = new Map([
   ['.dockerfile', (text) => scanHashLines(text, { quotes: false, afterWhitespace: false })],
 ]);
 
-function scannerFor(path) {
+function scannerFor(path: string): Scanner | undefined {
   const name = basename(path);
   if (name === 'Dockerfile') {
     return SCANNERS_BY_EXTENSION.get('.dockerfile');
@@ -363,7 +377,7 @@ function scannerFor(path) {
   return SCANNERS_BY_EXTENSION.get(extname(name).toLowerCase());
 }
 
-function lineNumberAt(text, index) {
+function lineNumberAt(text: string, index: number): number {
   let line = 1;
   for (let position = text.indexOf('\n'); position >= 0 && position < index; position = text.indexOf('\n', position + 1)) {
     line += 1;
@@ -371,7 +385,7 @@ function lineNumberAt(text, index) {
   return line;
 }
 
-export function findComments(text, path) {
+export function findComments(text: string, path: string): number[] {
   const scanner = scannerFor(path);
   if (!scanner) {
     return [];
@@ -380,8 +394,8 @@ export function findComments(text, path) {
   return [...lines].sort((a, b) => a - b);
 }
 
-export function findDashes(text) {
-  const lines = [];
+export function findDashes(text: string): number[] {
+  const lines: number[] = [];
   text.split('\n').forEach((line, index) => {
     if (DASH_PATTERN.test(line)) {
       lines.push(index + 1);
@@ -390,20 +404,78 @@ export function findDashes(text) {
   return lines;
 }
 
-export function isChecked(path) {
+export function isChecked(path: string): boolean {
   if (BINARY_EXTENSIONS.has(extname(path).toLowerCase())) {
     return false;
   }
   return !VENDORED_PATHS.some((pattern) => pattern.test(path));
 }
 
-export function findViolations(path, text) {
-  const comments = findComments(text, path).map((line) => ({ path, line, message: 'comment in code' }));
-  const dashes = findDashes(text).map((line) => ({ path, line, message: 'en or em dash' }));
-  return [...comments, ...dashes];
+export interface Violation {
+  path: string;
+  line: number;
+  message: string;
 }
 
-function listWorkingTreeFiles(root) {
+const ADR_PATH = /^docs\/adr\/\d{4}-[^/]+\.md$/;
+const ADR_HEADINGS = ['## Context', '## Decision', '## Alternatives', '## Consequences'];
+const PROSE_PATH = /^(README|CREDITS)\.md$|^docs\/.*\.md$/;
+const PROCESS_PATTERN = /\bmilestones?\b|\bthe brief\b|\bbrief's\b|\bPLAN\.md\b|\bResume here\b/i;
+const THIRD_PERSON_PATTERN = /\bAdrian\b/;
+const NULL_RETURN = /\breturn\s+null\s*;/;
+
+export function findMissingAdrHeadings(path: string, text: string): string[] {
+  if (!ADR_PATH.test(path) || path.endsWith('/README.md')) {
+    return [];
+  }
+  const headings = new Set(text.split('\n').map((line) => line.trim()));
+  return ADR_HEADINGS.filter((heading) => !headings.has(heading));
+}
+
+export function findNullReturns(text: string): number[] {
+  const lines: number[] = [];
+  text.split('\n').forEach((line, index) => {
+    if (NULL_RETURN.test(line)) {
+      lines.push(index + 1);
+    }
+  });
+  return lines;
+}
+
+export function findProcessLanguage(path: string, text: string): number[] {
+  if (!PROSE_PATH.test(path)) {
+    return [];
+  }
+  const lines: number[] = [];
+  text.split('\n').forEach((line, index) => {
+    const withoutPlaceholder = line.replace(/<!--.*?-->/g, '');
+    if (PROCESS_PATTERN.test(withoutPlaceholder) || THIRD_PERSON_PATTERN.test(withoutPlaceholder)) {
+      lines.push(index + 1);
+    }
+  });
+  return lines;
+}
+
+export function findViolations(path: string, text: string): Violation[] {
+  const comments = findComments(text, path).map((line) => ({ path, line, message: 'comment in code' }));
+  const dashes = findDashes(text).map((line) => ({ path, line, message: 'en or em dash' }));
+  const headings = findMissingAdrHeadings(path, text).map((heading) => ({
+    path,
+    line: 1,
+    message: `decision record without the heading ${heading}`,
+  }));
+  const nullReturns = path.endsWith('.java')
+    ? findNullReturns(text).map((line) => ({ path, line, message: 'null returned instead of an Optional' }))
+    : [];
+  const process = findProcessLanguage(path, text).map((line) => ({
+    path,
+    line,
+    message: 'wording that belongs to how the repository was made',
+  }));
+  return [...comments, ...dashes, ...headings, ...nullReturns, ...process];
+}
+
+function listWorkingTreeFiles(root: string): string[] {
   const output = execFileSync('git', ['ls-files', '-z', '--cached', '--others', '--exclude-standard'], {
     cwd: root,
     encoding: 'utf8',
@@ -412,8 +484,8 @@ function listWorkingTreeFiles(root) {
   return output.split('\0').filter((path) => path !== '' && existsSync(resolve(root, path)));
 }
 
-export function checkRepository(root) {
-  const violations = [];
+export function checkRepository(root: string): Violation[] {
+  const violations: Violation[] = [];
   for (const path of listWorkingTreeFiles(root).filter(isChecked)) {
     const buffer = readFileSync(resolve(root, path));
     if (buffer.includes(0)) {
@@ -424,7 +496,7 @@ export function checkRepository(root) {
   return violations;
 }
 
-function main() {
+function main(): void {
   const root = resolve(fileURLToPath(import.meta.url), '..', '..');
   const violations = checkRepository(root);
   for (const violation of violations) {

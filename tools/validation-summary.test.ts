@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { scientific, summarise } from './validation-summary.mjs';
+import { scientific, summarise } from './validation-summary.ts';
 
 const REPORT = {
   reference: 'MATPOWER 8.1 under GNU Octave 11.3.0',

@@ -1,0 +1,34 @@
+import type { components } from './api-schema';
+
+type Schemas = components['schemas'];
+
+export type TwinState = Schemas['StateDto'];
+export type VersionedState = Schemas['VersionedStateDto'];
+export type SessionCreated = Schemas['SessionCreatedDto'];
+export type CaseSummary = Schemas['CaseSummaryDto'];
+export type CaseDetail = Schemas['CaseDetailDto'];
+export type CaseBus = Schemas['CaseBusDto'];
+export type CaseBranch = Schemas['CaseBranchDto'];
+export type CaseGenerator = Schemas['CaseGeneratorDto'];
+export type Substation = Schemas['SubstationDto'];
+export type Bay = Schemas['BayDto'];
+export type SwitchDescription = Schemas['SwitchDto'];
+export type SwitchState = Schemas['SwitchStateDto'];
+export type NodeState = Schemas['NodeStateDto'];
+export type BusState = Schemas['BusStateDto'];
+export type BranchState = Schemas['BranchStateDto'];
+export type GeneratorState = Schemas['GeneratorStateDto'];
+export type IslandState = Schemas['IslandStateDto'];
+export type SummaryState = Schemas['SummaryStateDto'];
+export type ContingencyReport = Schemas['ContingencyReportDto'];
+export type ContingencySummary = Schemas['ContingencySummaryDto'];
+export type ContingencyPreview = Schemas['ContingencyPreviewDto'];
+export type Cascade = Schemas['CascadeDto'];
+export type CascadeStep = Schemas['CascadeStepDto'];
+export type Outage = Schemas['OutageDto'];
+export type Violation = Schemas['ViolationDto'];
+export type Severity = Schemas['SeverityDto'];
+export type SeverityTier = Schemas['SeverityTier'];
+export type ErrorBody = Schemas['ErrorDto'];
+export type Position = Schemas['Position'];
+export type SwitchKind = Schemas['SwitchKind'];

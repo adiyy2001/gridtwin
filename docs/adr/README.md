@@ -24,3 +24,5 @@ Each record has four parts: context, decision, alternatives and consequences. Re
 | [0018](0018-cascade-simulation-is-an-educational-simplification.md) | The cascade simulation is an educational simplification |
 | [0019](0019-sessions-versions-and-the-application-layer.md) | Sessions, versions and the application layer |
 | [0020](0020-api-contract-errors-and-openapi.md) | API contract, errors and the OpenAPI file |
+| [0021](0021-single-line-diagram-layout-and-symbols.md) | Single-line diagram: derived layout and hand-drawn symbols |
+| [0022](0022-continuous-integration-layout.md) | Continuous integration layout |

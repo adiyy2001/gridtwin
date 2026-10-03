@@ -6,14 +6,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 
-final class N1References {
+public final class N1References {
 
     private static final ObjectMapper MAPPER =
             new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     private N1References() {}
 
-    static N1Reference load(String caseId, String variant) {
+    public static N1Reference load(String caseId, String variant) {
         String path = "/reference/n1/%s-n1-%s.json".formatted(caseId, variant);
         try (InputStream stream = N1References.class.getResourceAsStream(path)) {
             if (stream == null) {

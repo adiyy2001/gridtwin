@@ -36,4 +36,17 @@ class BranchTest {
         assertThatThrownBy(() -> new Branch("L1-2", 1, 2, 0.0, 0.0, 0.0, 10.0, 1.0, 0.0, true))
                 .hasMessageContaining("series impedance");
     }
+
+    @Test
+    void copiesWithAnotherRatingOrServiceStateKeepEverythingElse() {
+        Branch branch = new Branch("T1-2", 1, 2, 0.01, 0.2, 0.03, 40.0, 0.978, 2.0, true);
+
+        Branch rated = branch.withRating(55.0);
+        Branch open = branch.withInService(false);
+
+        assertThat(rated)
+                .isEqualTo(new Branch("T1-2", 1, 2, 0.01, 0.2, 0.03, 55.0, 0.978, 2.0, true));
+        assertThat(open)
+                .isEqualTo(new Branch("T1-2", 1, 2, 0.01, 0.2, 0.03, 40.0, 0.978, 2.0, false));
+    }
 }

@@ -107,4 +107,38 @@ class NetworkTest {
                                         List.of()))
                 .hasMessageContaining("base MVA");
     }
+
+    @Test
+    void theLoadFactorScalesLoadsAndLeavesShuntsAndGenerationAlone() {
+        Network network = ThreeBusNetwork.create();
+
+        Network scaled = network.withLoadFactor(1.5);
+
+        assertThat(scaled.totalLoadMw()).isEqualTo(network.totalLoadMw() * 1.5);
+        assertThat(scaled.loads().get(0).reactivePowerMvar())
+                .isEqualTo(network.loads().get(0).reactivePowerMvar() * 1.5);
+        assertThat(scaled.shunts()).isEqualTo(network.shunts());
+        assertThat(scaled.generators()).isEqualTo(network.generators());
+        assertThat(network.totalLoadMw()).isEqualTo(150.0);
+    }
+
+    @Test
+    void aNegativeLoadFactorIsRejected() {
+        assertThatThrownBy(() -> ThreeBusNetwork.create().withLoadFactor(-0.1))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void branchesCanBeReplacedWithoutTouchingTheRest() {
+        Network network = ThreeBusNetwork.create();
+        Branch opened = network.branches().get(0).withInService(false);
+
+        Network changed =
+                network.withBranches(
+                        List.of(opened, network.branches().get(1), network.branches().get(2)));
+
+        assertThat(changed.branches().get(0).inService()).isFalse();
+        assertThat(changed.buses()).isEqualTo(network.buses());
+        assertThat(changed.loads()).isEqualTo(network.loads());
+    }
 }

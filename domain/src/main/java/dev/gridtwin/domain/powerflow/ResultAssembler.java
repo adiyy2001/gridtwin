@@ -260,7 +260,6 @@ final class ResultAssembler {
             Injections injections,
             Map<Integer, ReactiveLimitState> converted,
             List<String> warnings) {
-        double baseMva = this.network.baseMva();
         List<GeneratorResult> results = new ArrayList<>();
         for (Generator generator : this.network.generators()) {
             Optional<Integer> position = this.index.positionOf(generator.bus());
@@ -287,17 +286,12 @@ final class ResultAssembler {
                                         + " is treated as a load bus",
                                 generator.id(),
                                 limit == ReactiveLimitState.UPPER ? "upper" : "lower",
-                                reactive * baseMva,
+                                reactive,
                                 generator.bus()));
             }
             results.add(
                     new GeneratorResult(
-                            generator.id(),
-                            generator.bus(),
-                            true,
-                            active * baseMva,
-                            reactive * baseMva,
-                            limit));
+                            generator.id(), generator.bus(), true, active, reactive, limit));
         }
         return results;
     }
@@ -305,16 +299,12 @@ final class ResultAssembler {
     private double generatorActive(
             PowerFlowProblem problem, Injections injections, int at, Generator generator) {
         double baseMva = this.network.baseMva();
-        if (problem.roles()[at] != BusType.REFERENCE) {
-            return generator.activePowerMw() / baseMva;
-        }
         List<Generator> atBus = this.model.generatorsAt(at);
-        if (atBus.get(0) != generator) {
-            return generator.activePowerMw() / baseMva;
+        if (problem.roles()[at] != BusType.REFERENCE || atBus.get(0) != generator) {
+            return generator.activePowerMw();
         }
-        double others =
-                atBus.stream().skip(1).mapToDouble(Generator::activePowerMw).sum() / baseMva;
-        return injections.activePower()[at] + this.model.loadActive(at) - others;
+        double others = atBus.stream().skip(1).mapToDouble(Generator::activePowerMw).sum();
+        return (injections.activePower()[at] + this.model.loadActive(at)) * baseMva - others;
     }
 
     private double generatorReactive(
@@ -324,24 +314,22 @@ final class ResultAssembler {
             int at,
             Generator generator) {
         double baseMva = this.network.baseMva();
-        BusType role = problem.roles()[at];
-        if (role == BusType.PQ) {
+        if (problem.roles()[at] == BusType.PQ) {
             return switch (converted.getOrDefault(at, ReactiveLimitState.NONE)) {
-                case UPPER -> generator.reactiveMaxMvar() / baseMva;
-                case LOWER -> generator.reactiveMinMvar() / baseMva;
-                case NONE -> generator.reactivePowerMvar() / baseMva;
+                case UPPER -> generator.reactiveMaxMvar();
+                case LOWER -> generator.reactiveMinMvar();
+                case NONE -> generator.reactivePowerMvar();
             };
         }
         double total = injections.reactivePower()[at] + this.model.loadReactive(at);
         double minimum = this.model.reactiveMin(at);
         double range = this.model.reactiveMax(at) - minimum;
-        List<Generator> atBus = this.model.generatorsAt(at);
         if (range <= 0.0) {
-            return total / atBus.size();
+            return total * baseMva / this.model.generatorsAt(at).size();
         }
         double fraction = (total - minimum) / range;
-        return generator.reactiveMinMvar() / baseMva
-                + fraction * (generator.reactiveMaxMvar() - generator.reactiveMinMvar()) / baseMva;
+        return generator.reactiveMinMvar()
+                + fraction * (generator.reactiveMaxMvar() - generator.reactiveMinMvar());
     }
 
     private void addSlackWarning(

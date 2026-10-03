@@ -11,6 +11,10 @@
   <artifactId>gridtwin-domain</artifactId>
   <name>gridtwin domain</name>
 
+  <properties>
+    <jacoco.line.minimum>0.90</jacoco.line.minimum>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.ejml</groupId>

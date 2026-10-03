@@ -36,3 +36,16 @@ export function sceneApi(win: Window): SceneApi {
   }
   return api;
 }
+
+export function clickSceneItem(id: string): void {
+  cy.window().then((win) => {
+    const point = sceneApi(win).screenPointOf(id);
+    if (point === null) {
+      throw new Error(`scene item ${id} has no position on screen`);
+    }
+    cy.get<HTMLCanvasElement>('[data-scene-canvas]').then((canvas) => {
+      const rect = canvas.get(0).getBoundingClientRect();
+      cy.wrap(canvas).click(point.clientX - rect.left, point.clientY - rect.top);
+    });
+  });
+}

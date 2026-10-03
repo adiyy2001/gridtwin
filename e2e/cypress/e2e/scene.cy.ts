@@ -1,4 +1,4 @@
-import { sceneApi } from '../support/scene';
+import { clickSceneItem, sceneApi } from '../support/scene';
 import type { SceneItem } from '../support/scene';
 
 function expectItem<K extends keyof SceneItem>(id: string, field: K, value: SceneItem[K]): void {
@@ -54,14 +54,7 @@ describe('3D substation scene', () => {
   });
 
   it('operates equipment from a click in the scene only after confirmation', () => {
-    cy.window().then((win) => {
-      const point = sceneApi(win).screenPointOf('L3-4.QA1');
-      expect(point, 'screen position of the breaker').to.not.equal(null);
-      cy.get('[data-scene-canvas]').then((canvas) => {
-        const rect = canvas[0]!.getBoundingClientRect();
-        cy.wrap(canvas).click(point!.clientX - rect.left, point!.clientY - rect.top);
-      });
-    });
+    clickSceneItem('L3-4.QA1');
     cy.get('[data-action="confirm"]').should('be.visible');
     expectItem('L3-4.QA1', 'position', 'CLOSED');
     showVersion(1);
@@ -73,14 +66,7 @@ describe('3D substation scene', () => {
   });
 
   it('marks the equipment picked in the scene as selected in the inspector', () => {
-    cy.window().then((win) => {
-      const point = sceneApi(win).screenPointOf('terminal:L4-5');
-      expect(point, 'screen position of the line exit').to.not.equal(null);
-      cy.get('[data-scene-canvas]').then((canvas) => {
-        const rect = canvas[0]!.getBoundingClientRect();
-        cy.wrap(canvas).click(point!.clientX - rect.left, point!.clientY - rect.top);
-      });
-    });
+    clickSceneItem('terminal:L4-5');
     expectItem('terminal:L4-5', 'selected', true);
     cy.get('[data-sld-terminal="L4-5"]').should('have.class', 'selected');
   });

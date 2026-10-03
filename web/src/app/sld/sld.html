@@ -146,9 +146,9 @@
         >
           <rect
             class="hit"
-            [attr.x]="terminal.x - 19"
+            [attr.x]="terminal.x - 17"
             [attr.y]="terminal.y - 2"
-            width="38"
+            width="34"
             height="36"
             rx="5"
           />
@@ -206,7 +206,7 @@
             <text
               class="readout"
               [class.overload]="terminal.overloaded"
-              [attr.x]="terminal.x + 22"
+              [attr.x]="terminal.x + 25"
               [attr.y]="terminal.y + 14 + $index * 14"
             >
               {{ line }}{{ $index === 1 && terminal.overloaded ? ' !' : '' }}

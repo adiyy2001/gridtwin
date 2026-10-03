@@ -44,7 +44,9 @@ const chrome = spawn(
   [
     '--headless=new',
     '--no-sandbox',
-    '--disable-gpu',
+    '--use-angle=swiftshader',
+    '--enable-unsafe-swiftshader',
+    '--ignore-gpu-blocklist',
     `--remote-debugging-port=${debuggingPort}`,
     `--user-data-dir=${profileDirectory}`,
     'about:blank',

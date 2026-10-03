@@ -10,5 +10,17 @@ export default defineConfig({
     viewportWidth: 1440,
     viewportHeight: 900,
     defaultCommandTimeout: 8000,
+    setupNodeEvents(on) {
+      on('before:browser:launch', (browser, launchOptions) => {
+        if (browser.family === 'chromium') {
+          launchOptions.args.push(
+            '--use-angle=swiftshader',
+            '--enable-unsafe-swiftshader',
+            '--ignore-gpu-blocklist',
+          );
+        }
+        return launchOptions;
+      });
+    },
   },
 });

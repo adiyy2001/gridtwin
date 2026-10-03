@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
-import { chromium } from 'playwright';
+import { launchChrome } from '../scripts/browser.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const base = process.env.GRIDTWIN_BASE_URL ?? 'http://127.0.0.1:18480';
@@ -45,6 +45,16 @@ const scenarios = [
     },
   },
   {
+    name: '3D scene with a selected switch and a focused camera',
+    prepare: async (page) => {
+      await page.locator('[data-scene-canvas]').waitFor();
+      await page.waitForFunction(() => window.__gridtwin?.scene?.describe().webgl === true);
+      await page.locator('[data-sld-switch="L3-4.QA1"]').click();
+      await page.locator('[data-action="cancel"]').click();
+      await page.locator('[data-action="focus-selection"]').click();
+    },
+  },
+  {
     name: 'N-1 table and cascade replay',
     prepare: async (page) => {
       await page.locator('[data-action="run-n1"]').click();
@@ -55,10 +65,7 @@ const scenarios = [
   },
 ];
 
-const browser = await chromium.launch({
-  executablePath: process.env.CHROME_PATH ?? '/usr/bin/google-chrome',
-  args: ['--no-sandbox'],
-});
+const browser = await launchChrome();
 const report = [];
 let blockingCount = 0;
 

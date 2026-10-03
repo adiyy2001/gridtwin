@@ -8,7 +8,9 @@
     "cypress:ci": "node scripts/with-server.mjs -- cypress run --browser chrome --headless",
     "lighthouse": "node scripts/with-server.mjs -- node lighthouse/run.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "a11y": "node scripts/with-server.mjs -- node a11y/run.mjs"
+    "a11y": "node scripts/with-server.mjs -- node a11y/run.mjs",
+    "visual": "node scripts/with-server.mjs -- node visual/run.mjs",
+    "demo": "node scripts/with-server.mjs -- node demo/run.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",

@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { chromium } from 'playwright';
 
 export const chromePath = process.env.CHROME_PATH ?? '/usr/bin/google-chrome';
@@ -11,8 +12,30 @@ export const webglArguments = [
 
 export const gpuArguments = ['--no-sandbox', '--ignore-gpu-blocklist', '--enable-gpu-rasterization'];
 
-export function launchChrome(extraArguments = webglArguments) {
-  return chromium.launch({ executablePath: chromePath, args: extraArguments });
+const WSL_LIBRARY_DIRECTORY = '/usr/lib/wsl/lib';
+
+export const wslGpuArguments = [...gpuArguments, '--use-gl=angle', '--use-angle=gl-egl'];
+
+export const wslGpuEnvironment = {
+  GALLIUM_DRIVER: 'd3d12',
+  MESA_LOADER_DRIVER_OVERRIDE: 'd3d12',
+  LD_LIBRARY_PATH: [WSL_LIBRARY_DIRECTORY, process.env.LD_LIBRARY_PATH].filter(Boolean).join(':'),
+};
+
+export function runsOnWsl() {
+  return existsSync('/dev/dxg');
+}
+
+export function launchChrome(extraArguments = webglArguments, environment = {}) {
+  return chromium.launch({
+    executablePath: chromePath,
+    args: extraArguments,
+    env: { ...process.env, ...environment },
+  });
+}
+
+export function launchGpuChrome() {
+  return runsOnWsl() ? launchChrome(wslGpuArguments, wslGpuEnvironment) : launchChrome(gpuArguments);
 }
 
 export async function describeBrowser(browser, page) {

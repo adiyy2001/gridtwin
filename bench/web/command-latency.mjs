@@ -7,6 +7,7 @@ import {
   parseOptions,
   printHardware,
   statistics,
+  resultName,
   writeResult,
 } from './common.mjs';
 
@@ -58,7 +59,7 @@ const withoutSceneBrowser = await launchWithoutWebgl();
 try {
   const withScene = await measure(withSceneBrowser, 'command to rendered frame with the 3D scene', true);
   const withoutScene = await measure(withoutSceneBrowser, 'command to rendered frame, 3D scene unavailable', false);
-  const file = writeResult('web-command-latency', {
+  const file = writeResult(resultName('web-command-latency', options), {
     suite: 'web-command-latency',
     generatedAt: new Date().toISOString(),
     url: base,

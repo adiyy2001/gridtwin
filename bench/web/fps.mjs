@@ -1,4 +1,4 @@
-import { base, hardware, launch, openScene, parseOptions, printHardware, statistics, writeResult } from './common.mjs';
+import { base, hardware, launch, openScene, parseOptions, printHardware, resultName, statistics, writeResult } from './common.mjs';
 
 const options = parseOptions(process.argv.slice(2));
 const runs = options.quick ? 1 : 3;
@@ -24,7 +24,7 @@ try {
   }
   const fps = measurements.map((entry) => entry.averageFps).sort((a, b) => a - b);
   const frameTimes = measurements.map((entry) => entry.medianFrameMs);
-  const file = writeResult('web-fps', {
+  const file = writeResult(resultName('web-fps', options), {
     suite: 'web-fps',
     generatedAt: new Date().toISOString(),
     url: base,

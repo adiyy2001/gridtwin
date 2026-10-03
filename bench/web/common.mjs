@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { cpus, totalmem, platform, release, arch } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { describeBrowser, gpuArguments, launchChrome, webglArguments } from '../../e2e/scripts/browser.mjs';
+import { describeBrowser, launchChrome, launchGpuChrome, webglArguments } from '../../e2e/scripts/browser.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const resultsDirectory = resolve(here, '..', 'results');
@@ -23,7 +23,7 @@ export function parseOptions(argv) {
 }
 
 export function launch(options) {
-  return launchChrome(options.gpu ? gpuArguments : webglArguments);
+  return options.gpu ? launchGpuChrome() : launchChrome(webglArguments);
 }
 
 export function percentile(sorted, fraction) {
@@ -75,6 +75,10 @@ export async function openScene(browser, viewport = { width: 1440, height: 1000 
     withScene,
   );
   return { context, page };
+}
+
+export function resultName(name, options) {
+  return options.gpu ? `${name}-gpu` : name;
 }
 
 export function writeResult(name, report) {

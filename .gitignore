@@ -10,6 +10,7 @@ coverage/
 test-results/
 playwright-report/
 e2e/visual/out/
+e2e/demo/out/
 api/src/main/resources/META-INF/resources/
 *.log
 .env

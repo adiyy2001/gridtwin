@@ -71,7 +71,7 @@ public final class Property<T> {
                                 SEED_PROPERTY,
                                 attemptSeed,
                                 TRIES_PROPERTY,
-                                cause.getMessage());
+                                String.valueOf(cause.getMessage()).strip().replaceAll("\\s+", " "));
         return new AssertionError(message, cause);
     }
 }

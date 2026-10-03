@@ -111,6 +111,41 @@ class PowerFlowTest {
     }
 
     @Test
+    void aWarmStartThatDivergesFallsBackToAFlatStart() {
+        Network network = TestNetworks.threeBus(1000.0);
+        PowerFlowResult flat = this.powerFlow.solve(network);
+        WarmStart far =
+                new WarmStart(Map.of(1, 1.0, 2, 1.0, 3, 0.05), Map.of(1, 0.0, 2, 170.0, 3, -170.0));
+
+        PowerFlowResult result = this.powerFlow.solve(network, far);
+
+        assertThat(result.converged()).isTrue();
+        assertThat(result.bus(3).orElseThrow().voltageMagnitude())
+                .isCloseTo(flat.bus(3).orElseThrow().voltageMagnitude(), within(1e-8));
+    }
+
+    @Test
+    void aWarmStartThatLandsOnTheLowVoltageSolutionIsReplacedByTheFlatStartSolution() {
+        Network network = TestNetworks.twoBus(100.0, 0.0, 0.0, REACTANCE);
+        WarmStart nearTheLowRoot = new WarmStart(Map.of(2, 0.15), Map.of(2, -80.0));
+
+        PowerFlowResult result = this.powerFlow.solve(network, nearTheLowRoot);
+
+        assertThat(result.bus(2).orElseThrow().voltageMagnitude())
+                .isCloseTo(RECEIVING_VOLTAGE, within(1e-9));
+    }
+
+    @Test
+    void aFailedWarmStartAndAFailedFlatStartStillReportCollapse() {
+        Network overloaded = TestNetworks.twoBus(2000.0, 500.0, 0.0, 0.1);
+        WarmStart start = new WarmStart(Map.of(2, 0.9), Map.of(2, -10.0));
+
+        PowerFlowResult result = this.powerFlow.solve(overloaded, start);
+
+        assertThat(result.status()).isEqualTo(PowerFlowStatus.COLLAPSED);
+    }
+
+    @Test
     void generationEqualsLoadPlusLossesPlusShuntConsumption() {
         Network network =
                 new Network(

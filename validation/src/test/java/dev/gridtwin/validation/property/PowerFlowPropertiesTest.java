@@ -121,19 +121,32 @@ class PowerFlowPropertiesTest {
         Property.forAll(
                         "outage and restoration",
                         RandomNetworks::generate,
-                        network -> {
-                            PowerFlow powerFlow = withLimits(false);
-                            PowerFlowResult original = solveOrDiscard(powerFlow, network);
-                            Branch removed = network.branches().get(network.branches().size() - 1);
-                            Network without = replace(network, removed.withInService(false));
-                            PowerFlowResult outage = solveOrDiscard(powerFlow, without);
-
-                            PowerFlowResult restored = powerFlow.solve(network, outage.warmStart());
-
-                            assertThat(restored.converged()).isTrue();
-                            assertSameSolution(original, restored);
-                        })
+                        PowerFlowPropertiesTest::assertRestorationReturnsTheOriginalSolution)
                 .run();
+    }
+
+    @Test
+    void aHeavilyLoadedNetworkDoesNotLandOnTheLowVoltageSolutionAfterARestoration() {
+        Property.forAll(
+                        "stressed outage and restoration",
+                        RandomNetworks::generate,
+                        PowerFlowPropertiesTest::assertRestorationReturnsTheOriginalSolution)
+                .withSeed(681L)
+                .withTries(1)
+                .run();
+    }
+
+    private static void assertRestorationReturnsTheOriginalSolution(Network network) {
+        PowerFlow powerFlow = withLimits(false);
+        PowerFlowResult original = solveOrDiscard(powerFlow, network);
+        Branch removed = network.branches().get(network.branches().size() - 1);
+        PowerFlowResult outage =
+                solveOrDiscard(powerFlow, replace(network, removed.withInService(false)));
+
+        PowerFlowResult restored = powerFlow.solve(network, outage.warmStart());
+
+        assertThat(restored.converged()).isTrue();
+        assertSameSolution(original, restored);
     }
 
     private static Network replace(Network network, Branch replacement) {

@@ -1,6 +1,5 @@
 package dev.gridtwin.domain.powerflow;
 
-import dev.gridtwin.domain.model.BusType;
 import dev.gridtwin.domain.model.Network;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -9,6 +8,8 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public final class PowerFlow {
+
+    private static final double PHYSICAL_VOLTAGE_FLOOR = 0.5;
 
     private final PowerFlowOptions options;
     private final Supplier<SparseLinearSolver> solverFactory;
@@ -31,7 +32,12 @@ public final class PowerFlow {
     }
 
     public PowerFlowResult solve(Network network, WarmStart warmStart) {
-        return this.run(network, Optional.of(warmStart));
+        PowerFlowResult warm = this.run(network, Optional.of(warmStart));
+        if (warm.converged() && lowestVoltage(warm) >= PHYSICAL_VOLTAGE_FLOOR) {
+            return warm;
+        }
+        PowerFlowResult flat = this.run(network, Optional.empty());
+        return flat.converged() ? flat : warm;
     }
 
     private PowerFlowResult run(Network network, Optional<WarmStart> warmStart) {
@@ -48,8 +54,8 @@ public final class PowerFlow {
                         this.options.maxIterations());
         Map<Integer, ReactiveLimitState> converted = new LinkedHashMap<>();
         PowerFlowProblem problem = model.problem(converted);
-        double[] magnitudes = this.startMagnitudes(model, problem, warmStart);
-        double[] angles = this.startAngles(model, problem, warmStart);
+        double[] magnitudes = StartingPoint.magnitudes(model, problem, warmStart);
+        double[] angles = StartingPoint.angles(model, problem, warmStart);
         int totalIterations = 0;
         int rounds = 0;
         while (true) {
@@ -73,38 +79,11 @@ public final class PowerFlow {
         }
     }
 
-    private double[] startMagnitudes(
-            IslandModel model, PowerFlowProblem problem, Optional<WarmStart> warmStart) {
-        double[] magnitudes = new double[problem.roles().length];
-        for (int position = 0; position < magnitudes.length; position++) {
-            int number = model.index().numberAt(position);
-            magnitudes[position] =
-                    problem.roles()[position] == BusType.PQ
-                            ? warmStart.map(start -> start.magnitudes().get(number)).orElse(1.0)
-                            : model.setpoint(position);
-        }
-        return magnitudes;
-    }
-
-    private double[] startAngles(
-            IslandModel model, PowerFlowProblem problem, Optional<WarmStart> warmStart) {
-        double referenceAngle =
-                Math.toRadians(
-                        model.network()
-                                .findBus(model.index().numberAt(problem.referenceBus()))
-                                .orElseThrow()
-                                .voltageAngleDegrees());
-        double[] angles = new double[problem.roles().length];
-        for (int position = 0; position < angles.length; position++) {
-            int number = model.index().numberAt(position);
-            angles[position] =
-                    problem.roles()[position] == BusType.REFERENCE
-                            ? referenceAngle
-                            : warmStart
-                                    .map(start -> start.anglesDegrees().get(number))
-                                    .map(Math::toRadians)
-                                    .orElse(referenceAngle);
-        }
-        return angles;
+    private static double lowestVoltage(PowerFlowResult result) {
+        return result.buses().stream()
+                .filter(BusResult::energized)
+                .mapToDouble(BusResult::voltageMagnitude)
+                .min()
+                .orElse(1.0);
     }
 }

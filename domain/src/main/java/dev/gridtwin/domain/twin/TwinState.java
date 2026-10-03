@@ -3,12 +3,15 @@ package dev.gridtwin.domain.twin;
 import dev.gridtwin.domain.model.Network;
 import dev.gridtwin.domain.topology.Interlocks;
 import dev.gridtwin.domain.topology.OperationResult;
+import dev.gridtwin.domain.topology.Outages;
 import dev.gridtwin.domain.topology.Position;
 import dev.gridtwin.domain.topology.SwitchPositions;
 import dev.gridtwin.domain.topology.Topology;
 import dev.gridtwin.domain.topology.TopologyProcessor;
+import dev.gridtwin.domain.topology.TopologySource;
 
-public record TwinState(GridModel model, double loadFactor, SwitchPositions positions) {
+public record TwinState(GridModel model, double loadFactor, SwitchPositions positions)
+        implements TopologySource {
 
     public static final double MIN_LOAD_FACTOR = 0.5;
     public static final double MAX_LOAD_FACTOR = 1.5;
@@ -33,8 +36,10 @@ public record TwinState(GridModel model, double loadFactor, SwitchPositions posi
         return this.model.network().withLoadFactor(this.loadFactor);
     }
 
-    public Topology topology() {
-        return TopologyProcessor.process(this.network(), this.model.substation(), this.positions);
+    @Override
+    public Topology topology(Outages outages) {
+        return TopologyProcessor.process(
+                outages.applyTo(this.network()), this.model.substation(), this.positions);
     }
 
     public TwinState withLoadFactor(double factor) {

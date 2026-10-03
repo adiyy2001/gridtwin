@@ -51,8 +51,19 @@ public final class TwinSolver {
         return this.solve(state, Optional.of(warmStart));
     }
 
+    public GridSolution solve(Topology topology) {
+        return this.solveTopology(topology, Optional.empty());
+    }
+
+    public GridSolution solve(Topology topology, WarmStart warmStart) {
+        return this.solveTopology(topology, Optional.of(warmStart));
+    }
+
     private TwinSolution solve(TwinState state, Optional<WarmStart> warmStart) {
-        Topology topology = state.topology();
+        return new TwinSolution(state, this.solveTopology(state.topology(), warmStart));
+    }
+
+    private GridSolution solveTopology(Topology topology, Optional<WarmStart> warmStart) {
         List<IslandSolution> islands =
                 topology.islands().stream()
                         .map(island -> this.solveIsland(topology.network(), island, warmStart))
@@ -112,8 +123,7 @@ public final class TwinSolver {
                         .flatMap(island -> island.result().stream())
                         .mapToDouble(PowerFlowResult::totalLossMw)
                         .sum();
-        return new TwinSolution(
-                state,
+        return new GridSolution(
                 topology,
                 islands,
                 buses,

@@ -80,6 +80,17 @@ public record Network(
                 replacement);
     }
 
+    public Network withGenerators(List<Generator> replacement) {
+        return new Network(
+                this.id,
+                this.baseMva,
+                this.buses,
+                this.loads,
+                this.shunts,
+                replacement,
+                this.branches);
+    }
+
     public double totalLoadMw() {
         return this.loads.stream().mapToDouble(Load::activePowerMw).sum();
     }

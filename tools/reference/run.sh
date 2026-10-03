@@ -2,7 +2,7 @@
 set -euo pipefail
 
 usage() {
-  echo "usage: tools/reference/run.sh [--check] [all|cases|references]" >&2
+  echo "usage: tools/reference/run.sh [--check] [all|cases|references|n1]" >&2
   exit 2
 }
 
@@ -14,13 +14,14 @@ MATPOWER_URL="https://github.com/MATPOWER/matpower/archive/refs/tags/${MATPOWER_
 OCTAVE_IMAGE="gnuoctave/octave:11.3.0"
 CASES_DIR="$ROOT/cases/src/main/resources/cases"
 REFERENCES_DIR="$ROOT/validation/src/test/resources/reference"
+N1_DIR="$REFERENCES_DIR/n1"
 
 mode="generate"
 target="all"
 for argument in "$@"; do
   case "$argument" in
     --check) mode="check" ;;
-    all|cases|references) target="$argument" ;;
+    all|cases|references|n1) target="$argument" ;;
     *) usage ;;
   esac
 done
@@ -90,4 +91,7 @@ if [ "$target" = "all" ] || [ "$target" = "cases" ]; then
 fi
 if [ "$target" = "all" ] || [ "$target" = "references" ]; then
   run_target generate_references.m "$REFERENCES_DIR"
+fi
+if [ "$target" = "all" ] || [ "$target" = "n1" ]; then
+  run_target generate_n1_references.m "$N1_DIR"
 fi

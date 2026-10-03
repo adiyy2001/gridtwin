@@ -8,7 +8,7 @@ The README opens with a short recording of the application in use. The GIF has t
 
 ## Decision
 
-- `e2e/demo/run.mjs` drives the real application with Playwright against the packaged jar and records a video. The story is a script, so it is re-recorded with one command (`pnpm --dir e2e run demo`).
+- `e2e/demo/run.ts` drives the real application with Playwright against the packaged jar and records a video. The story is a script, so it is re-recorded with one command (`pnpm --dir e2e run demo`).
 - The recording uses the same software renderer as the visual suite. A first recording on the WSL GPU path (`GRIDTWIN_DEMO_GPU=1`) had torn and mixed frames in the video, so it stays an option and is not what the README shows.
 - `tools/make-demo-gif.sh` converts the video with ffmpeg in two passes (a palette from the whole clip, then the GIF using it). Defaults are 6 frames per second, 900 px wide, 64 colours, and the first 4 seconds are cut. The script fails when the file is 8 MB or larger, and prints how to lower the three settings.
 - The committed file is `docs/media/demo.gif`. It is 5.3 MB.

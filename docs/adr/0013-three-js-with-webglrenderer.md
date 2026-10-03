@@ -22,4 +22,4 @@ When WebGL is not available the 3D panel shows a message and the rest of the app
 
 ## Consequences
 
-Frame rates measured here come from a software renderer and say nothing about an integrated GPU. The 60 fps target is measured by `bench/web/fps.mjs` on a machine with a real GPU, and the README states which numbers came from where.
+Frame rates measured here come from a software renderer and say nothing about an integrated GPU. The 60 fps target is measured by `bench/web/fps.ts` on a machine with a real GPU, and the README states which numbers came from where.

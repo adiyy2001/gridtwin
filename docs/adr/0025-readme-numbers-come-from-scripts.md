@@ -10,8 +10,8 @@ Three kinds of numbers were missing a script when the application was feature co
 
 ## Decision
 
-- `tools/validation-report.sh` runs `ValidationReportTest`, which compares the solver with every base case reference (two cases, four load factors, with and without reactive limits) and every N-1 reference, and writes the worst voltage, angle and flow deviation of each set. The result is copied to `bench/results/validation.json` and printed by `tools/validation-summary.mjs`. The test also asserts the tolerances above, so the report cannot be written for a failing solver.
-- `tools/coverage-badge.mjs` reads the JaCoCo CSV files of the four Java modules and the Istanbul JSON of the Vitest run, counts lines the way each tool counts them, prints a table and writes `docs/badges/coverage.svg`. The badge shows the combined line coverage. No coverage service and no account are involved.
+- `tools/validation-report.sh` runs `ValidationReportTest`, which compares the solver with every base case reference (two cases, four load factors, with and without reactive limits) and every N-1 reference, and writes the worst voltage, angle and flow deviation of each set. The result is copied to `bench/results/validation.json` and printed by `tools/validation-summary.ts`. The test also asserts the tolerances above, so the report cannot be written for a failing solver.
+- `tools/coverage-badge.ts` reads the JaCoCo CSV files of the four Java modules and the Istanbul JSON of the Vitest run, counts lines the way each tool counts them, prints a table and writes `docs/badges/coverage.svg`. The badge shows the combined line coverage. No coverage service and no account are involved.
 - Timings come from `tools/bench.sh java` and `tools/bench.sh web`. Both write JSON with a hardware header into `bench/results/`.
 - The README names the file each number came from. Results that were measured on the development machine say so, with its CPU and the renderer string of the browser.
 

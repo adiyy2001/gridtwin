@@ -103,7 +103,7 @@ The slider scales all active and reactive loads by one factor between 0.5 and 1.
 
 ## 8. Node-breaker topology
 
-Bus 4 of IEEE 14 is replaced by a fictional double busbar substation. Its data (22 nodes, 35 switches, 7 bays) is in `cases/src/main/resources/cases/ieee14.substation.json`. Nothing in it describes a real installation.
+Bus 4 of IEEE 14 is replaced by a fictional double busbar substation. Its data (22 nodes, 35 switches, six feeder bays and a bus coupler) is in `cases/src/main/resources/cases/ieee14.substation.json`. Nothing in it describes a real installation.
 
 Busbars BB1 and BB2 carry bus numbers 4 and 40. Six feeder bays (three lines, two transformers and the load) each have a breaker, a disconnector to each busbar, a disconnector towards the equipment and an earthing switch. A bus coupler bay joins the busbars.
 

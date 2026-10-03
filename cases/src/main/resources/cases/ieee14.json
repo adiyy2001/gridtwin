@@ -1,0 +1,586 @@
+{
+  "id": "ieee14",
+  "title": "IEEE 14-bus test system",
+  "provenance": {
+    "source": "MATPOWER case14, converted from ieee14cdf.txt of the University of Washington Power Systems Test Case Archive",
+    "generatedBy": "tools/reference/export_case.m",
+    "matpowerVersion": "8.1",
+    "matpowerArchiveSha256": "aebdc566e7d09a747c9197e7f69815e00cfe1d84db980d2121821b99b679c383",
+    "octaveVersion": "11.3.0",
+    "dockerImage": "gnuoctave/octave:11.3.0",
+    "powerFlowTolerance": 1e-12,
+    "powerFlowMaxIterations": 30,
+    "ratingPolicy": "max(ceil(1.25 * peak / 5) * 5, 20) MVA, peak being the larger apparent power at the two ends in the solved base case at 100% load without reactive limits",
+    "voltagePolicy": "synthetic base voltages: 132 kV for buses 1 to 5 and 33 kV for buses 6 to 14, the file has none",
+    "layoutPolicy": "synthetic schematic coordinates from a deterministic force-directed layout, for drawing only"
+  },
+  "baseMva": 100,
+  "buses": [
+    {
+      "number": 1,
+      "type": "REFERENCE",
+      "baseKv": 132,
+      "vMin": 0.94,
+      "vMax": 1.06,
+      "voltageMagnitude": 1.06,
+      "voltageAngleDegrees": 0
+    },
+    {
+      "number": 2,
+      "type": "PV",
+      "baseKv": 132,
+      "vMin": 0.94,
+      "vMax": 1.06,
+      "voltageMagnitude": 1.045,
+      "voltageAngleDegrees": -4.98
+    },
+    {
+      "number": 3,
+      "type": "PV",
+      "baseKv": 132,
+      "vMin": 0.94,
+      "vMax": 1.06,
+      "voltageMagnitude": 1.01,
+      "voltageAngleDegrees": -12.72
+    },
+    {
+      "number": 4,
+      "type": "PQ",
+      "baseKv": 132,
+      "vMin": 0.94,
+      "vMax": 1.06,
+      "voltageMagnitude": 1.019,
+      "voltageAngleDegrees": -10.33
+    },
+    {
+      "number": 5,
+      "type": "PQ",
+      "baseKv": 132,
+      "vMin": 0.94,
+      "vMax": 1.06,
+      "voltageMagnitude": 1.02,
+      "voltageAngleDegrees": -8.78
+    },
+    {
+      "number": 6,
+      "type": "PV",
+      "baseKv": 33,
+      "vMin": 0.94,
+      "vMax": 1.06,
+      "voltageMagnitude": 1.07,
+      "voltageAngleDegrees": -14.22
+    },
+    {
+      "number": 7,
+      "type": "PQ",
+      "baseKv": 33,
+      "vMin": 0.94,
+      "vMax": 1.06,
+      "voltageMagnitude": 1.062,
+      "voltageAngleDegrees": -13.37
+    },
+    {
+      "number": 8,
+      "type": "PV",
+      "baseKv": 33,
+      "vMin": 0.94,
+      "vMax": 1.06,
+      "voltageMagnitude": 1.09,
+      "voltageAngleDegrees": -13.36
+    },
+    {
+      "number": 9,
+      "type": "PQ",
+      "baseKv": 33,
+      "vMin": 0.94,
+      "vMax": 1.06,
+      "voltageMagnitude": 1.056,
+      "voltageAngleDegrees": -14.94
+    },
+    {
+      "number": 10,
+      "type": "PQ",
+      "baseKv": 33,
+      "vMin": 0.94,
+      "vMax": 1.06,
+      "voltageMagnitude": 1.051,
+      "voltageAngleDegrees": -15.1
+    },
+    {
+      "number": 11,
+      "type": "PQ",
+      "baseKv": 33,
+      "vMin": 0.94,
+      "vMax": 1.06,
+      "voltageMagnitude": 1.057,
+      "voltageAngleDegrees": -14.79
+    },
+    {
+      "number": 12,
+      "type": "PQ",
+      "baseKv": 33,
+      "vMin": 0.94,
+      "vMax": 1.06,
+      "voltageMagnitude": 1.055,
+      "voltageAngleDegrees": -15.07
+    },
+    {
+      "number": 13,
+      "type": "PQ",
+      "baseKv": 33,
+      "vMin": 0.94,
+      "vMax": 1.06,
+      "voltageMagnitude": 1.05,
+      "voltageAngleDegrees": -15.16
+    },
+    {
+      "number": 14,
+      "type": "PQ",
+      "baseKv": 33,
+      "vMin": 0.94,
+      "vMax": 1.06,
+      "voltageMagnitude": 1.036,
+      "voltageAngleDegrees": -16.04
+    }
+  ],
+  "loads": [
+    {
+      "bus": 2,
+      "pMw": 21.7,
+      "qMvar": 12.7
+    },
+    {
+      "bus": 3,
+      "pMw": 94.2,
+      "qMvar": 19
+    },
+    {
+      "bus": 4,
+      "pMw": 47.8,
+      "qMvar": -3.9
+    },
+    {
+      "bus": 5,
+      "pMw": 7.6,
+      "qMvar": 1.6
+    },
+    {
+      "bus": 6,
+      "pMw": 11.2,
+      "qMvar": 7.5
+    },
+    {
+      "bus": 9,
+      "pMw": 29.5,
+      "qMvar": 16.6
+    },
+    {
+      "bus": 10,
+      "pMw": 9,
+      "qMvar": 5.8
+    },
+    {
+      "bus": 11,
+      "pMw": 3.5,
+      "qMvar": 1.8
+    },
+    {
+      "bus": 12,
+      "pMw": 6.1,
+      "qMvar": 1.6
+    },
+    {
+      "bus": 13,
+      "pMw": 13.5,
+      "qMvar": 5.8
+    },
+    {
+      "bus": 14,
+      "pMw": 14.9,
+      "qMvar": 5
+    }
+  ],
+  "shunts": [
+    {
+      "bus": 9,
+      "gMw": 0,
+      "bMvar": 19
+    }
+  ],
+  "generators": [
+    {
+      "id": "G1",
+      "bus": 1,
+      "pMw": 232.4,
+      "qMvar": -16.9,
+      "qMinMvar": 0,
+      "qMaxMvar": 10,
+      "pMinMw": 0,
+      "pMaxMw": 332.4,
+      "voltageSetpoint": 1.06,
+      "inService": true
+    },
+    {
+      "id": "G2",
+      "bus": 2,
+      "pMw": 40,
+      "qMvar": 42.4,
+      "qMinMvar": -40,
+      "qMaxMvar": 50,
+      "pMinMw": 0,
+      "pMaxMw": 140,
+      "voltageSetpoint": 1.045,
+      "inService": true
+    },
+    {
+      "id": "G3",
+      "bus": 3,
+      "pMw": 0,
+      "qMvar": 23.4,
+      "qMinMvar": 0,
+      "qMaxMvar": 40,
+      "pMinMw": 0,
+      "pMaxMw": 100,
+      "voltageSetpoint": 1.01,
+      "inService": true
+    },
+    {
+      "id": "G6",
+      "bus": 6,
+      "pMw": 0,
+      "qMvar": 12.2,
+      "qMinMvar": -6,
+      "qMaxMvar": 24,
+      "pMinMw": 0,
+      "pMaxMw": 100,
+      "voltageSetpoint": 1.07,
+      "inService": true
+    },
+    {
+      "id": "G8",
+      "bus": 8,
+      "pMw": 0,
+      "qMvar": 17.4,
+      "qMinMvar": -6,
+      "qMaxMvar": 24,
+      "pMinMw": 0,
+      "pMaxMw": 100,
+      "voltageSetpoint": 1.09,
+      "inService": true
+    }
+  ],
+  "branches": [
+    {
+      "id": "L1-2",
+      "from": 1,
+      "to": 2,
+      "r": 0.01938,
+      "x": 0.05917,
+      "b": 0.0528,
+      "ratingMva": 200,
+      "tap": 1,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "L1-5",
+      "from": 1,
+      "to": 5,
+      "r": 0.05403,
+      "x": 0.22304,
+      "b": 0.0492,
+      "ratingMva": 95,
+      "tap": 1,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "L2-3",
+      "from": 2,
+      "to": 3,
+      "r": 0.04699,
+      "x": 0.19797,
+      "b": 0.0438,
+      "ratingMva": 95,
+      "tap": 1,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "L2-4",
+      "from": 2,
+      "to": 4,
+      "r": 0.05811,
+      "x": 0.17632,
+      "b": 0.034,
+      "ratingMva": 75,
+      "tap": 1,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "L2-5",
+      "from": 2,
+      "to": 5,
+      "r": 0.05695,
+      "x": 0.17388,
+      "b": 0.0346,
+      "ratingMva": 55,
+      "tap": 1,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "L3-4",
+      "from": 3,
+      "to": 4,
+      "r": 0.06701,
+      "x": 0.17103,
+      "b": 0.0128,
+      "ratingMva": 35,
+      "tap": 1,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "L4-5",
+      "from": 4,
+      "to": 5,
+      "r": 0.01335,
+      "x": 0.04211,
+      "b": 0,
+      "ratingMva": 80,
+      "tap": 1,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "T4-7",
+      "from": 4,
+      "to": 7,
+      "r": 0,
+      "x": 0.20912,
+      "b": 0,
+      "ratingMva": 40,
+      "tap": 0.978,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "T4-9",
+      "from": 4,
+      "to": 9,
+      "r": 0,
+      "x": 0.55618,
+      "b": 0,
+      "ratingMva": 25,
+      "tap": 0.969,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "T5-6",
+      "from": 5,
+      "to": 6,
+      "r": 0,
+      "x": 0.25202,
+      "b": 0,
+      "ratingMva": 60,
+      "tap": 0.932,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "L6-11",
+      "from": 6,
+      "to": 11,
+      "r": 0.09498,
+      "x": 0.1989,
+      "b": 0,
+      "ratingMva": 20,
+      "tap": 1,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "L6-12",
+      "from": 6,
+      "to": 12,
+      "r": 0.12291,
+      "x": 0.25581,
+      "b": 0,
+      "ratingMva": 20,
+      "tap": 1,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "L6-13",
+      "from": 6,
+      "to": 13,
+      "r": 0.06615,
+      "x": 0.13027,
+      "b": 0,
+      "ratingMva": 25,
+      "tap": 1,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "L7-8",
+      "from": 7,
+      "to": 8,
+      "r": 0,
+      "x": 0.17615,
+      "b": 0,
+      "ratingMva": 25,
+      "tap": 1,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "L7-9",
+      "from": 7,
+      "to": 9,
+      "r": 0,
+      "x": 0.11001,
+      "b": 0,
+      "ratingMva": 40,
+      "tap": 1,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "L9-10",
+      "from": 9,
+      "to": 10,
+      "r": 0.03181,
+      "x": 0.0845,
+      "b": 0,
+      "ratingMva": 20,
+      "tap": 1,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "L9-14",
+      "from": 9,
+      "to": 14,
+      "r": 0.12711,
+      "x": 0.27038,
+      "b": 0,
+      "ratingMva": 20,
+      "tap": 1,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "L10-11",
+      "from": 10,
+      "to": 11,
+      "r": 0.08205,
+      "x": 0.19207,
+      "b": 0,
+      "ratingMva": 20,
+      "tap": 1,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "L12-13",
+      "from": 12,
+      "to": 13,
+      "r": 0.22092,
+      "x": 0.19988,
+      "b": 0,
+      "ratingMva": 20,
+      "tap": 1,
+      "shiftDegrees": 0,
+      "inService": true
+    },
+    {
+      "id": "L13-14",
+      "from": 13,
+      "to": 14,
+      "r": 0.17093,
+      "x": 0.34802,
+      "b": 0,
+      "ratingMva": 20,
+      "tap": 1,
+      "shiftDegrees": 0,
+      "inService": true
+    }
+  ],
+  "layout": [
+    {
+      "bus": 1,
+      "x": 821,
+      "y": 569
+    },
+    {
+      "bus": 2,
+      "x": 658,
+      "y": 567
+    },
+    {
+      "bus": 3,
+      "x": 526,
+      "y": 640
+    },
+    {
+      "bus": 4,
+      "x": 497,
+      "y": 478
+    },
+    {
+      "bus": 5,
+      "x": 724,
+      "y": 429
+    },
+    {
+      "bus": 6,
+      "x": 787,
+      "y": 196
+    },
+    {
+      "bus": 7,
+      "x": 270,
+      "y": 436
+    },
+    {
+      "bus": 8,
+      "x": 60,
+      "y": 491
+    },
+    {
+      "bus": 9,
+      "x": 412,
+      "y": 297
+    },
+    {
+      "bus": 10,
+      "x": 410,
+      "y": 116
+    },
+    {
+      "bus": 11,
+      "x": 603,
+      "y": 60
+    },
+    {
+      "bus": 12,
+      "x": 940,
+      "y": 85
+    },
+    {
+      "bus": 13,
+      "x": 789,
+      "y": 86
+    },
+    {
+      "bus": 14,
+      "x": 586,
+      "y": 174
+    }
+  ]
+}

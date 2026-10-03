@@ -1,7 +1,7 @@
 import { mkdirSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { launchChrome } from '../scripts/browser.mjs';
+import { launchChrome, launchGpuChrome } from '../scripts/browser.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const base = process.env.GRIDTWIN_BASE_URL ?? 'http://127.0.0.1:18480';
@@ -45,7 +45,7 @@ async function sceneItem(page, id) {
 }
 
 mkdirSync(outputDirectory, { recursive: true });
-const browser = await launchChrome();
+const browser = process.env.GRIDTWIN_DEMO_GPU === '1' ? await launchGpuChrome() : await launchChrome();
 const context = await browser.newContext({
   viewport,
   recordVideo: { dir: outputDirectory, size: viewport },
@@ -84,16 +84,35 @@ try {
   });
   check((await sceneItem(page, 'terminal:L3-4'))?.condition === 'DEENERGIZED', 'the opened line is de-energized');
 
+  await step(page, 'line-closed-again', async () => {
+    await page.locator('[data-scene-canvas]').scrollIntoViewIfNeeded();
+    const point = await page.evaluate(() => window.__gridtwin.scene.screenPointOf('L3-4.QA1'));
+    await page.mouse.click(point.clientX, point.clientY);
+    await confirm(page);
+  });
+  check((await sceneItem(page, 'terminal:L3-4'))?.condition !== 'DEENERGIZED', 'the closed line is energized again');
+
+  await step(page, 'coupler-closed', async () => {
+    await page.locator('[data-sld-switch="CPL.QA1"]').scrollIntoViewIfNeeded();
+    await page.locator('[data-sld-switch="CPL.QA1"]').click();
+    await confirm(page);
+  });
+  check((await sceneItem(page, 'CPL.QA1'))?.position === 'CLOSED', 'the coupler is closed again');
+
   await step(page, 'n-1-analysis', async () => {
     await page.locator('[data-action="run-n1"]').click();
     await page.locator('[data-testid="n1-table"] tr.contingency').first().waitFor();
+  });
+
+  await step(page, 'n-1-preview', async () => {
+    await page.locator('[data-testid="n1-table"] tr.contingency').nth(2).click();
   });
 
   await step(page, 'cascade-replay', async () => {
     await page.locator('[data-action="run-cascade"]').click();
     await page.locator('[data-testid="cascade-result"]').waitFor();
     await page.locator('[data-action="play"]').click();
-    await page.waitForTimeout(pause * 2);
+    await page.waitForTimeout(pause * 5);
   });
 } finally {
   await context.close();

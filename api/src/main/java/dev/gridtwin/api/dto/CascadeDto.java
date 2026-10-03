@@ -14,7 +14,7 @@ public record CascadeDto(
         CascadeEnd end,
         int trippedCount,
         String label,
-        List<StepDto> steps) {
+        List<CascadeStepDto> steps) {
 
     public static final String LABEL =
             "Educational simplification: the worst branch above the threshold trips, the network"
@@ -29,10 +29,12 @@ public record CascadeDto(
                 result.end(),
                 result.trippedCount(),
                 LABEL,
-                result.steps().stream().map(step -> StepDto.from(step, record.state())).toList());
+                result.steps().stream()
+                        .map(step -> CascadeStepDto.from(step, record.state()))
+                        .toList());
     }
 
-    public record StepDto(
+    public record CascadeStepDto(
             int index,
             Optional<ContingencySummaryDto.OutageDto> tripped,
             Optional<Double> loadingAtTrip,
@@ -41,8 +43,8 @@ public record CascadeDto(
             double servedLoadMw,
             StateDto state) {
 
-        static StepDto from(CascadeStep step, TwinState state) {
-            return new StepDto(
+        static CascadeStepDto from(CascadeStep step, TwinState state) {
+            return new CascadeStepDto(
                     step.index(),
                     step.tripped().map(ContingencySummaryDto.OutageDto::from),
                     step.loadingAtTrip().map(Numbers::finite),

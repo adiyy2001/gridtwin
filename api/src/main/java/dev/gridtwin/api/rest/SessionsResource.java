@@ -47,7 +47,10 @@ public class SessionsResource {
                     "Starts a twin of the chosen case with its own switch positions and load"
                             + " factor. The state is pushed over the WebSocket at"
                             + " /ws/sessions/{sessionId}.")
-    @APIResponse(responseCode = "201", description = "Session created at version 1")
+    @APIResponse(
+            responseCode = "201",
+            description = "Session created at version 1",
+            content = @Content(schema = @Schema(implementation = SessionCreatedDto.class)))
     @APIResponse(
             responseCode = "429",
             description = "The session cap is reached",
@@ -64,6 +67,10 @@ public class SessionsResource {
     @GET
     @Path("/{sessionId}/state")
     @Operation(summary = "Read the current versioned state")
+    @APIResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = VersionedStateDto.class)))
     @APIResponse(
             responseCode = "404",
             description = "Unknown session",
@@ -91,6 +98,10 @@ public class SessionsResource {
                             + " raises the version and pushes the state. Operating a switch into"
                             + " its current position changes nothing.")
     @APIResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = VersionedStateDto.class)))
+    @APIResponse(
             responseCode = "409",
             description = "The operation is refused by an interlock",
             content = @Content(schema = @Schema(implementation = ErrorDto.class)))
@@ -114,6 +125,10 @@ public class SessionsResource {
             description =
                     "The factor must be between 0.5 and 1.5. Generators keep their setpoints and"
                             + " the slack absorbs the change.")
+    @APIResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = VersionedStateDto.class)))
     @APIResponse(
             responseCode = "400",
             description = "The factor is outside the range",

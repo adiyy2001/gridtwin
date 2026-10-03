@@ -50,11 +50,6 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-jacoco</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit</artifactId>
       <scope>test</scope>
     </dependency>
@@ -79,6 +74,10 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <properties>
+    <gridtwin.openapi.update>false</gridtwin.openapi.update>
+  </properties>
 
   <build>
     <plugins>
@@ -113,6 +112,8 @@
           <systemPropertyVariables>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
             <maven.home>${maven.home}</maven.home>
+            <gridtwin.repository-root>${maven.multiModuleProjectDirectory}</gridtwin.repository-root>
+            <gridtwin.openapi.update>${gridtwin.openapi.update}</gridtwin.openapi.update>
           </systemPropertyVariables>
         </configuration>
       </plugin>

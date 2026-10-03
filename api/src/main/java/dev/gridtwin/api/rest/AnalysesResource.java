@@ -51,6 +51,10 @@ public class AnalysesResource {
     @Path("/n-1")
     @Operation(summary = "Read the kept N-1 result for the current state")
     @APIResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = ContingencyReportDto.class)))
+    @APIResponse(
             responseCode = "404",
             description = "Unknown session, or no N-1 run for the current state",
             content = @Content(schema = @Schema(implementation = ErrorDto.class)))
@@ -65,6 +69,10 @@ public class AnalysesResource {
             description =
                     "The full state under that outage, taken from the kept N-1 run without a new"
                             + " solve. Contingency ids look like branch:L2-4 or generator:G1.")
+    @APIResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = ContingencyPreviewDto.class)))
     @APIResponse(
             responseCode = "404",
             description = "Unknown session or contingency, or no N-1 run for the current state",
@@ -86,6 +94,10 @@ public class AnalysesResource {
                             + " worst branch above the threshold until stable or dark. Every step"
                             + " carries a full state for replay.")
     @APIResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = CascadeDto.class)))
+    @APIResponse(
             responseCode = "400",
             description = "Unknown trigger or option out of range",
             content = @Content(schema = @Schema(implementation = ErrorDto.class)))
@@ -102,6 +114,10 @@ public class AnalysesResource {
     @GET
     @Path("/cascade")
     @Operation(summary = "Read the kept cascade result for the current state")
+    @APIResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = CascadeDto.class)))
     @APIResponse(
             responseCode = "404",
             description = "Unknown session, or no cascade run for the current state",

@@ -6,7 +6,6 @@ import dev.gridtwin.domain.model.Network;
 import dev.gridtwin.domain.powerflow.BranchResult;
 import dev.gridtwin.domain.powerflow.BusResult;
 import dev.gridtwin.domain.powerflow.BusState;
-import dev.gridtwin.domain.powerflow.CollapseReason;
 import dev.gridtwin.domain.powerflow.GeneratorResult;
 import dev.gridtwin.domain.powerflow.PowerFlowResult;
 import dev.gridtwin.domain.powerflow.ReactiveLimitState;
@@ -26,14 +25,14 @@ public record StateDto(
         String caseId,
         double loadFactor,
         boolean converged,
-        SummaryDto summary,
+        SummaryStateDto summary,
         List<String> warnings,
         List<SwitchStateDto> switches,
         List<NodeStateDto> nodes,
-        List<IslandDto> islands,
-        List<BusDto> buses,
-        List<BranchDto> branches,
-        List<GeneratorDto> generators) {
+        List<IslandStateDto> islands,
+        List<BusStateDto> buses,
+        List<BranchStateDto> branches,
+        List<GeneratorStateDto> generators) {
 
     public static StateDto from(TwinState state, GridSolution solution) {
         Network network = solution.topology().network();
@@ -41,16 +40,16 @@ public record StateDto(
                 state.model().network().id(),
                 state.loadFactor(),
                 solution.converged(),
-                SummaryDto.from(solution),
+                SummaryStateDto.from(solution),
                 solution.warnings(),
                 switchesOf(state),
                 solution.topology().nodeSets().stream().flatMap(StateDto::nodesOf).toList(),
-                solution.islands().stream().map(IslandDto::from).toList(),
-                solution.buses().stream().map(bus -> BusDto.from(bus, network)).toList(),
+                solution.islands().stream().map(IslandStateDto::from).toList(),
+                solution.buses().stream().map(bus -> BusStateDto.from(bus, network)).toList(),
                 solution.branches().stream()
-                        .map(branch -> BranchDto.from(branch, network))
+                        .map(branch -> BranchStateDto.from(branch, network))
                         .toList(),
-                solution.generators().stream().map(GeneratorDto::from).toList());
+                solution.generators().stream().map(GeneratorStateDto::from).toList());
     }
 
     private static List<SwitchStateDto> switchesOf(TwinState state) {
@@ -70,7 +69,7 @@ public record StateDto(
 
     public record NodeStateDto(String id, NodeState state) {}
 
-    public record SummaryDto(
+    public record SummaryStateDto(
             double totalLoadMw,
             double servedLoadMw,
             double shedLoadMw,
@@ -80,9 +79,9 @@ public record StateDto(
             Optional<Double> lowestVoltage,
             int overloadedBranches) {
 
-        static SummaryDto from(GridSolution solution) {
+        static SummaryStateDto from(GridSolution solution) {
             OptionalDouble lowest = solution.lowestVoltage();
-            return new SummaryDto(
+            return new SummaryStateDto(
                     Numbers.finite(solution.totalLoadMw()),
                     Numbers.finite(solution.totalLoadMw() - solution.shedLoadMw()),
                     Numbers.finite(solution.shedLoadMw()),
@@ -94,7 +93,7 @@ public record StateDto(
         }
     }
 
-    public record IslandDto(
+    public record IslandStateDto(
             String id,
             IslandState state,
             List<Integer> buses,
@@ -103,12 +102,12 @@ public record StateDto(
             double shedLoadMw,
             Optional<Integer> iterations,
             Optional<Integer> reactiveLimitRounds,
-            Optional<CollapseReason> collapseReason,
+            Optional<String> collapseReason,
             List<Double> mismatchHistory) {
 
-        static IslandDto from(IslandSolution island) {
+        static IslandStateDto from(IslandSolution island) {
             Optional<PowerFlowResult> result = island.result();
-            return new IslandDto(
+            return new IslandStateDto(
                     island.island().id(),
                     island.state(),
                     island.island().buses().stream().sorted(Comparator.naturalOrder()).toList(),
@@ -117,14 +116,14 @@ public record StateDto(
                     Numbers.finite(island.shedLoadMw()),
                     result.map(PowerFlowResult::iterations),
                     result.map(PowerFlowResult::reactiveLimitRounds),
-                    result.flatMap(PowerFlowResult::collapseReason),
+                    result.flatMap(PowerFlowResult::collapseReason).map(Enum::name),
                     result.map(PowerFlowResult::mismatchHistory).orElse(List.of()).stream()
                             .map(Numbers::finite)
                             .toList());
         }
     }
 
-    public record BusDto(
+    public record BusStateDto(
             int number,
             BusType type,
             BusState state,
@@ -137,9 +136,9 @@ public record StateDto(
             double activeLoadMw,
             double reactiveLoadMvar) {
 
-        static BusDto from(BusResult bus, Network network) {
+        static BusStateDto from(BusResult bus, Network network) {
             double baseKv = network.findBus(bus.number()).map(found -> found.baseKv()).orElse(0.0);
-            return new BusDto(
+            return new BusStateDto(
                     bus.number(),
                     bus.type(),
                     bus.state(),
@@ -154,7 +153,7 @@ public record StateDto(
         }
     }
 
-    public record BranchDto(
+    public record BranchStateDto(
             String id,
             int from,
             int to,
@@ -171,9 +170,9 @@ public record StateDto(
             double lossMw,
             boolean overloaded) {
 
-        static BranchDto from(BranchResult branch, Network network) {
+        static BranchStateDto from(BranchResult branch, Network network) {
             Optional<Branch> element = network.findBranch(branch.id());
-            return new BranchDto(
+            return new BranchStateDto(
                     branch.id(),
                     branch.from(),
                     branch.to(),
@@ -192,7 +191,7 @@ public record StateDto(
         }
     }
 
-    public record GeneratorDto(
+    public record GeneratorStateDto(
             String id,
             int bus,
             boolean inService,
@@ -200,8 +199,8 @@ public record StateDto(
             double reactiveMvar,
             ReactiveLimitState reactiveLimit) {
 
-        static GeneratorDto from(GeneratorResult generator) {
-            return new GeneratorDto(
+        static GeneratorStateDto from(GeneratorResult generator) {
+            return new GeneratorStateDto(
                     generator.id(),
                     generator.bus(),
                     generator.inService(),

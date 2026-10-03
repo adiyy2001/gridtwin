@@ -16,10 +16,10 @@ public record CaseDetailDto(
         String disclaimer,
         double baseMva,
         ProvenanceDto provenance,
-        List<BusDto> buses,
-        List<BranchDto> branches,
-        List<GeneratorDto> generators,
-        List<LoadDto> loads,
+        List<CaseBusDto> buses,
+        List<CaseBranchDto> branches,
+        List<CaseGeneratorDto> generators,
+        List<CaseLoadDto> loads,
         Optional<SubstationDto> substation) {
 
     public static final String DISCLAIMER =
@@ -38,18 +38,18 @@ public record CaseDetailDto(
                         data.provenance().voltagePolicy(),
                         data.provenance().layoutPolicy()),
                 data.network().buses().stream()
-                        .map(bus -> BusDto.from(bus, data.positionOf(bus.number())))
+                        .map(bus -> CaseBusDto.from(bus, data.positionOf(bus.number())))
                         .toList(),
-                data.network().branches().stream().map(BranchDto::from).toList(),
-                data.network().generators().stream().map(GeneratorDto::from).toList(),
-                data.network().loads().stream().map(LoadDto::from).toList(),
+                data.network().branches().stream().map(CaseBranchDto::from).toList(),
+                data.network().generators().stream().map(CaseGeneratorDto::from).toList(),
+                data.network().loads().stream().map(CaseLoadDto::from).toList(),
                 data.substation().map(SubstationDto::from));
     }
 
     public record ProvenanceDto(
             String source, String ratingPolicy, String voltagePolicy, String layoutPolicy) {}
 
-    public record BusDto(
+    public record CaseBusDto(
             int number,
             BusType type,
             double baseKv,
@@ -58,8 +58,8 @@ public record CaseDetailDto(
             Optional<Double> x,
             Optional<Double> y) {
 
-        static BusDto from(Bus bus, Optional<BusPosition> position) {
-            return new BusDto(
+        static CaseBusDto from(Bus bus, Optional<BusPosition> position) {
+            return new CaseBusDto(
                     bus.number(),
                     bus.type(),
                     bus.baseKv(),
@@ -70,7 +70,7 @@ public record CaseDetailDto(
         }
     }
 
-    public record BranchDto(
+    public record CaseBranchDto(
             String id,
             int from,
             int to,
@@ -79,8 +79,8 @@ public record CaseDetailDto(
             double shiftDegrees,
             boolean transformer) {
 
-        static BranchDto from(Branch branch) {
-            return new BranchDto(
+        static CaseBranchDto from(Branch branch) {
+            return new CaseBranchDto(
                     branch.id(),
                     branch.from(),
                     branch.to(),
@@ -91,11 +91,11 @@ public record CaseDetailDto(
         }
     }
 
-    public record GeneratorDto(
+    public record CaseGeneratorDto(
             String id, int bus, double activeMinMw, double activeMaxMw, double activeMw) {
 
-        static GeneratorDto from(Generator generator) {
-            return new GeneratorDto(
+        static CaseGeneratorDto from(Generator generator) {
+            return new CaseGeneratorDto(
                     generator.id(),
                     generator.bus(),
                     generator.activeMinMw(),
@@ -104,10 +104,10 @@ public record CaseDetailDto(
         }
     }
 
-    public record LoadDto(int bus, double activeMw, double reactiveMvar) {
+    public record CaseLoadDto(int bus, double activeMw, double reactiveMvar) {
 
-        static LoadDto from(Load load) {
-            return new LoadDto(load.bus(), load.activePowerMw(), load.reactivePowerMvar());
+        static CaseLoadDto from(Load load) {
+            return new CaseLoadDto(load.bus(), load.activePowerMw(), load.reactivePowerMvar());
         }
     }
 }

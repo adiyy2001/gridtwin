@@ -45,6 +45,10 @@ public class CasesResource {
                     "Buses, branches, generators, loads, schematic layout and the substation"
                             + " description. Pushed states carry values only.")
     @APIResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = CaseDetailDto.class)))
+    @APIResponse(
             responseCode = "404",
             description = "Unknown case",
             content = @Content(schema = @Schema(implementation = ErrorDto.class)))

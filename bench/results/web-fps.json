@@ -1,0 +1,69 @@
+{
+  "suite": "web-fps",
+  "generatedAt": "2026-10-03T22:34:21.507Z",
+  "url": "http://127.0.0.1:18480",
+  "hardware": {
+    "cpuModel": "12th Gen Intel(R) Core(TM) i7-12700H",
+    "logicalCores": 20,
+    "physicalMemoryMegabytes": 15825,
+    "operatingSystem": "linux 6.6.87.2-microsoft-standard-WSL2 (x64)",
+    "node": "v24.21.0",
+    "browser": "chromium",
+    "version": "148.0.7778.167",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "deviceMemoryGigabytes": 16
+  },
+  "settings": {
+    "runs": 3,
+    "durationMs": 3000,
+    "width": 1920,
+    "height": 1080,
+    "gpu": false
+  },
+  "definition": "continuous orbit of the camera around the substation, one render per animation frame, frame intervals from requestAnimationFrame timestamps",
+  "target": "at least 60 fps at 1920x1080 on an integrated GPU, confirm with tools/bench.sh web --gpu on the target machine",
+  "summary": {
+    "medianFps": 2.919139826797703,
+    "frameTime": {
+      "samples": 3,
+      "medianMs": 333.39999999999964,
+      "p95Ms": 383.2000000000007,
+      "meanMs": 338.8666666666668,
+      "minMs": 300,
+      "maxMs": 383.2000000000007
+    }
+  },
+  "measurements": [
+    {
+      "width": 1920,
+      "height": 1080,
+      "frames": 12,
+      "durationMs": 3099.7999999999997,
+      "averageFps": 3.871217497903091,
+      "medianFrameMs": 300,
+      "p95FrameMs": 349.89999999999964,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "frames": 7,
+      "durationMs": 4216.5,
+      "averageFps": 1.6601446697497924,
+      "medianFrameMs": 333.39999999999964,
+      "p95FrameMs": 1333.2999999999993,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "frames": 9,
+      "durationMs": 3083.1000000000004,
+      "averageFps": 2.919139826797703,
+      "medianFrameMs": 383.2000000000007,
+      "p95FrameMs": 466.7000000000007,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+    }
+  ]
+}

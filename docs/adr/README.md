@@ -22,3 +22,5 @@ Each record has four parts: context, decision, alternatives and consequences. Re
 | [0016](0016-build-gates-and-toolchain-findings-from-the-skeleton.md) | Build gates and toolchain findings from the skeleton |
 | [0017](0017-severity-index-and-contingency-ranking.md) | Severity index and contingency ranking |
 | [0018](0018-cascade-simulation-is-an-educational-simplification.md) | The cascade simulation is an educational simplification |
+| [0019](0019-sessions-versions-and-the-application-layer.md) | Sessions, versions and the application layer |
+| [0020](0020-api-contract-errors-and-openapi.md) | API contract, errors and the OpenAPI file |

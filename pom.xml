@@ -11,6 +11,7 @@
   <modules>
     <module>domain</module>
     <module>cases</module>
+    <module>api</module>
     <module>validation</module>
     <module>bench</module>
   </modules>

@@ -113,6 +113,71 @@ class PropertyTest {
         assertThatThrownBy(property::run).hasMessageContaining("discarded");
     }
 
+    @Test
+    void aFailingListIsShrunkToTheSmallestListThatStillFails() {
+        Property<List<Integer>> property =
+                Property.forAll(
+                                "no large element",
+                                random -> random.ints(20, 0, 100).boxed().toList(),
+                                values -> assertThat(values).allMatch(value -> value < 95))
+                        .shrinkingWith(Shrinkers.list())
+                        .withSeed(5L)
+                        .withTries(50);
+
+        String message = catchMessage(property);
+
+        assertThat(message).contains("It was shrunk from");
+        assertThat(message).containsPattern("with input \\[9[5-9]\\]\\.");
+    }
+
+    @Test
+    void shrinkingKeepsTheFailureAndIgnoresDiscardedCandidates() {
+        Property<List<Integer>> property =
+                Property.forAll(
+                                "needs two elements",
+                                random -> List.of(1, 2, 3, 4, 5, 6),
+                                values -> {
+                                    Discard.unless(values.size() > 1, "too short");
+                                    assertThat(values).hasSizeLessThan(2);
+                                })
+                        .shrinkingWith(Shrinkers.list())
+                        .withTries(1);
+
+        String message = catchMessage(property);
+
+        assertThat(message).containsPattern("with input \\[\\d, \\d\\]\\.");
+    }
+
+    @Test
+    void anInputThatCannotBeShrunkIsReportedAsItIs() {
+        Property<List<Integer>> property =
+                Property.forAll(
+                                "single element",
+                                random -> List.of(7),
+                                values -> assertThat(values).isEmpty())
+                        .shrinkingWith(Shrinkers.list())
+                        .withTries(1);
+
+        assertThat(catchMessage(property)).doesNotContain("shrunk");
+    }
+
+    @Test
+    void listShrinkingOffersHalvesAndEveryRemovalAndNothingForSmallLists() {
+        List<List<Integer>> candidates =
+                Shrinkers.<Integer>list().shrink(List.of(1, 2, 3, 4)).toList();
+
+        assertThat(candidates)
+                .containsExactly(
+                        List.of(1, 2),
+                        List.of(3, 4),
+                        List.of(2, 3, 4),
+                        List.of(1, 3, 4),
+                        List.of(1, 2, 4),
+                        List.of(1, 2, 3));
+        assertThat(Shrinkers.<Integer>list().shrink(List.of(1))).isEmpty();
+        assertThat(Shrinkers.<Integer>list().shrink(List.of())).isEmpty();
+    }
+
     private static String catchMessage(Property<?> property) {
         try {
             property.run();

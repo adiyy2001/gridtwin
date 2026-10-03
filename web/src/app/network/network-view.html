@@ -75,16 +75,6 @@
               [attr.stroke-width]="branch.strokeWidth"
               [attr.stroke-dasharray]="branch.dash"
             />
-            <text
-              class="branch-label"
-              [class.overload]="branch.overloaded"
-              [attr.x]="branch.geometry.labelAt.x"
-              [attr.y]="branch.geometry.labelAt.y"
-              text-anchor="middle"
-              dominant-baseline="middle"
-            >
-              {{ branch.label }}
-            </text>
           </g>
         }
         @for (bus of network.buses; track bus.number) {
@@ -117,6 +107,22 @@
               [attr.stroke-dasharray]="bus.dash"
               [attr.stroke-width]="bus.outOfBand ? 4 : 2.5"
             />
+          </g>
+        }
+        <g class="labels" aria-hidden="true">
+          @for (branch of network.branches; track branch.id) {
+            <text
+              class="branch-label"
+              [class.overload]="branch.overloaded"
+              [attr.x]="branch.geometry.labelAt.x"
+              [attr.y]="branch.geometry.labelAt.y"
+              text-anchor="middle"
+              dominant-baseline="middle"
+            >
+              {{ branch.label }}
+            </text>
+          }
+          @for (bus of network.buses; track bus.number) {
             @if (bus.hasGeneration) {
               <text
                 class="generator-mark"
@@ -145,8 +151,8 @@
             >
               {{ bus.voltageLabel }}
             </text>
-          </g>
-        }
+          }
+        </g>
       </svg>
       <gt-particle-layer [flows]="flows()" [viewBox]="viewBox()" />
     } @else {

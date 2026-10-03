@@ -109,7 +109,7 @@ describe('NetworkView', () => {
     await render();
     const branch = element().querySelector('[data-branch="L1-2"]');
     expect(branch?.getAttribute('data-band')).toBe('overloaded');
-    expect(branch?.textContent).toContain('L1-2 120% !');
+    expect(element().querySelector('.labels')?.textContent).toContain('L1-2 120% !');
   });
 
   it('draws a de-energized branch as dashed', async () => {

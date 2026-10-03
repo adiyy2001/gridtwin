@@ -13,6 +13,7 @@ import {
   voltageShade,
 } from './colour-scale';
 import type { LoadingBand } from './colour-scale';
+import { placeLabels } from './label-placement';
 import { branchGeometry, parallelIndexes } from './network-layout';
 import type { BranchGeometry, NetworkLayout, Point } from './network-layout';
 import { flowDirection, particleSpacing, particleSpeed } from './particles';
@@ -62,6 +63,7 @@ export interface NetworkModel {
 }
 
 export const DEENERGIZED_DASH = '6 6';
+const LABEL_SUFFIX_CHARACTERS = 5;
 const FALLBACK_LIMITS = { min: 0.9, max: 1.1 };
 
 function branchLabel(branch: BranchState): string {
@@ -170,12 +172,28 @@ export function buildNetworkModel(
   hover: Selection | null,
 ): NetworkModel {
   const parallel = parallelIndexes(state.branches);
+  const buses = state.buses
+    .map((bus) => busModel(bus, detail, layout, selection, hover))
+    .filter((model): model is BusModel => model !== null);
+  const branches = state.branches
+    .map((branch) => branchModel(branch, layout, parallel, selection, hover))
+    .filter((model): model is BranchModel => model !== null);
+  const labelPoints = placeLabels(
+    branches.map((branch) => ({
+      id: branch.id,
+      geometry: branch.geometry,
+      characters: branch.id.length + LABEL_SUFFIX_CHARACTERS,
+    })),
+    buses.map((bus) => bus.position),
+  );
   return {
-    branches: state.branches
-      .map((branch) => branchModel(branch, layout, parallel, selection, hover))
-      .filter((model): model is BranchModel => model !== null),
-    buses: state.buses
-      .map((bus) => busModel(bus, detail, layout, selection, hover))
-      .filter((model): model is BusModel => model !== null),
+    branches: branches.map((branch) =>
+      withLabelAt(branch, labelPoints.get(branch.id) ?? branch.geometry.labelAt),
+    ),
+    buses,
   };
+}
+
+function withLabelAt(branch: BranchModel, labelAt: Point): BranchModel {
+  return { ...branch, geometry: { ...branch.geometry, labelAt } };
 }

@@ -20,3 +20,5 @@ Each record has four parts: context, decision, alternatives and consequences. Re
 | [0014](0014-dependency-license-policy.md) | Dependency license policy and the JMH decision |
 | [0015](0015-toolchain-pins.md) | Toolchain pins |
 | [0016](0016-build-gates-and-toolchain-findings-from-the-skeleton.md) | Build gates and toolchain findings from the skeleton |
+| [0017](0017-severity-index-and-contingency-ranking.md) | Severity index and contingency ranking |
+| [0018](0018-cascade-simulation-is-an-educational-simplification.md) | The cascade simulation is an educational simplification |

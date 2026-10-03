@@ -35,3 +35,11 @@ pandapower needs a Python environment and uses its own case conversions. A hand-
 ## Consequences
 
 The image is large. The script pulls it once and the CI job is not part of every push. Comparisons for outages that change the slack must use angle differences from the island's reference bus, because MATPOWER fixes the new slack at the angle stored for that bus in the case file.
+
+## Implementation notes from milestone 4
+
+- N-1 references are in `validation/src/test/resources/reference/n1/`: `ieee14-n1-plain.json`, `ieee14-n1-qlim.json`, `ieee30-n1-plain.json` and `ieee30-n1-qlim.json`, written by `tools/reference/generate_n1_references.m` (`tools/reference/run.sh n1`). Each file lists every branch outage and every generator outage at 100% load.
+- A branch outage that cuts buses off is solved on the part that still contains the reference bus, and the file names the unreachable buses. The twin must put those buses in their own islands: energized when a generator is there, dark and shed when not.
+- A generator outage at the reference bus moves the reference to the in-service generator with the largest Pmax, the lowest bus number breaking ties. This is the rule of ADR 0005, applied in the Octave script by hand because MATPOWER would pick the first PV bus. The tests compare voltages and angles directly, and also as differences from the reference bus.
+- With reactive limits enforced, the outage of the line 1-2 diverges in MATPOWER for IEEE 14 and for IEEE 30. The twin reports a collapse for the same two outages and ranks them first. The variant without limits converges for both and matches.
+- `run.sh --check` skips `*.substation.json`. Those files are written by hand (ADR 0005) and an earlier version of the script would have deleted the IEEE 14 one when regenerating the cases.

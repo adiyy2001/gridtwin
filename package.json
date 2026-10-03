@@ -1,8 +1,22 @@
 {
   "name": "gridtwin",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@11.5.3",
   "engines": {
     "node": "^24.15.0"
+  },
+  "scripts": {
+    "test:tools": "node --test \"tools/**/*.test.ts\"",
+    "style": "node tools/check-style.ts",
+    "typecheck:scripts": "tsc --noEmit -p tsconfig.json",
+    "lint:scripts": "eslint tools bench/web e2e"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.19.1",
+    "eslint": "10.12.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.0"
   }
 }

@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "types": ["node"]
+  },
+  "include": ["tools/**/*.ts", "bench/web/**/*.ts", "e2e/scripts/**/*.ts", "e2e/a11y/*.ts", "e2e/demo/*.ts", "e2e/lighthouse/*.ts", "e2e/visual/*.ts"]
+}

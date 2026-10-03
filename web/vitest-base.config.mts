@@ -20,11 +20,8 @@ const logicThresholds = Object.fromEntries(
 export default defineConfig({
   test: {
     coverage: {
-      provider: 'v8',
-      reporters: ['text-summary', 'json-summary', 'lcov'],
-      reportsDirectory: 'coverage',
-      include: ['src/app/**/*.ts'],
-      exclude: ['src/app/**/*.spec.ts', 'src/app/model/api-schema.ts', 'src/app/testing/**'],
+      reporters: ['text', 'json-summary', 'lcov'],
+      exclude: ['src/app/testing/**', 'src/app/model/api-schema.ts'],
       thresholds: {
         lines: 80,
         statements: 80,

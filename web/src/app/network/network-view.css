@@ -1,0 +1,161 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.network {
+  height: 100%;
+}
+
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.swatch {
+  display: inline-block;
+  width: 22px;
+  height: 6px;
+  margin-right: 6px;
+  vertical-align: middle;
+  border-radius: 3px;
+}
+
+.swatch.loading {
+  background: linear-gradient(90deg, #1f8a4c, #6fa028, #d69600, #d63a2f);
+}
+
+.swatch.dead {
+  height: 0;
+  border-top: 3px dashed #6b7280;
+  border-radius: 0;
+}
+
+.swatch.voltage {
+  background: linear-gradient(90deg, #bed6f4, #123462);
+}
+
+.view-banner {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #fff4d6;
+  border: 1px solid #d6a400;
+  color: #3d2f00;
+}
+
+.canvas-host {
+  position: relative;
+  min-height: 360px;
+  max-height: 82vh;
+  background: var(--surface-muted);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.graph {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.placeholder {
+  margin: 0;
+  padding: 24px;
+  color: var(--text-muted);
+}
+
+.hit {
+  stroke: transparent;
+  stroke-width: 22;
+  stroke-linecap: round;
+}
+
+.casing {
+  stroke: #7a1410;
+  stroke-linecap: round;
+  opacity: 0.35;
+}
+
+.wire {
+  stroke-linecap: round;
+}
+
+.branch,
+.bus {
+  cursor: pointer;
+  outline: none;
+}
+
+.branch.selected .wire {
+  filter: drop-shadow(0 0 3px #0b5fff);
+}
+
+.branch:focus-visible .hit,
+.branch.hovered .hit {
+  stroke: rgb(11 95 255 / 18%);
+}
+
+.halo {
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 4;
+}
+
+.bus.selected .halo,
+.bus:focus-visible .halo {
+  stroke: #0b5fff;
+}
+
+.bus.hovered .halo {
+  fill: rgb(11 95 255 / 12%);
+}
+
+.branch-label,
+.bus-label,
+.bus-voltage {
+  font-size: 14px;
+  fill: #1b2330;
+  paint-order: stroke;
+  stroke: var(--surface-muted);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.bus-label {
+  font-weight: 600;
+}
+
+.bus-voltage {
+  font-size: 13px;
+  fill: #2b3547;
+}
+
+.overload {
+  fill: #a0150d;
+  font-weight: 700;
+}
+
+.generator-mark {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #ffffff;
+  paint-order: stroke;
+  stroke: #0f2a4d;
+  stroke-width: 2.5px;
+  pointer-events: none;
+}

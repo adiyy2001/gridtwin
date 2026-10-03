@@ -1,0 +1,162 @@
+<section class="network panel" aria-labelledby="network-title">
+  <div class="panel-header">
+    <h2 id="network-title">Network</h2>
+    <ul class="legend" aria-label="Legend">
+      <li>
+        <span class="swatch loading"></span>Branch colour and label: loading against the rating
+      </li>
+      <li><span class="swatch dead"></span>Dashed grey: de-energized</li>
+      <li><span class="swatch voltage"></span>Bus shade: voltage within its band</li>
+      <li>Dots move in the direction of the active power</li>
+      <li>! marks an overload or a voltage outside the band</li>
+    </ul>
+  </div>
+
+  @if (store.view().description; as description) {
+    <p class="view-banner" role="status">
+      <span>{{ description }}</span>
+      <button type="button" (click)="store.showLive()">Back to the live state</button>
+    </p>
+  }
+
+  <div class="canvas-host" [style.aspect-ratio]="aspectRatio()">
+    @if (model(); as network) {
+      <svg
+        class="graph"
+        [attr.viewBox]="viewBoxText()"
+        preserveAspectRatio="xMidYMid meet"
+        role="group"
+        aria-label="Network graph. Each branch and bus is a button that selects it for the inspector."
+      >
+        @for (branch of network.branches; track branch.id) {
+          <g
+            class="branch"
+            role="button"
+            tabindex="0"
+            [attr.data-branch]="branch.id"
+            [attr.data-band]="branch.band"
+            [attr.data-energized]="branch.energized"
+            [attr.aria-label]="branch.ariaLabel"
+            [attr.aria-pressed]="branch.selected"
+            [class.selected]="branch.selected"
+            [class.hovered]="branch.hovered"
+            (click)="selectBranch(branch.id)"
+            (keydown.enter)="selectBranch(branch.id)"
+            (keydown.space)="selectBranch(branch.id); $event.preventDefault()"
+            (mouseenter)="hoverBranch(branch.id)"
+            (mouseleave)="hoverBranch(null)"
+            (focus)="hoverBranch(branch.id)"
+            (blur)="hoverBranch(null)"
+          >
+            <line
+              class="hit"
+              [attr.x1]="branch.geometry.start.x"
+              [attr.y1]="branch.geometry.start.y"
+              [attr.x2]="branch.geometry.end.x"
+              [attr.y2]="branch.geometry.end.y"
+            />
+            @if (branch.overloaded) {
+              <line
+                class="casing"
+                [attr.x1]="branch.geometry.start.x"
+                [attr.y1]="branch.geometry.start.y"
+                [attr.x2]="branch.geometry.end.x"
+                [attr.y2]="branch.geometry.end.y"
+                [attr.stroke-width]="branch.strokeWidth + 6"
+              />
+            }
+            <line
+              class="wire"
+              [attr.x1]="branch.geometry.start.x"
+              [attr.y1]="branch.geometry.start.y"
+              [attr.x2]="branch.geometry.end.x"
+              [attr.y2]="branch.geometry.end.y"
+              [attr.stroke]="branch.colour"
+              [attr.stroke-width]="branch.strokeWidth"
+              [attr.stroke-dasharray]="branch.dash"
+            />
+            <text
+              class="branch-label"
+              [class.overload]="branch.overloaded"
+              [attr.x]="branch.geometry.labelAt.x"
+              [attr.y]="branch.geometry.labelAt.y"
+              text-anchor="middle"
+              dominant-baseline="middle"
+            >
+              {{ branch.label }}
+            </text>
+          </g>
+        }
+        @for (bus of network.buses; track bus.number) {
+          <g
+            class="bus"
+            role="button"
+            tabindex="0"
+            [attr.data-bus]="bus.number"
+            [attr.data-energized]="bus.energized"
+            [attr.aria-label]="bus.ariaLabel"
+            [attr.aria-pressed]="bus.selected"
+            [class.selected]="bus.selected"
+            [class.hovered]="bus.hovered"
+            (click)="selectBus(bus.number)"
+            (keydown.enter)="selectBus(bus.number)"
+            (keydown.space)="selectBus(bus.number); $event.preventDefault()"
+            (mouseenter)="hoverBus(bus.number)"
+            (mouseleave)="hoverBus(null)"
+            (focus)="hoverBus(bus.number)"
+            (blur)="hoverBus(null)"
+          >
+            <circle class="halo" [attr.cx]="bus.position.x" [attr.cy]="bus.position.y" r="20" />
+            <circle
+              class="disc"
+              [attr.cx]="bus.position.x"
+              [attr.cy]="bus.position.y"
+              r="13"
+              [attr.fill]="bus.shade"
+              [attr.stroke]="bus.outline"
+              [attr.stroke-dasharray]="bus.dash"
+              [attr.stroke-width]="bus.outOfBand ? 4 : 2.5"
+            />
+            @if (bus.hasGeneration) {
+              <text
+                class="generator-mark"
+                [attr.x]="bus.position.x"
+                [attr.y]="bus.position.y"
+                text-anchor="middle"
+                dominant-baseline="central"
+              >
+                G
+              </text>
+            }
+            <text
+              class="bus-label"
+              [attr.x]="bus.position.x"
+              [attr.y]="bus.position.y - 22"
+              text-anchor="middle"
+            >
+              {{ bus.label }}
+            </text>
+            <text
+              class="bus-voltage"
+              [class.overload]="bus.outOfBand"
+              [attr.x]="bus.position.x"
+              [attr.y]="bus.position.y + 34"
+              text-anchor="middle"
+            >
+              {{ bus.voltageLabel }}
+            </text>
+          </g>
+        }
+      </svg>
+      <gt-particle-layer [flows]="flows()" [viewBox]="viewBox()" />
+    } @else {
+      <p class="placeholder" role="status">
+        @if (store.connection() === 'lost') {
+          The network could not be loaded.
+        } @else {
+          Loading the network
+        }
+      </p>
+    }
+  </div>
+</section>

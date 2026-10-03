@@ -9,6 +9,13 @@ import dev.gridtwin.domain.model.BusType;
 import dev.gridtwin.domain.model.Generator;
 import dev.gridtwin.domain.model.Network;
 import dev.gridtwin.domain.model.Shunt;
+import dev.gridtwin.domain.topology.Bay;
+import dev.gridtwin.domain.topology.BayKind;
+import dev.gridtwin.domain.topology.Busbar;
+import dev.gridtwin.domain.topology.Substation;
+import dev.gridtwin.domain.topology.SwitchKind;
+import dev.gridtwin.domain.topology.SwitchPositions;
+import dev.gridtwin.domain.twin.GridModel;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -142,5 +149,69 @@ class CaseLoaderTest {
                 .filter(generator -> generator.id().equals(id))
                 .findFirst()
                 .orElseThrow();
+    }
+
+    @Test
+    void ieee14CarriesTheFictionalBus4Substation() {
+        Substation substation = CaseLoader.load("ieee14").substation().orElseThrow();
+
+        assertThat(substation.busNumber()).isEqualTo(4);
+        assertThat(substation.baseKv()).isEqualTo(132.0);
+        assertThat(substation.busbars()).extracting(Busbar::busNumber).containsExactly(4, 40);
+        assertThat(substation.bays()).hasSize(7);
+        assertThat(substation.bays().stream().filter(bay -> bay.kind() == BayKind.FEEDER))
+                .hasSize(6);
+        assertThat(substation.switches()).hasSize(35);
+        assertThat(substation.nodes()).hasSize(22);
+        assertThat(substation.bays()).extracting(Bay::column).doesNotHaveDuplicates();
+    }
+
+    @Test
+    void theDefaultArrangementPutsTwoBaysOnBusbar1AndFourOnBusbar2WithTheCouplerClosed() {
+        Substation substation = CaseLoader.load("ieee14").substation().orElseThrow();
+        SwitchPositions positions = substation.initialPositions();
+
+        assertThat(positions.isClosed("L3-4.QB1")).isTrue();
+        assertThat(positions.isClosed("L4-5.QB1")).isTrue();
+        assertThat(positions.isClosed("L2-4.QB2")).isTrue();
+        assertThat(positions.isClosed("T4-7.QB2")).isTrue();
+        assertThat(positions.isClosed("T4-9.QB2")).isTrue();
+        assertThat(positions.isClosed("LOAD.QB2")).isTrue();
+        assertThat(positions.isClosed("L2-4.QB1")).isFalse();
+        assertThat(positions.isClosed("CPL.QA1")).isTrue();
+        assertThat(positions.isClosed("CPL.QB1")).isTrue();
+        assertThat(positions.isClosed("CPL.QB2")).isTrue();
+        assertThat(
+                        substation.switches().stream()
+                                .filter(candidate -> candidate.kind() == SwitchKind.EARTHING_SWITCH)
+                                .allMatch(candidate -> !positions.isClosed(candidate.id())))
+                .isTrue();
+    }
+
+    @Test
+    void everyBranchLoadAndFeederOfBus4HasABayTerminal() {
+        GridModel model = CaseLoader.load("ieee14").gridModel().orElseThrow();
+
+        List<String> equipment =
+                model.substation().bays().stream()
+                        .flatMap(bay -> bay.terminal().stream())
+                        .map(terminal -> terminal.kind() + ":" + terminal.equipmentId())
+                        .toList();
+
+        assertThat(equipment)
+                .containsExactlyInAnyOrder(
+                        "BRANCH:L2-4",
+                        "BRANCH:L3-4",
+                        "BRANCH:L4-5",
+                        "BRANCH:T4-7",
+                        "BRANCH:T4-9",
+                        "LOAD:");
+    }
+
+    @Test
+    void onlyIeee14HasASubstation() {
+        assertThat(CaseLoader.load("ieee14").gridModel()).isPresent();
+        assertThat(CaseLoader.load("ieee30").substation()).isEmpty();
+        assertThat(CaseLoader.load("ieee30").gridModel()).isEmpty();
     }
 }

@@ -9,8 +9,10 @@ import dev.gridtwin.domain.model.Network;
 import dev.gridtwin.domain.powerflow.BranchResult;
 import dev.gridtwin.domain.powerflow.BusResult;
 import dev.gridtwin.domain.powerflow.BusState;
+import dev.gridtwin.domain.powerflow.EjmlSparseLuSolver;
 import dev.gridtwin.domain.powerflow.GeneratorResult;
 import dev.gridtwin.domain.powerflow.PowerFlow;
+import dev.gridtwin.domain.powerflow.PowerFlowOptions;
 import dev.gridtwin.domain.powerflow.PowerFlowResult;
 import dev.gridtwin.domain.powerflow.ReactiveLimitState;
 import dev.gridtwin.domain.powerflow.WarmStart;
@@ -25,6 +27,9 @@ import java.util.Optional;
 
 public final class TwinSolver {
 
+    private static final double REPRODUCIBLE_TOLERANCE = 1e-10;
+    private static final int MAX_ITERATIONS = 20;
+
     private final PowerFlow powerFlow;
 
     public TwinSolver(PowerFlow powerFlow) {
@@ -32,7 +37,10 @@ public final class TwinSolver {
     }
 
     public static TwinSolver standard() {
-        return new TwinSolver(PowerFlow.standard());
+        return new TwinSolver(
+                new PowerFlow(
+                        new PowerFlowOptions(REPRODUCIBLE_TOLERANCE, MAX_ITERATIONS, true),
+                        EjmlSparseLuSolver::new));
     }
 
     public TwinSolution solve(TwinState state) {

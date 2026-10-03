@@ -253,4 +253,16 @@ class TwinTest {
         assertThat(solution.lowestVoltage().orElseThrow()).isBetween(0.9, 1.1);
         assertThat(solution.maxLoading()).isGreaterThan(0.0);
     }
+
+    @Test
+    void theStandardSolverConvergesTighterThanTheBriefTolerance() {
+        TwinSolution solution =
+                this.start().operate(SmallStation.COUPLER_BREAKER, Position.OPEN).twin().solution();
+
+        assertThat(solution.islands())
+                .allSatisfy(
+                        island ->
+                                assertThat(island.result().orElseThrow().finalMismatch())
+                                        .isLessThanOrEqualTo(1e-10));
+    }
 }

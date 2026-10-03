@@ -1,0 +1,240 @@
+{
+  "suite" : "java",
+  "generatedAt" : "2026-10-03T19:14:25.387500544+02:00[Europe/Warsaw]",
+  "hardware" : {
+    "cpuModel" : "12th Gen Intel(R) Core(TM) i7-12700H",
+    "logicalCores" : 20,
+    "physicalMemoryMegabytes" : 15825,
+    "operatingSystem" : "Linux 6.6.87.2-microsoft-standard-WSL2 (amd64)",
+    "jvm" : "OpenJDK 64-Bit Server VM 21.0.12.1+1-1-24.04.4-Ubuntu (Ubuntu)",
+    "maxHeapMegabytes" : 3958
+  },
+  "settings" : {
+    "warmupRuns" : 300,
+    "measuredRuns" : 300
+  },
+  "measurements" : [ {
+    "name" : "ieee14 solve, flat start",
+    "description" : "PowerFlow.standard(): tolerance 1e-8 pu, reactive limits enforced",
+    "warmupRuns" : 300,
+    "statistics" : {
+      "samples" : 300,
+      "medianMs" : 0.2115835,
+      "p95Ms" : 0.5147489500000001,
+      "meanMs" : 0.27046380999999997,
+      "minMs" : 0.139638,
+      "maxMs" : 5.164597
+    }
+  }, {
+    "name" : "ieee14 solve, warm start",
+    "description" : "PowerFlow.standard() warm-started from the base solution",
+    "warmupRuns" : 300,
+    "statistics" : {
+      "samples" : 300,
+      "medianMs" : 0.0623565,
+      "p95Ms" : 0.1679226000000001,
+      "meanMs" : 0.07962291333333334,
+      "minMs" : 0.054912,
+      "maxMs" : 0.677703
+    }
+  }, {
+    "name" : "ieee14 twin solve, flat start",
+    "description" : "TwinSolver.standard(): tolerance 1e-10 pu, islands, reactive limits",
+    "warmupRuns" : 300,
+    "statistics" : {
+      "samples" : 300,
+      "medianMs" : 0.175719,
+      "p95Ms" : 0.49034105,
+      "meanMs" : 0.24752302333333334,
+      "minMs" : 0.130138,
+      "maxMs" : 2.459363
+    }
+  }, {
+    "name" : "ieee30 solve, flat start",
+    "description" : "PowerFlow.standard(): tolerance 1e-8 pu, reactive limits enforced",
+    "warmupRuns" : 300,
+    "statistics" : {
+      "samples" : 300,
+      "medianMs" : 0.702648,
+      "p95Ms" : 0.9866709000000006,
+      "meanMs" : 0.7425601666666666,
+      "minMs" : 0.590535,
+      "maxMs" : 3.189667
+    }
+  }, {
+    "name" : "ieee30 solve, warm start",
+    "description" : "PowerFlow.standard() warm-started from the base solution",
+    "warmupRuns" : 300,
+    "statistics" : {
+      "samples" : 300,
+      "medianMs" : 0.5023735,
+      "p95Ms" : 0.6879608500000001,
+      "meanMs" : 0.5227308966666667,
+      "minMs" : 0.391988,
+      "maxMs" : 2.277483
+    }
+  }, {
+    "name" : "ieee30 twin solve, flat start",
+    "description" : "TwinSolver.standard(): tolerance 1e-10 pu, islands, reactive limits",
+    "warmupRuns" : 300,
+    "statistics" : {
+      "samples" : 300,
+      "medianMs" : 0.8282995,
+      "p95Ms" : 1.0422519000000001,
+      "meanMs" : 0.85499893,
+      "minMs" : 0.711521,
+      "maxMs" : 2.89159
+    }
+  }, {
+    "name" : "ieee14 N-1 sequential",
+    "description" : "25 outages, one thread",
+    "warmupRuns" : 300,
+    "statistics" : {
+      "samples" : 300,
+      "medianMs" : 5.776668,
+      "p95Ms" : 7.33244195,
+      "meanMs" : 5.917872626666667,
+      "minMs" : 4.688162,
+      "maxMs" : 11.771607
+    }
+  }, {
+    "name" : "ieee14 N-1 parallel, 2 threads",
+    "description" : "25 outages on a dedicated ForkJoinPool of 2",
+    "warmupRuns" : 300,
+    "statistics" : {
+      "samples" : 300,
+      "medianMs" : 4.317054,
+      "p95Ms" : 6.484304400000001,
+      "meanMs" : 4.534367023333333,
+      "minMs" : 3.62244,
+      "maxMs" : 9.780204
+    }
+  }, {
+    "name" : "ieee14 N-1 parallel, 4 threads",
+    "description" : "25 outages on a dedicated ForkJoinPool of 4",
+    "warmupRuns" : 300,
+    "statistics" : {
+      "samples" : 300,
+      "medianMs" : 3.107382,
+      "p95Ms" : 3.6223979,
+      "meanMs" : 3.15518095,
+      "minMs" : 2.531215,
+      "maxMs" : 5.559721
+    }
+  }, {
+    "name" : "ieee14 N-1 parallel, 8 threads",
+    "description" : "25 outages on a dedicated ForkJoinPool of 8",
+    "warmupRuns" : 300,
+    "statistics" : {
+      "samples" : 300,
+      "medianMs" : 2.8762635,
+      "p95Ms" : 3.3452538000000005,
+      "meanMs" : 2.9083163366666662,
+      "minMs" : 2.200786,
+      "maxMs" : 5.589759
+    }
+  }, {
+    "name" : "ieee14 N-1 parallel, 20 threads",
+    "description" : "25 outages on a dedicated ForkJoinPool of 20",
+    "warmupRuns" : 300,
+    "statistics" : {
+      "samples" : 300,
+      "medianMs" : 2.8886735,
+      "p95Ms" : 3.8217828500000004,
+      "meanMs" : 2.97958356,
+      "minMs" : 2.435236,
+      "maxMs" : 5.044469
+    }
+  }, {
+    "name" : "ieee30 N-1 sequential",
+    "description" : "47 outages, one thread",
+    "warmupRuns" : 300,
+    "statistics" : {
+      "samples" : 300,
+      "medianMs" : 40.7207295,
+      "p95Ms" : 43.327934,
+      "meanMs" : 40.50031037666667,
+      "minMs" : 36.519619,
+      "maxMs" : 48.190015
+    }
+  }, {
+    "name" : "ieee30 N-1 parallel, 2 threads",
+    "description" : "47 outages on a dedicated ForkJoinPool of 2",
+    "warmupRuns" : 300,
+    "statistics" : {
+      "samples" : 300,
+      "medianMs" : 24.892246,
+      "p95Ms" : 26.6636355,
+      "meanMs" : 25.080266873333336,
+      "minMs" : 23.034019,
+      "maxMs" : 37.394147
+    }
+  }, {
+    "name" : "ieee30 N-1 parallel, 4 threads",
+    "description" : "47 outages on a dedicated ForkJoinPool of 4",
+    "warmupRuns" : 300,
+    "statistics" : {
+      "samples" : 300,
+      "medianMs" : 15.0931045,
+      "p95Ms" : 16.76122585,
+      "meanMs" : 14.655451816666666,
+      "minMs" : 11.539848,
+      "maxMs" : 20.484103
+    }
+  }, {
+    "name" : "ieee30 N-1 parallel, 8 threads",
+    "description" : "47 outages on a dedicated ForkJoinPool of 8",
+    "warmupRuns" : 300,
+    "statistics" : {
+      "samples" : 300,
+      "medianMs" : 10.074349,
+      "p95Ms" : 13.105721250000002,
+      "meanMs" : 10.317075756666666,
+      "minMs" : 7.967718,
+      "maxMs" : 19.039607
+    }
+  }, {
+    "name" : "ieee30 N-1 parallel, 20 threads",
+    "description" : "47 outages on a dedicated ForkJoinPool of 20",
+    "warmupRuns" : 300,
+    "statistics" : {
+      "samples" : 300,
+      "medianMs" : 7.8959815,
+      "p95Ms" : 10.602608250000001,
+      "meanMs" : 7.96898106,
+      "minMs" : 5.649839,
+      "maxMs" : 12.327119
+    }
+  }, {
+    "name" : "ieee14 cascade from the outage of L2-4",
+    "description" : "trip the worst branch above 120% until stable, collapsed or blacked out",
+    "warmupRuns" : 300,
+    "statistics" : {
+      "samples" : 300,
+      "medianMs" : 1.4179015,
+      "p95Ms" : 1.6254958000000002,
+      "meanMs" : 1.4333776933333333,
+      "minMs" : 1.216189,
+      "maxMs" : 3.530616
+    }
+  } ],
+  "targets" : [ {
+    "name" : "IEEE 30 solve",
+    "measurement" : "ieee30 solve, warm start",
+    "limitMs" : 10.0,
+    "actualP95Ms" : 0.6879608500000001,
+    "met" : true
+  }, {
+    "name" : "IEEE 30 N-1 sequential",
+    "measurement" : "ieee30 N-1 sequential",
+    "limitMs" : 500.0,
+    "actualP95Ms" : 43.327934,
+    "met" : true
+  }, {
+    "name" : "IEEE 30 N-1 on all cores",
+    "measurement" : "ieee30 N-1 parallel, 20 threads",
+    "limitMs" : 500.0,
+    "actualP95Ms" : 10.602608250000001,
+    "met" : true
+  } ]
+}

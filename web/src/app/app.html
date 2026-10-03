@@ -1,0 +1,35 @@
+<a class="skip" href="#main">Skip to the content</a>
+<header class="topbar">
+  <div class="brand">
+    <h1>gridtwin</h1>
+    <span class="tag educational" data-testid="educational-label">Educational model</span>
+  </div>
+  <gt-summary-bar />
+</header>
+
+<main id="main" class="layout" tabindex="-1">
+  <div class="stage">
+    <gt-network-view />
+    <gt-status-bar />
+  </div>
+  <div class="side">
+    <gt-load-slider />
+    <gt-inspector />
+  </div>
+  <div class="analysis">
+    <gt-n1-table />
+    <gt-cascade-panel />
+  </div>
+</main>
+
+<footer class="footer">
+  <p class="muted">
+    @if (store.caseDetail(); as detail) {
+      {{ detail.title }}. {{ detail.disclaimer }}
+    } @else {
+      An educational model on public IEEE test data. It describes no real installation.
+    }
+  </p>
+</footer>
+
+<gt-confirmation-host />

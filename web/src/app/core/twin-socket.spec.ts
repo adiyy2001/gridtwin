@@ -1,12 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { DEFAULT_BACKOFF } from './backoff';
-import {
-  SOCKET_BASE_URL,
-  SOCKET_FACTORY,
-  TwinSocket,
-  parseStateMessage,
-} from './twin-socket';
+import { SOCKET_BASE_URL, SOCKET_FACTORY, TwinSocket, parseStateMessage } from './twin-socket';
 import type { SocketEvent } from './twin-socket';
 import { versioned } from '../testing/fixtures';
 

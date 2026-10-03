@@ -21,7 +21,10 @@ describe('toApiError', () => {
   });
 
   it('reads a body without a switch id', () => {
-    const response = new HttpErrorResponse({ status: 404, error: { code: 'x', message: 'Unknown.' } });
+    const response = new HttpErrorResponse({
+      status: 404,
+      error: { code: 'x', message: 'Unknown.' },
+    });
     expect(toApiError(response).switchId).toBeNull();
   });
 

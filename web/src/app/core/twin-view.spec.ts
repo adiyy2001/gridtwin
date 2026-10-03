@@ -21,30 +21,60 @@ describe('resolveView', () => {
   });
 
   it('shows the selected step in cascade mode', () => {
-    const view = resolveView({ mode: 'cascade', live, preview: null, cascade: replay, cascadeIndex: 1 });
+    const view = resolveView({
+      mode: 'cascade',
+      live,
+      preview: null,
+      cascade: replay,
+      cascadeIndex: 1,
+    });
     expect(view.source).toBe('cascade');
     expect(view.state).toBe(replay.steps[1]?.state);
     expect(view.description).toContain('L2-4 tripped');
   });
 
   it('describes the first step as the state before any trip', () => {
-    const view = resolveView({ mode: 'cascade', live, preview: null, cascade: replay, cascadeIndex: 0 });
+    const view = resolveView({
+      mode: 'cascade',
+      live,
+      preview: null,
+      cascade: replay,
+      cascadeIndex: 0,
+    });
     expect(view.description).toContain('before any trip');
   });
 
   it('falls back to the live state when the preview is missing', () => {
-    const view = resolveView({ mode: 'preview', live, preview: null, cascade: null, cascadeIndex: 0 });
+    const view = resolveView({
+      mode: 'preview',
+      live,
+      preview: null,
+      cascade: null,
+      cascadeIndex: 0,
+    });
     expect(view.source).toBe('live');
   });
 
   it('falls back to the live state when the cascade has no steps', () => {
     const empty = { ...replay, steps: [] };
-    const view = resolveView({ mode: 'cascade', live, preview: null, cascade: empty, cascadeIndex: 0 });
+    const view = resolveView({
+      mode: 'cascade',
+      live,
+      preview: null,
+      cascade: empty,
+      cascadeIndex: 0,
+    });
     expect(view.source).toBe('live');
   });
 
   it('has no state before the first one arrives', () => {
-    const view = resolveView({ mode: 'live', live: null, preview: null, cascade: null, cascadeIndex: 0 });
+    const view = resolveView({
+      mode: 'live',
+      live: null,
+      preview: null,
+      cascade: null,
+      cascadeIndex: 0,
+    });
     expect(view.state).toBeNull();
   });
 });

@@ -208,9 +208,7 @@ describe('TwinStore', () => {
     it('describes a diverged power flow', async () => {
       store.requestSwitch('CPL.QA1', 'OPEN');
       const diverged = twinState({ converged: false });
-      vi.spyOn(api, 'operateSwitch').mockReturnValue(
-        of(versioned(2, diverged)),
-      );
+      vi.spyOn(api, 'operateSwitch').mockReturnValue(of(versioned(2, diverged)));
       await store.confirmPending();
       expect(store.notice()?.text).toContain('did not converge');
     });
@@ -219,9 +217,7 @@ describe('TwinStore', () => {
       const overloaded = twinState({
         summary: { ...twinState().summary, overloadedBranches: 2, maxLoading: 1.3 },
       });
-      vi.spyOn(api, 'operateSwitch').mockReturnValue(
-        of(versioned(2, overloaded)),
-      );
+      vi.spyOn(api, 'operateSwitch').mockReturnValue(of(versioned(2, overloaded)));
       store.requestSwitch('CPL.QA1', 'OPEN');
       await store.confirmPending();
       expect(store.notice()?.text).toContain('2 overloaded branches');

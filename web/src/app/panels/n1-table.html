@@ -1,0 +1,86 @@
+<section class="panel" aria-labelledby="n1-title">
+  <div class="panel-header">
+    <h2 id="n1-title">N-1 contingencies</h2>
+    <button
+      type="button"
+      class="primary"
+      data-action="run-n1"
+      [disabled]="store.busy() || store.sessionId() === null"
+      (click)="run()"
+    >
+      Run N-1
+    </button>
+  </div>
+
+  @if (store.report(); as report) {
+    <p class="muted summary">
+      {{ report.contingencies.length }} outages at {{ format.percent(report.loadFactor, 0) }} load:
+      {{ report.tiers.secure }} secure, {{ report.tiers.degraded }} degraded,
+      {{ report.tiers.blackout }} blackout, {{ report.tiers.nonConverged }} without a solution.
+      Select a row to preview it in the network.
+    </p>
+    <div class="table-wrap">
+      <table data-testid="n1-table">
+        <caption class="visually-hidden">
+          Contingencies ranked by severity. Select a row to preview the outage in the network.
+        </caption>
+        <thead>
+          <tr>
+            @for (column of columns; track column.column) {
+              <th
+                scope="col"
+                [attr.aria-sort]="ariaSort(column.column)"
+                [class.numeric]="column.numeric"
+              >
+                <button
+                  type="button"
+                  class="sort"
+                  [attr.data-sort]="column.column"
+                  (click)="sortBy(column.column)"
+                >
+                  {{ column.label }}
+                  <span aria-hidden="true" class="indicator">{{
+                    sortIndicator(column.column)
+                  }}</span>
+                </button>
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.id) {
+            <tr
+              tabindex="0"
+              class="contingency"
+              [attr.data-outage]="row.id"
+              [attr.aria-current]="previewedId() === row.id ? 'true' : null"
+              [class.previewed]="previewedId() === row.id"
+              (click)="preview(row)"
+              (keydown.enter)="preview(row)"
+              (keydown.space)="preview(row); $event.preventDefault()"
+            >
+              <td class="numeric">{{ row.rank }}</td>
+              <th scope="row">{{ rowLabel(row) }}</th>
+              <td>
+                <span class="tier" [attr.data-tier]="row.severity.tier">{{
+                  format.tier(row.severity.tier)
+                }}</span>
+              </td>
+              <td class="numeric">{{ format.score(row.severity.score) }}</td>
+              <td class="numeric">{{ row.converged ? format.percent(row.maxLoading) : 'n/a' }}</td>
+              <td class="numeric">
+                {{ format.pu(row.lowestVoltage) }}
+              </td>
+              <td class="numeric">{{ format.mw(row.shedLoadMw) }}</td>
+              <td class="numeric">{{ row.overloadedBranches.length }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <p class="muted">
+      Run N-1 to take every branch and generator out of service one at a time and rank the results.
+    </p>
+  }
+</section>

@@ -1,6 +1,7 @@
-import { Observable, Subject, of, throwError } from 'rxjs';
+import type { Observable } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 
-import { ApiError } from '../core/api-error';
+import type { ApiError } from '../core/api-error';
 import type { SocketEvent } from '../core/twin-socket';
 import type {
   Cascade,
@@ -40,7 +41,11 @@ export class FakeApi {
     return this.respond(this.created);
   }
 
-  operateSwitch(sessionId: string, switchId: string, position: Position): Observable<VersionedState> {
+  operateSwitch(
+    sessionId: string,
+    switchId: string,
+    position: Position,
+  ): Observable<VersionedState> {
     this.calls.push(`operateSwitch ${sessionId} ${switchId} ${position}`);
     return this.respond(this.advance());
   }

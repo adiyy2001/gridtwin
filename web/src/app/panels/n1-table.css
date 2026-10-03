@@ -1,0 +1,106 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.summary {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.table-wrap {
+  max-height: 420px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--border);
+  padding: 0;
+  text-align: left;
+  z-index: 1;
+}
+
+th.numeric,
+td.numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.sort {
+  width: 100%;
+  min-height: 34px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-weight: 600;
+  text-align: inherit;
+  white-space: nowrap;
+}
+
+.indicator {
+  display: inline-block;
+  min-width: 1em;
+}
+
+tbody th,
+td {
+  padding: 5px 8px;
+  text-align: left;
+  font-weight: 400;
+  border-bottom: 1px solid var(--surface-muted);
+  white-space: nowrap;
+}
+
+td.numeric {
+  text-align: right;
+}
+
+tr.contingency {
+  cursor: pointer;
+}
+
+tr.contingency:hover {
+  background: #eef4ff;
+}
+
+tr.previewed {
+  background: #dbe8ff;
+  box-shadow: inset 4px 0 0 var(--accent);
+}
+
+tr.contingency:focus-visible {
+  outline-offset: -3px;
+}
+
+.tier {
+  display: inline-block;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: 0.8rem;
+}
+
+.tier[data-tier='SECURE'] {
+  color: var(--ok);
+}
+
+.tier[data-tier='DEGRADED'] {
+  color: var(--warn);
+}
+
+.tier[data-tier='BLACKOUT'],
+.tier[data-tier='NON_CONVERGED'] {
+  color: var(--danger);
+  font-weight: 600;
+}

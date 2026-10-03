@@ -8,6 +8,7 @@ import type {
   ContingencyReport,
   ContingencySummary,
   SessionCreated,
+  Substation,
   TwinState,
   VersionedState,
 } from '../model/api-types';
@@ -92,7 +93,11 @@ export function versioned(version: number, state: TwinState = twinState()): Vers
 }
 
 export function sessionCreated(state: TwinState = twinState()): SessionCreated {
-  return { sessionId: 'session-1', createdAt: '2026-10-03T12:00:00+02:00', state: versioned(1, state) };
+  return {
+    sessionId: 'session-1',
+    createdAt: '2026-10-03T12:00:00+02:00',
+    state: versioned(1, state),
+  };
 }
 
 export function caseDetail(): CaseDetail {
@@ -108,7 +113,15 @@ export function caseDetail(): CaseDetail {
       layoutPolicy: 'test',
     },
     buses: [
-      { number: 1, type: 'REFERENCE', baseKv: 132, voltageMin: 0.94, voltageMax: 1.06, x: 100, y: 100 },
+      {
+        number: 1,
+        type: 'REFERENCE',
+        baseKv: 132,
+        voltageMin: 0.94,
+        voltageMax: 1.06,
+        x: 100,
+        y: 100,
+      },
       { number: 2, type: 'PQ', baseKv: 132, voltageMin: 0.94, voltageMax: 1.06, x: 300, y: 100 },
       { number: 4, type: 'PQ', baseKv: 132, voltageMin: 0.94, voltageMax: 1.06, x: 300, y: 300 },
     ],
@@ -139,14 +152,57 @@ export function caseDetail(): CaseDetail {
         { id: 'CPL', name: 'Bus coupler', kind: 'COUPLER', column: 1 },
       ],
       switches: [
-        { id: 'L2-4.QB1', kind: 'DISCONNECTOR', bay: 'L2-4', nodeA: 'BB1', nodeB: 'L2-4.A', initialPosition: 'OPEN' },
-        { id: 'L2-4.QA1', kind: 'BREAKER', bay: 'L2-4', nodeA: 'L2-4.A', nodeB: 'L2-4.B', initialPosition: 'CLOSED' },
-        { id: 'L2-4.QE1', kind: 'EARTHING_SWITCH', bay: 'L2-4', nodeA: 'L2-4.B', nodeB: 'L2-4.B', initialPosition: 'OPEN' },
-        { id: 'CPL.QA1', kind: 'BREAKER', bay: 'CPL', nodeA: 'BB1', nodeB: 'BB2', initialPosition: 'CLOSED' },
-        { id: 'CPL.QB1', kind: 'DISCONNECTOR', bay: 'CPL', nodeA: 'BB1', nodeB: 'CPL.A', initialPosition: 'CLOSED' },
+        {
+          id: 'L2-4.QB1',
+          kind: 'DISCONNECTOR',
+          bay: 'L2-4',
+          nodeA: 'BB1',
+          nodeB: 'L2-4.A',
+          initialPosition: 'OPEN',
+        },
+        {
+          id: 'L2-4.QA1',
+          kind: 'BREAKER',
+          bay: 'L2-4',
+          nodeA: 'L2-4.A',
+          nodeB: 'L2-4.B',
+          initialPosition: 'CLOSED',
+        },
+        {
+          id: 'L2-4.QE1',
+          kind: 'EARTHING_SWITCH',
+          bay: 'L2-4',
+          nodeA: 'L2-4.B',
+          nodeB: 'L2-4.B',
+          initialPosition: 'OPEN',
+        },
+        {
+          id: 'CPL.QA1',
+          kind: 'BREAKER',
+          bay: 'CPL',
+          nodeA: 'BB1',
+          nodeB: 'BB2',
+          initialPosition: 'CLOSED',
+        },
+        {
+          id: 'CPL.QB1',
+          kind: 'DISCONNECTOR',
+          bay: 'CPL',
+          nodeA: 'BB1',
+          nodeB: 'CPL.A',
+          initialPosition: 'CLOSED',
+        },
       ],
     },
   };
+}
+
+export function substationFixture(): Substation {
+  const substation = caseDetail().substation;
+  if (!substation) {
+    throw new Error('the fixture case has no substation');
+  }
+  return substation;
 }
 
 export function contingency(overrides: Partial<ContingencySummary> = {}): ContingencySummary {
@@ -179,7 +235,14 @@ export function contingencyReport(
       rank: 2,
       id: 'generator:G1',
       outage: { id: 'generator:G1', kind: 'GENERATOR', equipmentId: 'G1' },
-      severity: { tier: 'SECURE', score: 0, overloadTerm: 0, voltageTerm: 0, shedTerm: 0, slackTerm: 0 },
+      severity: {
+        tier: 'SECURE',
+        score: 0,
+        overloadTerm: 0,
+        voltageTerm: 0,
+        shedTerm: 0,
+        slackTerm: 0,
+      },
       maxLoading: 0.7,
       overloadedBranches: [],
     }),
@@ -187,7 +250,14 @@ export function contingencyReport(
       rank: 3,
       id: 'branch:L2-4',
       outage: { id: 'branch:L2-4', kind: 'BRANCH', equipmentId: 'L2-4' },
-      severity: { tier: 'NON_CONVERGED', score: 10, overloadTerm: 0, voltageTerm: 0, shedTerm: 10, slackTerm: 0 },
+      severity: {
+        tier: 'NON_CONVERGED',
+        score: 10,
+        overloadTerm: 0,
+        voltageTerm: 0,
+        shedTerm: 10,
+        slackTerm: 0,
+      },
       converged: false,
       maxLoading: 0,
       lowestVoltage: null,
@@ -200,7 +270,14 @@ export function contingencyReport(
   return {
     stateVersion,
     loadFactor: 1,
-    baseSeverity: { tier: 'SECURE', score: 0, overloadTerm: 0, voltageTerm: 0, shedTerm: 0, slackTerm: 0 },
+    baseSeverity: {
+      tier: 'SECURE',
+      score: 0,
+      overloadTerm: 0,
+      voltageTerm: 0,
+      shedTerm: 0,
+      slackTerm: 0,
+    },
     baseViolations: [],
     tiers: { secure: 1, degraded: 1, blackout: 0, nonConverged: 1 },
     contingencies: rows,
@@ -211,14 +288,20 @@ export function contingencyPreview(stateVersion = 1): ContingencyPreview {
   return {
     stateVersion,
     contingency: contingency(),
-    state: twinState({ branches: [branchState({ id: 'L1-2', energized: false, loading: 0 })] }),
+    state: twinState({
+      branches: [
+        branchState({ id: 'L1-2', energized: false, loading: 0 }),
+        branchState({ id: 'L2-4', from: 2, to: 4, loading: 0.9 }),
+      ],
+    }),
   };
 }
 
 function step(index: number, tripped: string | null, loading: number): CascadeStep {
   return {
     index,
-    tripped: tripped === null ? null : { id: `branch:${tripped}`, kind: 'BRANCH', equipmentId: tripped },
+    tripped:
+      tripped === null ? null : { id: `branch:${tripped}`, kind: 'BRANCH', equipmentId: tripped },
     loadingAtTrip: tripped === null ? null : 1.3,
     outOfServiceBranches: tripped === null ? [] : [tripped],
     outOfServiceGenerators: [],

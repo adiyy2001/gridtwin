@@ -1,0 +1,81 @@
+<section class="panel" aria-labelledby="cascade-title">
+  <div class="panel-header">
+    <h2 id="cascade-title">Cascade replay</h2>
+  </div>
+  <p class="muted note">
+    Educational simplification: the worst branch above the trip threshold goes out, the network is
+    solved again, and this repeats. There is no protection timing and no dynamics.
+  </p>
+  <div class="controls">
+    <label for="cascade-trigger">First outage</label>
+    <select id="cascade-trigger" [value]="trigger()" (change)="chooseTrigger($event)">
+      @for (option of store.outageOptions(); track option.id) {
+        <option [value]="option.id" [selected]="option.id === trigger()">{{ option.label }}</option>
+      }
+    </select>
+    <button
+      type="button"
+      class="primary"
+      data-action="run-cascade"
+      [disabled]="store.busy() || store.sessionId() === null"
+      (click)="run()"
+    >
+      Run cascade
+    </button>
+  </div>
+
+  @if (store.cascade(); as cascade) {
+    <p class="result" data-testid="cascade-result">
+      Threshold {{ format.percent(cascade.tripThreshold, 0) }} of the rating,
+      {{ cascade.trippedCount }} {{ cascade.trippedCount === 1 ? 'trip' : 'trips' }}.
+      {{ endText(cascade.end) }}
+    </p>
+    <div class="scrubber">
+      <button
+        type="button"
+        data-action="play"
+        [attr.aria-pressed]="store.cascadePlaying()"
+        (click)="togglePlay()"
+      >
+        {{ store.cascadePlaying() ? 'Pause' : 'Play' }}
+      </button>
+      <label class="visually-hidden" for="cascade-range">Cascade step</label>
+      <input
+        id="cascade-range"
+        type="range"
+        min="0"
+        step="1"
+        [max]="store.cascadeLastIndex()"
+        [value]="store.cascadeIndex()"
+        [attr.aria-valuetext]="stepText()"
+        (input)="scrub($event)"
+      />
+    </div>
+    <p class="step-text" data-testid="cascade-step">{{ stepText() }}</p>
+    <ol class="steps" aria-label="Cascade steps">
+      @for (row of rows(); track row.index) {
+        <li>
+          <button
+            type="button"
+            [attr.aria-current]="
+              row.index === store.cascadeIndex() && store.viewMode() === 'cascade' ? 'step' : null
+            "
+            [class.active]="row.index === store.cascadeIndex() && store.viewMode() === 'cascade'"
+            (click)="goTo(row.index)"
+          >
+            <span>{{ row.index }}. {{ row.label }}</span>
+            <span class="muted">
+              {{ row.converged ? 'max ' + format.percent(row.maxLoading, 0) : 'no solution' }},
+              serving {{ format.mw(row.servedLoadMw) }}
+            </span>
+          </button>
+        </li>
+      }
+    </ol>
+  } @else {
+    <p class="muted">
+      Choose the first outage and run the cascade. Every step is stored, so the scrubber replays it
+      without a new solve.
+    </p>
+  }
+</section>

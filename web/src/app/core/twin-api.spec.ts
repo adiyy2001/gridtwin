@@ -83,7 +83,9 @@ describe('TwinApi', () => {
 
   it('turns an error response into an ApiError', () => {
     let failure: unknown;
-    api.operateSwitch('abc', 'QB1', 'CLOSED').subscribe({ error: (error: unknown) => (failure = error) });
+    api
+      .operateSwitch('abc', 'QB1', 'CLOSED')
+      .subscribe({ error: (error: unknown) => (failure = error) });
     backend
       .expectOne('/api/sessions/abc/switches/QB1')
       .flush(

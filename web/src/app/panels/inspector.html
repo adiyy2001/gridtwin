@@ -1,0 +1,162 @@
+<section class="panel inspector" aria-labelledby="inspector-title">
+  <div class="panel-header">
+    <h2 id="inspector-title">Inspector</h2>
+    <div class="kind-switch" role="group" aria-label="List to show">
+      <button
+        type="button"
+        [attr.aria-pressed]="listKind() === 'bus'"
+        [class.active]="listKind() === 'bus'"
+        (click)="showKind('bus')"
+      >
+        Buses
+      </button>
+      <button
+        type="button"
+        [attr.aria-pressed]="listKind() === 'branch'"
+        [class.active]="listKind() === 'branch'"
+        (click)="showKind('branch')"
+      >
+        Branches
+      </button>
+    </div>
+  </div>
+
+  <ul class="entries" [attr.aria-label]="listKind() === 'bus' ? 'Buses' : 'Branches'">
+    @if (listKind() === 'bus') {
+      @for (bus of buses(); track bus.number) {
+        <li>
+          <button
+            type="button"
+            class="entry"
+            [attr.data-entry]="'bus-' + bus.number"
+            [attr.aria-pressed]="isBusSelected(bus.number)"
+            [class.active]="isBusSelected(bus.number)"
+            (click)="chooseBus(bus.number)"
+          >
+            <span>Bus {{ bus.number }}</span>
+            <span class="muted">
+              {{ bus.state === 'ENERGIZED' ? format.pu(bus.voltageMagnitude) : 'de-energized' }}
+            </span>
+          </button>
+        </li>
+      }
+    } @else {
+      @for (branch of branches(); track branch.id) {
+        <li>
+          <button
+            type="button"
+            class="entry"
+            [attr.data-entry]="'branch-' + branch.id"
+            [attr.aria-pressed]="isBranchSelected(branch.id)"
+            [class.active]="isBranchSelected(branch.id)"
+            (click)="chooseBranch(branch.id)"
+          >
+            <span>{{ branch.id }}</span>
+            <span class="muted">
+              {{ branch.energized ? format.percent(branch.loading) : 'de-energized' }}
+              @if (branch.overloaded) {
+                <strong class="alarm">overloaded</strong>
+              }
+            </span>
+          </button>
+        </li>
+      }
+    }
+  </ul>
+
+  <div class="details" aria-live="off">
+    @if (store.selectedBus(); as bus) {
+      <h3>Bus {{ bus.number }}</h3>
+      <dl data-details="bus">
+        <dt>State</dt>
+        <dd>{{ format.busState(bus) }}</dd>
+        <dt>Type</dt>
+        <dd>{{ bus.type }}</dd>
+        @if (busPlacement(); as placement) {
+          <dt>Substation</dt>
+          <dd>{{ placement }}</dd>
+        }
+        <dt>Voltage</dt>
+        <dd>{{ format.pu(bus.voltageMagnitude) }}, {{ format.kv(bus.voltageKv) }}</dd>
+        <dt>Angle</dt>
+        <dd>{{ format.degrees(bus.angleDegrees) }}</dd>
+        <dt>Generation</dt>
+        <dd>
+          {{ format.mw(bus.activeGenerationMw) }}, {{ format.mvar(bus.reactiveGenerationMvar) }}
+        </dd>
+        <dt>Load</dt>
+        <dd>{{ format.mw(bus.activeLoadMw) }}, {{ format.mvar(bus.reactiveLoadMvar) }}</dd>
+        <dt>Base voltage</dt>
+        <dd>{{ format.kv(bus.baseKv) }}</dd>
+      </dl>
+    } @else if (store.selectedBranch(); as branch) {
+      <h3>Branch {{ branch.id }}</h3>
+      <dl data-details="branch">
+        <dt>State</dt>
+        <dd>{{ format.branchState(branch) }}</dd>
+        <dt>Buses</dt>
+        <dd>{{ branch.from }} to {{ branch.to }}</dd>
+        <dt>Loading</dt>
+        <dd>
+          {{ format.percent(branch.loading) }} of {{ branch.ratingMva }} MVA
+          @if (branch.overloaded) {
+            <strong class="alarm">overloaded</strong>
+          }
+        </dd>
+        <dt>Active power</dt>
+        <dd>
+          {{ format.mw(branch.activeFromMw) }} at bus {{ branch.from }},
+          {{ format.mw(branch.activeToMw) }} at bus {{ branch.to }}
+        </dd>
+        <dt>Reactive power</dt>
+        <dd>
+          {{ format.mvar(branch.reactiveFromMvar) }} at bus {{ branch.from }},
+          {{ format.mvar(branch.reactiveToMvar) }} at bus {{ branch.to }}
+        </dd>
+        <dt>Current</dt>
+        <dd>
+          {{ format.ka(branch.currentFromKa) }} at bus {{ branch.from }},
+          {{ format.ka(branch.currentToKa) }} at bus {{ branch.to }}
+        </dd>
+        <dt>Losses</dt>
+        <dd>{{ format.mw(branch.lossMw) }}</dd>
+        @if (caseBranch(); as definition) {
+          <dt>Kind</dt>
+          <dd>
+            {{ definition.transformer ? 'Transformer' : 'Line' }}, tap {{ definition.tap }}, shift
+            {{ definition.shiftDegrees }}°
+          </dd>
+        }
+      </dl>
+    } @else {
+      <p class="muted empty">Select a bus or a branch in the network or in the list.</p>
+    }
+
+    @for (group of switchGroups(); track group.bayId) {
+      <div class="bay" [attr.data-bay]="group.bayId">
+        <h4>Bay {{ group.bayName }}</h4>
+        <ul class="switches">
+          @for (row of group.rows; track row.id) {
+            <li>
+              <span class="switch-name">{{ row.kindLabel }} {{ row.id }}</span>
+              <span class="switch-position" [attr.data-position]="row.position">{{
+                format.position(row.position)
+              }}</span>
+              <button
+                type="button"
+                [attr.data-switch]="row.id"
+                [disabled]="!switchesEditable()"
+                (click)="operate(row)"
+              >
+                {{ row.actionLabel }}
+              </button>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+    @if (switchGroups().length > 0 && !store.isLive()) {
+      <p class="muted">Switching is available in the live state only.</p>
+    }
+  </div>
+</section>

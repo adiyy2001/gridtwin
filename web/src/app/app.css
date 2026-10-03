@@ -1,0 +1,94 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.skip {
+  position: absolute;
+  left: 8px;
+  top: -48px;
+  padding: 8px 12px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-radius: 6px;
+  z-index: 10;
+}
+
+.skip:focus {
+  top: 8px;
+}
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 28px;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand h1 {
+  font-size: 1.3rem;
+  letter-spacing: 0.02em;
+}
+
+.educational {
+  color: var(--warn);
+  font-weight: 600;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 440px);
+  gap: var(--gap);
+  padding: var(--gap) 16px;
+  align-items: start;
+}
+
+.layout:focus {
+  outline: none;
+}
+
+.analysis {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(320px, 2fr);
+  gap: var(--gap);
+  align-items: start;
+}
+
+.stage,
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  min-width: 0;
+}
+
+.stage gt-network-view {
+  flex: 1;
+}
+
+.footer {
+  padding: 4px 16px 20px;
+  font-size: 0.85rem;
+}
+
+.footer p {
+  margin: 0;
+}
+
+@media (max-width: 960px) {
+  .layout,
+  .analysis {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

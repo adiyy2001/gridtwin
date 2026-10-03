@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,13 +46,13 @@ final class TestSocket implements WebSocket.Listener, AutoCloseable {
             }
         }
         webSocket.request(1);
-        return null;
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
         this.closeCode.set(statusCode);
-        return null;
+        return CompletableFuture.completedFuture(null);
     }
 
     List<JsonNode> messages() {

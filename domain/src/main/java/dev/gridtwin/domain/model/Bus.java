@@ -20,4 +20,19 @@ public record Bus(
             throw new IllegalArgumentException("voltage band is inverted for bus " + number);
         }
     }
+
+    public Bus renumbered(int newNumber, BusType newType) {
+        return new Bus(
+                newNumber,
+                newType,
+                this.baseKv,
+                this.voltageMin,
+                this.voltageMax,
+                this.voltageMagnitude,
+                this.voltageAngleDegrees);
+    }
+
+    public Bus withType(BusType newType) {
+        return this.renumbered(this.number, newType);
+    }
 }

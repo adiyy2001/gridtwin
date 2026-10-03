@@ -23,4 +23,36 @@ public record Generator(
             throw new IllegalArgumentException("active range is inverted for generator " + id);
         }
     }
+
+    public Generator withInService(boolean service) {
+        return new Generator(
+                this.id,
+                this.bus,
+                this.activePowerMw,
+                this.reactivePowerMvar,
+                this.reactiveMinMvar,
+                this.reactiveMaxMvar,
+                this.activeMinMw,
+                this.activeMaxMw,
+                this.voltageSetpoint,
+                service);
+    }
+
+    public Generator atBus(int busNumber) {
+        return new Generator(
+                this.id,
+                busNumber,
+                this.activePowerMw,
+                this.reactivePowerMvar,
+                this.reactiveMinMvar,
+                this.reactiveMaxMvar,
+                this.activeMinMw,
+                this.activeMaxMw,
+                this.voltageSetpoint,
+                this.inService);
+    }
+
+    public boolean canTakeSlack() {
+        return this.inService && this.activeMaxMw > 0.0;
+    }
 }

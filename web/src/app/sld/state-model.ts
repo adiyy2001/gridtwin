@@ -29,7 +29,7 @@ export interface SldInput {
   readonly positions: ReadonlyMap<string, Position>;
   readonly branches: ReadonlyMap<string, BranchState>;
   readonly transformers: ReadonlySet<string>;
-  readonly substationBus: BusState | null;
+  readonly buses: ReadonlyMap<number, BusState>;
   readonly selection: Selection | null;
   readonly hover: Selection | null;
   readonly operable: boolean;
@@ -182,12 +182,13 @@ function initialPosition(substation: Substation, id: string): Position {
 }
 
 function busbarModel(entry: SldBusbar, input: SldInput): BusbarModel {
-  const selection: Selection = { kind: 'bus', id: String(entry.bus) };
+  const bus = input.buses.has(entry.bus) ? entry.bus : input.substation.bus;
+  const selection: Selection = { kind: 'bus', id: String(bus) };
   const condition = conditionOf(input.nodeStates, entry.node);
   return {
     key: `busbar:${entry.node}`,
     node: entry.node,
-    bus: entry.bus,
+    bus,
     name: entry.name,
     y: entry.y,
     x1: entry.x1,
@@ -200,11 +201,21 @@ function busbarModel(entry: SldBusbar, input: SldInput): BusbarModel {
   };
 }
 
-function branchReadout(branch: BranchState, substationBus: number): readonly string[] {
+function substationBuses(input: SldInput): BusState[] {
+  const present = input.layout.busbars.flatMap((busbar) => input.buses.get(busbar.bus) ?? []);
+  const fallback = input.buses.get(input.substation.bus);
+  return present.length > 0 ? present : fallback === undefined ? [] : [fallback];
+}
+
+function branchReadout(branch: BranchState, buses: readonly BusState[]): readonly string[] {
+  if (!branch.inService) {
+    return ['out of service'];
+  }
   if (!branch.energized) {
     return ['de-energized'];
   }
-  const leavingMw = branch.from === substationBus ? branch.activeFromMw : branch.activeToMw;
+  const inside = buses.some((bus) => bus.number === branch.from);
+  const leavingMw = inside ? branch.activeFromMw : branch.activeToMw;
   const direction = leavingMw >= 0 ? 'out' : 'in';
   return [`${direction} ${formatMw(Math.abs(leavingMw))}`, formatPercent(branch.loading, 0)];
 }
@@ -221,18 +232,25 @@ function terminalLabel(entry: SldTerminal, transformer: boolean): string {
 
 function terminalModel(entry: SldTerminal, input: SldInput): TerminalModel {
   const branch = entry.kind === 'BRANCH' ? (input.branches.get(entry.equipment) ?? null) : null;
-  const bus = input.substationBus;
+  const buses = substationBuses(input);
+  const loadBus = buses.reduce<BusState | null>(
+    (best, bus) => (best === null || bus.activeLoadMw > best.activeLoadMw ? bus : best),
+    null,
+  );
   const transformer = input.transformers.has(entry.equipment);
-  const condition = conditionOf(input.nodeStates, entry.node);
+  const condition =
+    branch !== null && !branch.energized
+      ? 'DEENERGIZED'
+      : conditionOf(input.nodeStates, entry.node);
   const selection: Selection =
     entry.kind === 'BRANCH'
       ? { kind: 'branch', id: entry.equipment }
-      : { kind: 'bus', id: String(bus?.number ?? '') };
+      : { kind: 'bus', id: String(loadBus?.number ?? input.substation.bus) };
   const readout =
-    branch !== null && bus !== null
-      ? branchReadout(branch, bus.number)
-      : entry.kind === 'LOAD' && bus !== null
-        ? [formatMw(bus.activeLoadMw)]
+    branch !== null
+      ? branchReadout(branch, buses)
+      : entry.kind === 'LOAD' && loadBus !== null
+        ? [formatMw(buses.reduce((sum, bus) => sum + bus.activeLoadMw, 0))]
         : [];
   const overloaded = branch?.overloaded ?? false;
   return {

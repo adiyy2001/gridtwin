@@ -51,7 +51,7 @@ export class SingleLineDiagram {
       positions: this.store.shownSwitchPositions(),
       branches: this.store.branchesById(),
       transformers: new Set(detail.branches.filter((b) => b.transformer).map((b) => b.id)),
-      substationBus: this.store.busesByNumber().get(substation.bus) ?? null,
+      buses: this.store.busesByNumber(),
       selection: this.store.selection(),
       hover: this.store.hover(),
       operable: this.operable(),

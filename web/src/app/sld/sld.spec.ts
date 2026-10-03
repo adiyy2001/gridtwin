@@ -123,7 +123,7 @@ describe('SingleLineDiagram', () => {
 
     it('only selects a busbar and a terminal', () => {
       item('[data-sld-busbar="BB2"]').dispatchEvent(new MouseEvent('click', { bubbles: true }));
-      expect(store.selection()).toEqual({ kind: 'bus', id: '40' });
+      expect(store.selection()).toEqual({ kind: 'bus', id: '4' });
       item('[data-sld-terminal="L2-4"]').dispatchEvent(new MouseEvent('click', { bubbles: true }));
       expect(store.selection()).toEqual({ kind: 'branch', id: 'L2-4' });
       expect(store.pending()).toBeNull();

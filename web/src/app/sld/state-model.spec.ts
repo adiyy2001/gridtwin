@@ -40,7 +40,7 @@ function input(overrides: Partial<SldInput> = {}): SldInput {
       ['L4-5', branchState({ id: 'L4-5', from: 4, to: 5, energized: false })],
     ]),
     transformers: new Set(['T4-7']),
-    substationBus: busState({ number: 4, activeLoadMw: 47.8 }),
+    buses: new Map([[4, busState({ number: 4, activeLoadMw: 47.8 })]]),
     selection: null,
     hover: null,
     operable: true,
@@ -140,9 +140,19 @@ describe('buildSldModel', () => {
     expect(terminal?.ariaLabel).toContain('overloaded');
   });
 
-  it('shows de-energized branches in words', () => {
+  it('shows de-energized branches in words and draws their terminal as de-energized', () => {
     const terminal = model().terminals.find((entry) => entry.bay === 'L4-5');
     expect(terminal?.readout).toEqual(['de-energized']);
+    expect(terminal?.condition).toBe('DEENERGIZED');
+    expect(terminal?.ariaLabel).toContain('de-energized');
+  });
+
+  it('says out of service for a branch that is not connected at the substation end', () => {
+    const branches = new Map([
+      ['L4-5', branchState({ id: 'L4-5', from: 4, to: 5, inService: false, energized: false })],
+    ]);
+    const terminal = model({ branches }).terminals.find((entry) => entry.bay === 'L4-5');
+    expect(terminal?.readout).toEqual(['out of service']);
   });
 
   it('shows the load of the substation bus on the load feeder', () => {
@@ -152,7 +162,7 @@ describe('buildSldModel', () => {
   });
 
   it('shows no readout when there is no state for the equipment', () => {
-    const built = model({ branches: new Map(), substationBus: null });
+    const built = model({ branches: new Map(), buses: new Map() });
     expect(built.terminals.every((entry) => entry.readout.length === 0)).toBe(true);
   });
 
@@ -163,9 +173,44 @@ describe('buildSldModel', () => {
     expect(switchOf(built, 'L2-4.QA1').selected).toBe(true);
     expect(switchOf(built, 'L3-4.QA1').selected).toBe(false);
     expect(built.terminals.find((entry) => entry.bay === 'L3-4')?.hovered).toBe(true);
-    const busSelected = model({ selection: { kind: 'bus', id: '4' } });
+    const split = new Map([
+      [4, busState({ number: 4 })],
+      [40, busState({ number: 40 })],
+    ]);
+    const busSelected = model({ selection: { kind: 'bus', id: '4' }, buses: split });
     expect(busSelected.busbars[0]?.selected).toBe(true);
     expect(busSelected.busbars[1]?.selected).toBe(false);
+    const merged = model({ selection: { kind: 'bus', id: '4' } });
+    expect(merged.busbars.every((busbar) => busbar.selected)).toBe(true);
+  });
+
+  it('follows the busbars when the coupler splits the substation bus', () => {
+    const buses = new Map([
+      [4, busState({ number: 4, activeLoadMw: 0 })],
+      [40, busState({ number: 40, activeLoadMw: 47.8 })],
+    ]);
+    const branches = new Map([
+      ['L2-4', branchState({ id: 'L2-4', from: 2, to: 40, activeFromMw: 80, activeToMw: -78 })],
+      ['T4-7', branchState({ id: 'T4-7', from: 40, to: 7, activeFromMw: 21, activeToMw: -21 })],
+    ]);
+    const built = model({ buses, branches });
+    expect(built.busbars[1]?.bus).toBe(40);
+    expect(built.busbars[1]?.selection).toEqual({ kind: 'bus', id: '40' });
+    const readout = (bay: string): readonly string[] | undefined =>
+      built.terminals.find((entry) => entry.bay === bay)?.readout;
+    expect(readout('L2-4')?.[0]).toBe('in 78.0 MW');
+    expect(readout('T4-7')?.[0]).toBe('out 21.0 MW');
+    expect(readout('LOAD')).toEqual(['47.8 MW']);
+    expect(built.terminals.find((entry) => entry.bay === 'LOAD')?.selection).toEqual({
+      kind: 'bus',
+      id: '40',
+    });
+  });
+
+  it('points the second busbar at the substation bus while the coupler keeps them merged', () => {
+    const built = model();
+    expect(built.busbars[1]?.bus).toBe(4);
+    expect(built.busbars[1]?.selection).toEqual({ kind: 'bus', id: '4' });
   });
 
   it('captions every bay with the state of its terminal', () => {
@@ -209,7 +254,7 @@ describe('entryFor', () => {
 
   it('selects the bus of a busbar without operating anything', () => {
     expect(entryFor('busbar:BB2', built)).toEqual({
-      selection: { kind: 'bus', id: '40' },
+      selection: { kind: 'bus', id: '4' },
       switchId: null,
       targetPosition: null,
     });

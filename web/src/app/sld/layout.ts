@@ -12,7 +12,7 @@ export const COLUMN_WIDTH = 124;
 export const MARGIN_LEFT = 96;
 export const MARGIN_RIGHT = 56;
 export const BUSBAR_OVERHANG = 56;
-export const FIRST_BUSBAR_Y = 74;
+export const FIRST_BUSBAR_Y = 46;
 export const BUSBAR_GAP = 58;
 export const JUNCTION_GAP = 60;
 export const BREAKER_GAP = 36;
@@ -21,7 +21,7 @@ export const COUPLER_OFFSET = 21;
 export const EARTHING_OFFSET = 30;
 export const CAPTION_LINE_HEIGHT = 16;
 export const CAPTION_WIDTH_LIMIT = 17;
-export const BOTTOM_PADDING = 30;
+export const BOTTOM_PADDING = 18;
 
 const EARTH_NODE = 'EARTH';
 const LINE_DISCONNECTOR_GAP = 3 * SWITCH_HALF_LENGTH;

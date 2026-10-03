@@ -1,0 +1,14 @@
+services:
+  gridtwin:
+    build: .
+    image: gridtwin:local
+    container_name: gridtwin-app
+    ports:
+      - "127.0.0.1:18400:8080"
+    restart: "no"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/q/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 15s

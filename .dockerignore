@@ -1,0 +1,11 @@
+**/node_modules
+**/target
+**/dist
+**/.angular
+**/coverage
+.git
+.cache
+e2e/lighthouse/out
+api/src/main/resources/META-INF/resources
+web/.angular
+*.log

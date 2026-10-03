@@ -94,13 +94,22 @@ jobs:
         run: pnpm --dir e2e run a11y
       - name: Lighthouse accessibility score
         run: pnpm --dir e2e run lighthouse
+      - name: Visual checks of the 3D scene
+        run: pnpm --dir e2e run visual
+      - name: Demo scenario
+        run: pnpm --dir e2e run demo
+      - name: Web benchmarks, quick run
+        run: tools/bench.sh web --quick
       - uses: actions/upload-artifact@v7
-        if: failure()
+        if: always()
         with:
           name: e2e-output
           path: |
             e2e/a11y/out/
             e2e/lighthouse/out/
+            e2e/visual/out/
+            e2e/demo/out/
+            bench/results/web-*.json
           if-no-files-found: ignore
 
   docker:

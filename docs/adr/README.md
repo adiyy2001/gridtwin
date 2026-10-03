@@ -26,3 +26,5 @@ Each record has four parts: context, decision, alternatives and consequences. Re
 | [0020](0020-api-contract-errors-and-openapi.md) | API contract, errors and the OpenAPI file |
 | [0021](0021-single-line-diagram-layout-and-symbols.md) | Single-line diagram: derived layout and hand-drawn symbols |
 | [0022](0022-continuous-integration-layout.md) | Continuous integration layout |
+| [0023](0023-procedural-3d-substation-scene.md) | Procedural 3D substation scene |
+| [0024](0024-diagnostics-hook-and-frame-measurement.md) | Diagnostics hook and frame measurement |

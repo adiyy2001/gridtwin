@@ -13,7 +13,7 @@ One workflow, `ci.yml`, with independent jobs so a failure names its cause:
 - `style`: the style gate and its tests.
 - `java`: `./mvnw verify` (formatting, Checkstyle, unit, integration, validation and property tests, coverage thresholds).
 - `web`: lint, type check, Vitest with coverage thresholds, production build.
-- `e2e`: `tools/build-all.sh` (web into the jar), Cypress against the jar, the axe run and Lighthouse.
+- `e2e`: `tools/build-all.sh` (web into the jar), Cypress against the jar, the axe run, Lighthouse, the visual suite of the 3D scene, the demo scenario and a quick web benchmark run. Screenshots, the demo video and the benchmark results are uploaded as artifacts.
 - `docker`: `docker compose up --build --wait`, the API smoke script against the container, `docker compose down`.
 - `changes` and `references`: `changes` compares the reference inputs with the base commit, and `references` regenerates the MATPOWER references and compares them only when those inputs changed or the run is started by hand.
 

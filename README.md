@@ -1,0 +1,194 @@
+# gridtwin
+
+A digital twin of a small transmission network in the browser: open a breaker in a 3D substation or its single-line diagram and watch an AC power flow redistribute the load, overload a line and, if you keep going, cascade into an outage.
+
+![Opening the bus coupler, the overloaded line, the N-1 table and a cascade replay](docs/media/demo.gif)
+
+Live demo: not deployed yet. <!-- ADRIAN: add the URL after the first deployment -->
+
+[![CI](https://github.com/adrianturbinski/gridtwin/actions/workflows/ci.yml/badge.svg)](https://github.com/adrianturbinski/gridtwin/actions/workflows/ci.yml)
+![coverage](docs/badges/coverage.svg)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+This is an educational model. The networks are the public IEEE 14-bus and IEEE 30-bus test cases, and the substation that replaces bus 4 is made up. Nothing here describes a real grid, and nothing here is meant for operating one.
+
+## Why I built this
+
+My day job is software that draws single-line diagrams of high-voltage substations: Angular and diagram rendering in the browser, Java 21 and Quarkus behind it. I spend my days on breakers, disconnectors and busbars as shapes on a canvas. I wanted to know what those shapes mean electrically, so I built the other half. Open a breaker and the solver tells you where the power goes, which line overloads and how an outage spreads.
+
+It also let me put four things in one project that I usually meet separately: the domain, numerical methods (a sparse Newton-Raphson solver checked against MATPOWER), a Java back end and a 3D front end. <!-- ADRIAN: one or two sentences of your own, for example what surprised you about the electrical side once the solver ran -->
+
+## What's hard about it
+
+The solver has to agree with MATPOWER to 1e-6 pu in voltage and 1e-4 degrees in angle, and small modelling differences already break that. Where the tap sits on a transformer, whether reactive limits convert all violating generators at once or one at a time, and whether the slack generator is limited all change the third decimal. I generated 16 base case reference solutions and 4 N-1 reference files by running MATPOWER under GNU Octave in Docker, wrote down each convention in [ADR 0004](docs/adr/0004-newton-raphson-modelling-choices.md) and compared everything number by number. The worst deviation over all of it is in the validation section below.
+
+A breaker can cut the network in two. When it does, one half may have no generator, so it has no voltage reference and no meaning for a power flow. The topology processor merges nodes with union-find, finds the islands, picks a slack for each energized one and marks the rest as de-energized with their load shed ([ADR 0005](docs/adr/0005-topology-processor-rules.md)). An island whose Newton iteration diverges is reported as a voltage collapse and the other islands still solve.
+
+A warm start can land on the wrong answer. The power flow equations have a second, low-voltage root near 0.4 pu, and a property test on random stressed networks found a warm start settling on it (restoring a branch from the solution of its outage). A solution below 0.5 pu now triggers a second run from a flat start. The same property tests showed that opening and closing a breaker did not always return the original state to 1e-9 at the brief's solver tolerance of 1e-8, so the twin solves to 1e-10.
+
+Interlocks need a notion of a live section. A disconnector may only move while its breaker is open, and an earthing switch may only close on a de-energized section. A line whose breaker is open can still be fed from its far end, so earthing it has to be refused even though nothing near the switch is energized. Refusals come back with a code and a sentence that the UI shows.
+
+Three views of one state have to stay in sync, and the 3D one is the least accessible. Selection, hover and every operation live in one store. The diagram and the inspector are fully keyboard operable with visible focus and an announcer for refusals, and the 3D scene is an enhancement on top. The scene exposes a `describe()` hook so the end-to-end tests can check what it shows without reading pixels.
+
+## How it works
+
+```mermaid
+flowchart LR
+  subgraph Browser
+    UI[Angular app: store, single-line diagram, 3D scene, network view, panels]
+  end
+  subgraph Quarkus
+    REST[REST commands]
+    WS[WebSocket state push]
+    APP[Application layer: one twin per session]
+  end
+  subgraph Domain["Domain module, no framework imports"]
+    TP[Topology processor: union-find, islands, interlocks]
+    PF[Newton-Raphson with sparse LU]
+    CA[N-1 contingencies and cascade]
+  end
+  UI -- command --> REST
+  REST --> APP
+  APP --> TP --> PF --> CA
+  APP --> WS
+  WS -- versioned full state --> UI
+```
+
+A command arrives over REST. The session applies it, and the interlocks run first. The topology processor turns switch positions into a bus-branch model, the power flow solves every energized island, the version counter goes up and the full state is pushed over the WebSocket. N-1 and cascade runs start from the same state and return their own results, which the UI previews or replays without solving again.
+
+The power flow is Newton-Raphson in polar form. With $Y = G + jB$ and $\theta_{ik} = \theta_i - \theta_k$, the injections are
+
+$$P_i = V_i \sum_k V_k \left( G_{ik} \cos\theta_{ik} + B_{ik} \sin\theta_{ik} \right), \qquad Q_i = V_i \sum_k V_k \left( G_{ik} \sin\theta_{ik} - B_{ik} \cos\theta_{ik} \right)$$
+
+and every iteration solves $J \, \Delta x = \Delta F$ with an analytic sparse Jacobian until the largest mismatch is at most $10^{-8}$ pu. Branches are pi circuits with an off-nominal tap and a phase shift. [docs/physics.md](docs/physics.md) has all the equations, the topology rules, the severity index and the cascade rules, with sources.
+
+## Validation and benchmarks
+
+Every number below comes from a script in this repository and was produced on the machine described here. The result files are in [bench/results](bench/results).
+
+Hardware: 12th Gen Intel Core i7-12700H (20 logical cores), 15 GB of memory, Linux 6.6 under WSL2, OpenJDK 21.0.12. For the browser: Chromium 148 in headless mode, once with the SwiftShader software renderer and once on the integrated Intel Iris Xe GPU through the WSL2 Direct3D 12 layer. Other builds were running on the machine at the same time, so the tails of the timings are noisy.
+
+### Accuracy against MATPOWER
+
+`tools/validation-report.sh` compares the solver with MATPOWER 8.1 (run under GNU Octave 11.3.0): IEEE 14 and IEEE 30 at load factors 0.5, 1.0, 1.2 and 1.5, with and without reactive limits, plus every N-1 outage that MATPOWER solves (25, 24, 47 and 46 outages in the four files). The worst deviation over all compared quantities:
+
+| Quantity | Worst deviation | Limit in the tests |
+| --- | --- | --- |
+| Voltage magnitude | 8.23e-9 pu | 1e-6 pu |
+| Voltage angle | 4.06e-7 degrees | 1e-4 degrees |
+| Branch active and reactive power | 9.01e-7 MW | 1e-2 MW |
+
+### Solver and contingency timings
+
+`tools/bench.sh java` runs 300 warm-up and 300 measured iterations per case. The brief's targets are an IEEE 30 solve under 10 ms and an IEEE 30 N-1 run under 500 ms. Both are met with a wide margin.
+
+| Measurement | Median ms | p95 ms |
+| --- | --- | --- |
+| IEEE 14 solve, flat start | 0.24 | 0.62 |
+| IEEE 30 solve, flat start | 0.84 | 1.33 |
+| IEEE 30 solve, warm start | 0.60 | 0.86 |
+| IEEE 14 N-1, 25 outages, sequential | 5.68 | 7.05 |
+| IEEE 14 N-1, 20 threads | 3.42 | 5.36 |
+| IEEE 30 N-1, 47 outages, sequential | 52.1 | 117.1 |
+| IEEE 30 N-1, 2 threads | 32.5 | 41.5 |
+| IEEE 30 N-1, 8 threads | 14.5 | 19.7 |
+| IEEE 30 N-1, 20 threads | 9.87 | 13.0 |
+| IEEE 14 cascade from the outage of L2-4 | 2.06 | 3.70 |
+
+### Front end
+
+`tools/bench.sh web` and `tools/bench.sh web --gpu` drive the production build with Playwright. Command to rendered frame is the time from the confirm click to the second animation frame after the new state is applied, including the server round trip.
+
+| Command to rendered frame | Median ms | p95 ms |
+| --- | --- | --- |
+| Software renderer, with the 3D scene | 78.8 | 244.2 |
+| Without WebGL, diagram and network view only | 43.6 | 44.6 |
+| Integrated GPU, with the 3D scene | 44.2 | 45.3 |
+
+The target of under 100 ms holds on the GPU and without the scene. The software renderer needs 267 to 333 ms for a 1080p frame, so it misses the target in the tail.
+
+The brief asks for 60 fps at 1080p on an integrated GPU. A continuous camera orbit at 1920x1080 on the Iris Xe gave 59.0, 52.0 and 43.8 fps in three runs of three seconds, with a median frame time of 16.7 ms (one refresh at 60 Hz) and a 95th percentile of up to 33.4 ms. The median frame meets the target, but the average over a run does not stay at 60 and the slow frames take two refreshes. I did not find the cause. Software rendering gives 3.5 to 4.1 fps, which is why this was never going to be a useful number without a GPU.
+
+The initial bundle is 338 kB raw (93 kB transferred). The 3D scene is a lazy chunk of 618 kB (131 kB transferred), loaded after the first paint.
+
+## Run it locally
+
+With Docker:
+
+```
+git clone https://github.com/adrianturbinski/gridtwin.git && cd gridtwin
+docker compose up --build
+```
+
+Then open http://127.0.0.1:18400. The compose service binds to the loopback interface only.
+
+Without Docker you need Java 21, Node 24 and pnpm 11 (`corepack enable` is enough for pnpm):
+
+```
+tools/build-all.sh
+java -jar api/target/quarkus-app/quarkus-run.jar
+```
+
+The application then listens on http://127.0.0.1:18480.
+
+A good first minute: open the bus coupler in the diagram, select the line that turns red, run N-1, click a row to preview that outage, then run the cascade from L2-4 and drag the scrubber.
+
+## Tests
+
+| What | How it is checked |
+| --- | --- |
+| Admittance matrix and Jacobian | a hand-computed 3-bus example, and every Jacobian entry against a central finite difference, including a network with a tap and a phase shift |
+| Topology processor | an open coupler splits a bus, an earthing switch on a live section is refused, islands and the slack rule |
+| Solver | MATPOWER references for both cases, four load factors and two reactive limit modes, and for every solved N-1 outage |
+| Properties | generation equals load plus losses to 1e-6 pu on random networks, opening and closing a breaker returns the original solution to 1e-9, parallel contingency analysis equals sequential |
+| REST and WebSocket | Quarkus integration tests, plus ArchUnit rules that keep framework imports out of the domain |
+| End to end | 21 Cypress tests against the production jar, among them opening a line breaker in the diagram and seeing the line de-energized in both views while the parallel paths take more load |
+| 3D scene | Playwright screenshots in five states that I reviewed by eye, with checks that frames are not blank and that every state differs |
+| Accessibility | axe on six scenarios (no serious or critical violations) and Lighthouse (accessibility score 100) |
+
+Line coverage from `node tools/coverage-badge.mjs`, which reads the JaCoCo and Vitest reports: domain 99.3%, api 97.3%, cases 88.2%, bench 96.9%, web 98.2%, all together 98.4%. The build enforces 90% on the domain and 80% elsewhere, and 90% on the web logic files.
+
+```
+./mvnw -B -ntp verify
+node --test tools/ && node tools/check-style.mjs
+pnpm --dir web run lint && pnpm --dir web run typecheck && pnpm --dir web run test:ci
+tools/build-all.sh && pnpm --dir e2e run cypress:ci
+pnpm --dir e2e run a11y && pnpm --dir e2e run visual && pnpm --dir e2e run lighthouse
+```
+
+The MATPOWER references can be regenerated with `tools/reference/run.sh all`, and `tools/reference/run.sh --check all` fails if the committed files differ. It needs Docker and a 5.7 GB Octave image. The GitHub Actions workflow runs the same commands, and the reference check only when the reference inputs change.
+
+## Design decisions
+
+The decisions are recorded as ADRs in [docs/adr](docs/adr/README.md). These are the ones I would start with:
+
+- [0002](docs/adr/0002-hexagonal-back-end-with-a-framework-free-domain.md): the domain module has no framework imports, and an ArchUnit test enforces it.
+- [0003](docs/adr/0003-sparse-linear-algebra-with-ejml.md): EJML's sparse LU behind a port, and what it lacks.
+- [0004](docs/adr/0004-newton-raphson-modelling-choices.md): the solver conventions that make it match MATPOWER.
+- [0005](docs/adr/0005-topology-processor-rules.md): energization, slack and interlock rules.
+- [0006](docs/adr/0006-case-data-and-synthetic-parameters.md): where the data comes from and which parameters are invented.
+- [0008](docs/adr/0008-property-tests-with-an-own-harness.md): a small property test harness instead of jqwik.
+- [0009](docs/adr/0009-contingencies-on-a-fork-join-pool.md): a fork-join pool, because virtual threads do not speed up CPU-bound work.
+- [0010](docs/adr/0010-one-twin-per-session-and-full-state-push.md): one twin per session and a full state push.
+- [0017](docs/adr/0017-severity-index-and-contingency-ranking.md) and [0018](docs/adr/0018-cascade-simulation-is-an-educational-simplification.md): the severity index and the cascade rules.
+- [0021](docs/adr/0021-single-line-diagram-layout-and-symbols.md): a hand-written SVG renderer for the diagram.
+- [0023](docs/adr/0023-procedural-3d-substation-scene.md): a procedural 3D scene.
+
+## Limitations and what I would do next
+
+- It is a steady-state, balanced model. There are no dynamics, no short-circuit calculations and no synchronism check when two live islands are joined.
+- The cascade is a static simplification. A branch trips the instant it passes 120% of its rating, with no protection timing, frequency or voltage dynamics. It shows an order in which overloads could spread. It does not predict anything about a real grid.
+- The thermal ratings are synthetic (125% of the base case flow, rounded up to a multiple of 5 MVA, at least 20 MVA), the IEEE 14 voltage levels are invented and the substation is fictional.
+- EJML has no fill-reducing ordering. That is irrelevant at 22 and 53 unknowns and would matter for a network with thousands of buses.
+- The web application offers IEEE 14 only. IEEE 30 is solved, validated and benchmarked, but it has no substation and no entry in the UI. The other stretch goals from the brief are not built either: a fast decoupled power flow and state estimation ([ADR 0027](docs/adr/0027-stretch-goals-not-built.md)).
+- Reactive limits do not release again. A generator that hit its limit at 150% load stays a PQ bus for that solve.
+- The 60 fps target is not met steadily on the integrated GPU, as described above. The 3D scene has no pixel baselines, because they differ between GPUs and drivers.
+- Equipment cannot be operated by keyboard inside the 3D canvas. The canvas takes arrow keys for panning and plus and minus for zoom, and everything is operable in the diagram and the inspector.
+- Sessions live in memory and there is no authentication, so it is a demo and not a service. `act` was not available, so the workflow was linted with actionlint and its commands run locally, not executed by GitHub.
+- The property tests use a small harness of my own and not jqwik. I explain why in ADR 0008 and swapping it in would be mechanical.
+
+Next I would build the second substation for IEEE 30 with a selector, then the fast decoupled solver with an accuracy and speed comparison, and then state estimation from noisy measurements.
+
+## Credits and license
+
+MIT, see [LICENSE](LICENSE). The IEEE test case data comes from the University of Washington Power Systems Test Case Archive through MATPOWER 8.1, and the reference solutions come from MATPOWER and GNU Octave. [CREDITS.md](CREDITS.md) lists every library, data set and tool with its license.

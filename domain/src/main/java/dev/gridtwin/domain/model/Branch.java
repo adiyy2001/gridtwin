@@ -31,6 +31,34 @@ public record Branch(
         }
     }
 
+    public Branch withRating(double newRatingMva) {
+        return new Branch(
+                this.id,
+                this.from,
+                this.to,
+                this.resistance,
+                this.reactance,
+                this.chargingSusceptance,
+                newRatingMva,
+                this.tap,
+                this.shiftDegrees,
+                this.inService);
+    }
+
+    public Branch withInService(boolean service) {
+        return new Branch(
+                this.id,
+                this.from,
+                this.to,
+                this.resistance,
+                this.reactance,
+                this.chargingSusceptance,
+                this.ratingMva,
+                this.tap,
+                this.shiftDegrees,
+                service);
+    }
+
     public boolean isTransformer() {
         return this.tap != 1.0 || this.shiftDegrees != 0.0;
     }

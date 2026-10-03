@@ -55,6 +55,31 @@ public record Network(
                 .orElseThrow();
     }
 
+    public Network withLoadFactor(double factor) {
+        if (factor < 0) {
+            throw new IllegalArgumentException("load factor must not be negative");
+        }
+        return new Network(
+                this.id,
+                this.baseMva,
+                this.buses,
+                this.loads.stream().map(load -> load.scaled(factor)).toList(),
+                this.shunts,
+                this.generators,
+                this.branches);
+    }
+
+    public Network withBranches(List<Branch> replacement) {
+        return new Network(
+                this.id,
+                this.baseMva,
+                this.buses,
+                this.loads,
+                this.shunts,
+                this.generators,
+                replacement);
+    }
+
     public double totalLoadMw() {
         return this.loads.stream().mapToDouble(Load::activePowerMw).sum();
     }

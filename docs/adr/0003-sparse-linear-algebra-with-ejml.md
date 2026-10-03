@@ -28,3 +28,11 @@ Dense LU from `ejml-ddense` would work at this size, but the brief asks for spar
 ## Consequences
 
 There is no fill reduction, so the solver would not scale to networks with thousands of buses. The README says so under limitations. The assembly code and the Jacobian tests do not depend on EJML types because they go through the port.
+
+## Findings from milestone 2
+
+- `LuUpLooking_DSCC` takes the Jacobian when it is assembled with sorted row indices in every column. `setA` returns false for a singular matrix (a test covers a rank-deficient matrix and an empty one), which the solver port reports as an empty result and the power flow reports as a collapsed island.
+- The domain owns the matrix type (`CompressedColumnMatrix`). Only `EjmlSparseLuSolver` knows EJML classes, and it copies the arrays into a `DMatrixSparseCSC`.
+- The Jacobian is rebuilt in every iteration, with no cached structure. At 22 and 53 unknowns that is simple and fast enough for the targets in the brief. The M4 benchmarks will say whether it matters.
+- One `EjmlSparseLuSolver` is created per power flow run. Nothing is shared between threads.
+

@@ -1,0 +1,1513 @@
+{
+  "openapi" : "3.1.0",
+  "tags" : [ {
+    "name" : "analyses"
+  }, {
+    "name" : "cases"
+  }, {
+    "name" : "sessions"
+  } ],
+  "components" : {
+    "schemas" : {
+      "BayDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "$ref" : "#/components/schemas/BayKind"
+          },
+          "column" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "terminal" : {
+            "anyOf" : [ {
+              "$ref" : "#/components/schemas/TerminalDto"
+            }, {
+              "type" : "null"
+            } ]
+          }
+        },
+        "required" : [ "id", "name", "kind", "column" ]
+      },
+      "BayKind" : {
+        "type" : "string",
+        "enum" : [ "FEEDER", "COUPLER" ]
+      },
+      "BranchStateDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "from" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "to" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "inService" : {
+            "type" : "boolean"
+          },
+          "energized" : {
+            "type" : "boolean"
+          },
+          "ratingMva" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "activeFromMw" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "reactiveFromMvar" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "activeToMw" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "reactiveToMvar" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "currentFromKa" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "currentToKa" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "loading" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "lossMw" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "overloaded" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "id", "from", "to", "inService", "energized", "ratingMva", "activeFromMw", "reactiveFromMvar", "activeToMw", "reactiveToMvar", "currentFromKa", "currentToKa", "loading", "lossMw", "overloaded" ]
+      },
+      "BusState" : {
+        "type" : "string",
+        "enum" : [ "ENERGIZED", "DEENERGIZED", "COLLAPSED" ]
+      },
+      "BusStateDto" : {
+        "type" : "object",
+        "properties" : {
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/BusType"
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/BusState"
+          },
+          "baseKv" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "voltageMagnitude" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "voltageKv" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "angleDegrees" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "activeGenerationMw" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "reactiveGenerationMvar" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "activeLoadMw" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "reactiveLoadMvar" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "required" : [ "number", "type", "state", "baseKv", "voltageMagnitude", "voltageKv", "angleDegrees", "activeGenerationMw", "reactiveGenerationMvar", "activeLoadMw", "reactiveLoadMvar" ]
+      },
+      "BusType" : {
+        "type" : "string",
+        "enum" : [ "PQ", "PV", "REFERENCE", "ISOLATED" ]
+      },
+      "BusbarDto" : {
+        "type" : "object",
+        "properties" : {
+          "node" : {
+            "type" : "string"
+          },
+          "bus" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "row" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "node", "bus", "name", "row" ]
+      },
+      "CascadeDto" : {
+        "type" : "object",
+        "properties" : {
+          "stateVersion" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "tripThreshold" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "end" : {
+            "$ref" : "#/components/schemas/CascadeEnd"
+          },
+          "trippedCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "steps" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CascadeStepDto"
+            }
+          }
+        },
+        "required" : [ "stateVersion", "tripThreshold", "end", "trippedCount", "label", "steps" ]
+      },
+      "CascadeEnd" : {
+        "type" : "string",
+        "enum" : [ "STABLE", "BLACKOUT", "NON_CONVERGED", "STEP_LIMIT" ]
+      },
+      "CascadeStepDto" : {
+        "type" : "object",
+        "properties" : {
+          "index" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "tripped" : {
+            "anyOf" : [ {
+              "$ref" : "#/components/schemas/OutageDto"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "loadingAtTrip" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "outOfServiceBranches" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "outOfServiceGenerators" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "servedLoadMw" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/StateDto"
+          }
+        },
+        "required" : [ "index", "outOfServiceBranches", "outOfServiceGenerators", "servedLoadMw", "state" ]
+      },
+      "CaseBranchDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "from" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "to" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "ratingMva" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "tap" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "shiftDegrees" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "transformer" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "id", "from", "to", "ratingMva", "tap", "shiftDegrees", "transformer" ]
+      },
+      "CaseBusDto" : {
+        "type" : "object",
+        "properties" : {
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/BusType"
+          },
+          "baseKv" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "voltageMin" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "voltageMax" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "x" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "y" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          }
+        },
+        "required" : [ "number", "type", "baseKv", "voltageMin", "voltageMax" ]
+      },
+      "CaseDetailDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "disclaimer" : {
+            "type" : "string"
+          },
+          "baseMva" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "provenance" : {
+            "$ref" : "#/components/schemas/ProvenanceDto"
+          },
+          "buses" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CaseBusDto"
+            }
+          },
+          "branches" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CaseBranchDto"
+            }
+          },
+          "generators" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CaseGeneratorDto"
+            }
+          },
+          "loads" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CaseLoadDto"
+            }
+          },
+          "substation" : {
+            "anyOf" : [ {
+              "$ref" : "#/components/schemas/SubstationDto"
+            }, {
+              "type" : "null"
+            } ]
+          }
+        },
+        "required" : [ "id", "title", "disclaimer", "baseMva", "provenance", "buses", "branches", "generators", "loads" ]
+      },
+      "CaseGeneratorDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "bus" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "activeMinMw" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "activeMaxMw" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "activeMw" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "required" : [ "id", "bus", "activeMinMw", "activeMaxMw", "activeMw" ]
+      },
+      "CaseLoadDto" : {
+        "type" : "object",
+        "properties" : {
+          "bus" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "activeMw" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "reactiveMvar" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "required" : [ "bus", "activeMw", "reactiveMvar" ]
+      },
+      "CaseSummaryDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "buses" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "branches" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "generators" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "id", "title", "buses", "branches", "generators" ]
+      },
+      "ContingencyPreviewDto" : {
+        "type" : "object",
+        "properties" : {
+          "stateVersion" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "contingency" : {
+            "$ref" : "#/components/schemas/ContingencySummaryDto"
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/StateDto"
+          }
+        },
+        "required" : [ "stateVersion", "contingency", "state" ]
+      },
+      "ContingencyReportDto" : {
+        "type" : "object",
+        "properties" : {
+          "stateVersion" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "loadFactor" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "baseSeverity" : {
+            "$ref" : "#/components/schemas/SeverityDto"
+          },
+          "baseViolations" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ViolationDto"
+            }
+          },
+          "tiers" : {
+            "$ref" : "#/components/schemas/TierCountsDto"
+          },
+          "contingencies" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ContingencySummaryDto"
+            }
+          }
+        },
+        "required" : [ "stateVersion", "loadFactor", "baseSeverity", "baseViolations", "tiers", "contingencies" ]
+      },
+      "ContingencySummaryDto" : {
+        "type" : "object",
+        "properties" : {
+          "rank" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "outage" : {
+            "$ref" : "#/components/schemas/OutageDto"
+          },
+          "severity" : {
+            "$ref" : "#/components/schemas/SeverityDto"
+          },
+          "converged" : {
+            "type" : "boolean"
+          },
+          "maxLoading" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "lowestVoltage" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "shedLoadMw" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "overloadedBranches" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "violations" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ViolationDto"
+            }
+          }
+        },
+        "required" : [ "rank", "id", "outage", "severity", "converged", "maxLoading", "shedLoadMw", "overloadedBranches", "violations" ]
+      },
+      "CreateSession" : {
+        "type" : "object",
+        "properties" : {
+          "caseId" : {
+            "type" : [ "string", "null" ]
+          }
+        }
+      },
+      "ErrorDto" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "switchId" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "code", "message" ]
+      },
+      "GeneratorStateDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "bus" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "inService" : {
+            "type" : "boolean"
+          },
+          "activeMw" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "reactiveMvar" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "reactiveLimit" : {
+            "$ref" : "#/components/schemas/ReactiveLimitState"
+          }
+        },
+        "required" : [ "id", "bus", "inService", "activeMw", "reactiveMvar", "reactiveLimit" ]
+      },
+      "IslandState" : {
+        "type" : "string",
+        "enum" : [ "ENERGIZED", "COLLAPSED", "DEENERGIZED" ]
+      },
+      "IslandStateDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/IslandState"
+          },
+          "buses" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          },
+          "slackBus" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "slackGenerator" : {
+            "type" : [ "string", "null" ]
+          },
+          "shedLoadMw" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "iterations" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "reactiveLimitRounds" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "collapseReason" : {
+            "type" : [ "string", "null" ]
+          },
+          "mismatchHistory" : {
+            "type" : "array",
+            "items" : {
+              "type" : "number",
+              "format" : "double"
+            }
+          }
+        },
+        "required" : [ "id", "state", "buses", "shedLoadMw", "mismatchHistory" ]
+      },
+      "NodeState" : {
+        "type" : "string",
+        "enum" : [ "ENERGIZED", "DEENERGIZED", "EARTHED" ]
+      },
+      "NodeStateDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/NodeState"
+          }
+        },
+        "required" : [ "id", "state" ]
+      },
+      "OperateSwitch" : {
+        "type" : "object",
+        "required" : [ "position", "position" ],
+        "properties" : {
+          "position" : {
+            "$ref" : "#/components/schemas/Position"
+          }
+        }
+      },
+      "OutageDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "$ref" : "#/components/schemas/OutageKind"
+          },
+          "equipmentId" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "id", "kind", "equipmentId" ]
+      },
+      "OutageKind" : {
+        "type" : "string",
+        "enum" : [ "BRANCH", "GENERATOR" ]
+      },
+      "Position" : {
+        "type" : "string",
+        "enum" : [ "OPEN", "CLOSED" ]
+      },
+      "ProvenanceDto" : {
+        "type" : "object",
+        "properties" : {
+          "source" : {
+            "type" : "string"
+          },
+          "ratingPolicy" : {
+            "type" : "string"
+          },
+          "voltagePolicy" : {
+            "type" : "string"
+          },
+          "layoutPolicy" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "source", "ratingPolicy", "voltagePolicy", "layoutPolicy" ]
+      },
+      "ReactiveLimitState" : {
+        "type" : "string",
+        "enum" : [ "NONE", "UPPER", "LOWER" ]
+      },
+      "RunCascade" : {
+        "type" : "object",
+        "required" : [ "trigger", "trigger" ],
+        "properties" : {
+          "trigger" : {
+            "type" : "string"
+          },
+          "tripThreshold" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "maxSteps" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          }
+        }
+      },
+      "SessionCreatedDto" : {
+        "type" : "object",
+        "properties" : {
+          "sessionId" : {
+            "type" : "string"
+          },
+          "createdAt" : {
+            "$ref" : "#/components/schemas/ZonedDateTime"
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/VersionedStateDto"
+          }
+        },
+        "required" : [ "sessionId", "createdAt", "state" ]
+      },
+      "SetLoadFactor" : {
+        "type" : "object",
+        "required" : [ "loadFactor", "loadFactor" ],
+        "properties" : {
+          "loadFactor" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        }
+      },
+      "SeverityDto" : {
+        "type" : "object",
+        "properties" : {
+          "tier" : {
+            "$ref" : "#/components/schemas/SeverityTier"
+          },
+          "score" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "overloadTerm" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "voltageTerm" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "shedTerm" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "slackTerm" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "required" : [ "tier", "score", "overloadTerm", "voltageTerm", "shedTerm", "slackTerm" ]
+      },
+      "SeverityTier" : {
+        "type" : "string",
+        "enum" : [ "SECURE", "DEGRADED", "BLACKOUT", "NON_CONVERGED" ]
+      },
+      "StateDto" : {
+        "type" : "object",
+        "properties" : {
+          "caseId" : {
+            "type" : "string"
+          },
+          "loadFactor" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "converged" : {
+            "type" : "boolean"
+          },
+          "summary" : {
+            "$ref" : "#/components/schemas/SummaryStateDto"
+          },
+          "warnings" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "switches" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SwitchStateDto"
+            }
+          },
+          "nodes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/NodeStateDto"
+            }
+          },
+          "islands" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IslandStateDto"
+            }
+          },
+          "buses" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BusStateDto"
+            }
+          },
+          "branches" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BranchStateDto"
+            }
+          },
+          "generators" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/GeneratorStateDto"
+            }
+          }
+        },
+        "required" : [ "caseId", "loadFactor", "converged", "summary", "warnings", "switches", "nodes", "islands", "buses", "branches", "generators" ]
+      },
+      "SubstationDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "bus" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "baseKv" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "busbars" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BusbarDto"
+            }
+          },
+          "nodes" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "bays" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BayDto"
+            }
+          },
+          "switches" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SwitchDto"
+            }
+          }
+        },
+        "required" : [ "id", "name", "bus", "baseKv", "busbars", "nodes", "bays", "switches" ]
+      },
+      "SummaryStateDto" : {
+        "type" : "object",
+        "properties" : {
+          "totalLoadMw" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "servedLoadMw" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "shedLoadMw" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "totalGenerationMw" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "totalLossMw" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "maxLoading" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "lowestVoltage" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "overloadedBranches" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "totalLoadMw", "servedLoadMw", "shedLoadMw", "totalGenerationMw", "totalLossMw", "maxLoading", "overloadedBranches" ]
+      },
+      "SwitchDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "$ref" : "#/components/schemas/SwitchKind"
+          },
+          "bay" : {
+            "type" : "string"
+          },
+          "nodeA" : {
+            "type" : "string"
+          },
+          "nodeB" : {
+            "type" : "string"
+          },
+          "initialPosition" : {
+            "$ref" : "#/components/schemas/Position"
+          }
+        },
+        "required" : [ "id", "kind", "bay", "nodeA", "nodeB", "initialPosition" ]
+      },
+      "SwitchKind" : {
+        "type" : "string",
+        "enum" : [ "BREAKER", "DISCONNECTOR", "EARTHING_SWITCH" ]
+      },
+      "SwitchStateDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "position" : {
+            "$ref" : "#/components/schemas/Position"
+          }
+        },
+        "required" : [ "id", "position" ]
+      },
+      "TerminalDto" : {
+        "type" : "object",
+        "properties" : {
+          "node" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "$ref" : "#/components/schemas/TerminalKind"
+          },
+          "equipment" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "node", "kind", "equipment" ]
+      },
+      "TerminalKind" : {
+        "type" : "string",
+        "enum" : [ "BRANCH", "LOAD", "GENERATOR" ]
+      },
+      "TierCountsDto" : {
+        "type" : "object",
+        "properties" : {
+          "secure" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "degraded" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "blackout" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nonConverged" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "secure", "degraded", "blackout", "nonConverged" ]
+      },
+      "VersionedStateDto" : {
+        "type" : "object",
+        "properties" : {
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/StateDto"
+          }
+        },
+        "required" : [ "version", "state" ]
+      },
+      "ViolationDto" : {
+        "type" : "object",
+        "properties" : {
+          "kind" : {
+            "$ref" : "#/components/schemas/ViolationKind"
+          },
+          "subject" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "limit" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "side" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "kind", "subject", "value" ]
+      },
+      "ViolationKind" : {
+        "type" : "string",
+        "enum" : [ "BRANCH_OVERLOAD", "VOLTAGE_OUT_OF_BAND", "SLACK_ABOVE_LIMIT", "LOAD_SHED", "ISLAND_COLLAPSE" ]
+      },
+      "ZonedDateTime" : {
+        "type" : "string",
+        "format" : "date-time",
+        "examples" : [ "2022-03-10T12:15:50-04:00" ]
+      }
+    }
+  },
+  "paths" : {
+    "/api/cases" : {
+      "get" : {
+        "summary" : "List the cases that can be switched",
+        "tags" : [ "cases" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CaseSummaryDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cases/{caseId}" : {
+      "get" : {
+        "summary" : "Static data of a case",
+        "description" : "Buses, branches, generators, loads, schematic layout and the substation description. Pushed states carry values only.",
+        "tags" : [ "cases" ],
+        "parameters" : [ {
+          "name" : "caseId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CaseDetailDto"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Unknown case",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions" : {
+      "post" : {
+        "summary" : "Create a session",
+        "description" : "Starts a twin of the chosen case with its own switch positions and load factor. The state is pushed over the WebSocket at /ws/sessions/{sessionId}.",
+        "tags" : [ "sessions" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateSession"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Session created at version 1",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SessionCreatedDto"
+                }
+              }
+            }
+          },
+          "429" : {
+            "description" : "The session cap is reached",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/sessions/{sessionId}" : {
+      "delete" : {
+        "summary" : "Close a session",
+        "tags" : [ "sessions" ],
+        "parameters" : [ {
+          "name" : "sessionId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Session closed"
+          }
+        }
+      }
+    },
+    "/api/sessions/{sessionId}/analyses/cascade" : {
+      "post" : {
+        "summary" : "Run the cascade simulation",
+        "description" : "Educational simplification. Starts with the trigger outage, then trips the worst branch above the threshold until stable or dark. Every step carries a full state for replay.",
+        "tags" : [ "analyses" ],
+        "parameters" : [ {
+          "name" : "sessionId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RunCascade"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CascadeDto"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Unknown trigger or option out of range",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get" : {
+        "summary" : "Read the kept cascade result for the current state",
+        "tags" : [ "analyses" ],
+        "parameters" : [ {
+          "name" : "sessionId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CascadeDto"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Unknown session, or no cascade run for the current state",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{sessionId}/analyses/n-1" : {
+      "post" : {
+        "summary" : "Run N-1 contingency analysis",
+        "description" : "One outage per branch and generator in service, solved from a warm start in parallel and ranked by severity. The result is kept until the state changes.",
+        "tags" : [ "analyses" ],
+        "parameters" : [ {
+          "name" : "sessionId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ContingencyReportDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get" : {
+        "summary" : "Read the kept N-1 result for the current state",
+        "tags" : [ "analyses" ],
+        "parameters" : [ {
+          "name" : "sessionId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ContingencyReportDto"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Unknown session, or no N-1 run for the current state",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{sessionId}/analyses/n-1/{contingencyId}" : {
+      "get" : {
+        "summary" : "Preview one contingency",
+        "description" : "The full state under that outage, taken from the kept N-1 run without a new solve. Contingency ids look like branch:L2-4 or generator:G1.",
+        "tags" : [ "analyses" ],
+        "parameters" : [ {
+          "name" : "contingencyId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sessionId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ContingencyPreviewDto"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Unknown session or contingency, or no N-1 run for the current state",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{sessionId}/load-factor" : {
+      "put" : {
+        "summary" : "Scale all loads",
+        "description" : "The factor must be between 0.5 and 1.5. Generators keep their setpoints and the slack absorbs the change.",
+        "tags" : [ "sessions" ],
+        "parameters" : [ {
+          "name" : "sessionId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SetLoadFactor"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VersionedStateDto"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "The factor is outside the range",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{sessionId}/state" : {
+      "get" : {
+        "summary" : "Read the current versioned state",
+        "tags" : [ "sessions" ],
+        "parameters" : [ {
+          "name" : "sessionId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VersionedStateDto"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Unknown session",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{sessionId}/switches/{switchId}" : {
+      "post" : {
+        "summary" : "Operate a switch",
+        "description" : "Interlocks are checked first. An accepted operation solves the network, raises the version and pushes the state. Operating a switch into its current position changes nothing.",
+        "tags" : [ "sessions" ],
+        "parameters" : [ {
+          "name" : "sessionId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "switchId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/OperateSwitch"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VersionedStateDto"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "The operation is refused by an interlock",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Unknown session or switch",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      }
+    }
+  },
+  "info" : {
+    "title" : "gridtwin API",
+    "version" : "0.1.0",
+    "description" : "Educational digital twin of a transmission network: switching, AC power flow, N-1 and cascade analysis. Not for operational use."
+  }
+}

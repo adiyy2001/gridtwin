@@ -128,8 +128,31 @@
           </dd>
         }
       </dl>
+    } @else if (switchDetails(); as details) {
+      <h3>{{ details.kindLabel }} {{ details.id }}</h3>
+      <dl data-details="switch">
+        <dt>Position</dt>
+        <dd>{{ format.position(details.position) }}</dd>
+        <dt>Bay</dt>
+        <dd>{{ details.bayName }}</dd>
+        @for (side of details.sides; track side.node) {
+          <dt>Node {{ side.node }}</dt>
+          <dd>{{ side.condition }}</dd>
+        }
+      </dl>
     } @else {
-      <p class="muted empty">Select a bus or a branch in the network or in the list.</p>
+      <p class="muted empty">Select a bus, a branch or a switch in a view or in the list.</p>
+    }
+
+    @if (store.refusal(); as refusal) {
+      <div class="refusal" data-testid="refusal">
+        <p>
+          <strong>Refused:</strong>
+          {{ refusal.position === 'OPEN' ? 'opening' : 'closing' }} {{ refusal.switchId }}.
+          {{ refusal.message }}
+        </p>
+        <button type="button" (click)="dismissRefusal()">Dismiss</button>
+      </div>
     }
 
     @for (group of switchGroups(); track group.bayId) {

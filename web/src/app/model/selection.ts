@@ -1,4 +1,4 @@
-export type SelectionKind = 'bus' | 'branch';
+export type SelectionKind = 'bus' | 'branch' | 'switch';
 
 export interface Selection {
   readonly kind: SelectionKind;
@@ -11,6 +11,10 @@ export function busSelection(number: number): Selection {
 
 export function branchSelection(id: string): Selection {
   return { kind: 'branch', id };
+}
+
+export function switchSelection(id: string): Selection {
+  return { kind: 'switch', id };
 }
 
 export function sameSelection(a: Selection | null, b: Selection | null): boolean {

@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import type { Subscription } from 'rxjs';
 
 import { toApiError } from './api-error';
+import type { ApiError } from './api-error';
 import { TwinApi } from './twin-api';
 import { TwinSocket } from './twin-socket';
 import type { SocketStatus } from './twin-socket';
@@ -17,11 +18,12 @@ import type {
   ContingencyPreview,
   ContingencyReport,
   Position,
+  SwitchDescription,
   TwinState,
   VersionedState,
 } from '../model/api-types';
 import type { Selection } from '../model/selection';
-import { branchSelection, busSelection } from '../model/selection';
+import { branchSelection, busSelection, switchSelection } from '../model/selection';
 import { cascadeEndLabel, formatPercent } from '../shared/format';
 
 export type ConnectionStatus = 'idle' | SocketStatus;
@@ -29,6 +31,13 @@ export type ConnectionStatus = 'idle' | SocketStatus;
 export interface PendingSwitch {
   readonly switchId: string;
   readonly position: Position;
+}
+
+export interface Refusal {
+  readonly switchId: string;
+  readonly position: Position;
+  readonly code: string;
+  readonly message: string;
 }
 
 export interface Notice {
@@ -48,6 +57,7 @@ interface TwinStoreState {
   selection: Selection | null;
   hover: Selection | null;
   pending: PendingSwitch | null;
+  refusal: Refusal | null;
   loadPercent: number;
   report: ContingencyReport | null;
   preview: ContingencyPreview | null;
@@ -69,6 +79,7 @@ const INITIAL_STATE: TwinStoreState = {
   selection: null,
   hover: null,
   pending: null,
+  refusal: null,
   loadPercent: 100,
   report: null,
   preview: null,
@@ -124,12 +135,31 @@ export const TwinStore = signalStore(
     const switchPositions = computed(
       () => new Map((store.live()?.switches ?? []).map((entry) => [entry.id, entry.position])),
     );
+    const shownSwitchPositions = computed(
+      () => new Map((state()?.switches ?? []).map((entry) => [entry.id, entry.position])),
+    );
+    const nodeConditions = computed(
+      () => new Map((state()?.nodes ?? []).map((entry) => [entry.id, entry.state])),
+    );
+    const switchesById = computed(
+      () =>
+        new Map<string, SwitchDescription>(
+          (store.caseDetail()?.substation?.switches ?? []).map((entry) => [entry.id, entry]),
+        ),
+    );
     return {
       view,
       state,
       busesByNumber,
       branchesById,
       switchPositions,
+      shownSwitchPositions,
+      nodeConditions,
+      switchesById,
+      selectedSwitch: computed(() => {
+        const selection = store.selection();
+        return selection?.kind === 'switch' ? (switchesById().get(selection.id) ?? null) : null;
+      }),
       selectedBus: computed(() => {
         const selection = store.selection();
         return selection?.kind === 'bus'
@@ -224,12 +254,17 @@ export const TwinStore = signalStore(
       });
     }
 
-    async function guarded(action: () => Promise<void>): Promise<void> {
+    async function guarded(
+      action: () => Promise<void>,
+      onFailure?: (error: ApiError) => void,
+    ): Promise<void> {
       patchState(store, { busy: true });
       try {
         await action();
       } catch (error: unknown) {
-        notify('error', toApiError(error).message);
+        const apiError = toApiError(error);
+        notify('error', apiError.message);
+        onFailure?.(apiError);
       } finally {
         patchState(store, { busy: false });
       }
@@ -295,12 +330,20 @@ export const TwinStore = signalStore(
         patchState(store, { selection: branchSelection(id) });
       },
 
+      selectSwitch(id: string): void {
+        patchState(store, { selection: switchSelection(id) });
+      },
+
       setHover(selection: Selection | null): void {
         patchState(store, { hover: selection });
       },
 
       requestSwitch(switchId: string, position: Position): void {
-        patchState(store, { pending: { switchId, position } });
+        patchState(store, { pending: { switchId, position }, refusal: null });
+      },
+
+      dismissRefusal(): void {
+        patchState(store, { refusal: null });
       },
 
       cancelPending(): void {
@@ -314,14 +357,28 @@ export const TwinStore = signalStore(
         if (pending === null || sessionId === null) {
           return;
         }
-        await guarded(async () => {
-          const result = await firstValueFrom(
-            api.operateSwitch(sessionId, pending.switchId, pending.position),
-          );
-          applyVersioned(result);
-          const verb = pending.position === 'OPEN' ? 'opened' : 'closed';
-          notify('info', `${pending.switchId} ${verb}: ${describeOutcome(result.state)}.`);
-        });
+        await guarded(
+          async () => {
+            const result = await firstValueFrom(
+              api.operateSwitch(sessionId, pending.switchId, pending.position),
+            );
+            applyVersioned(result);
+            const verb = pending.position === 'OPEN' ? 'opened' : 'closed';
+            notify('info', `${pending.switchId} ${verb}: ${describeOutcome(result.state)}.`);
+          },
+          (error) => {
+            if (error.status === 409) {
+              patchState(store, {
+                refusal: {
+                  switchId: pending.switchId,
+                  position: pending.position,
+                  code: error.code,
+                  message: error.message,
+                },
+              });
+            }
+          },
+        );
       },
 
       setLoadPercent(percent: number): void {

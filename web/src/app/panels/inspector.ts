@@ -14,7 +14,14 @@ import {
   formatPerUnit,
   positionLabel,
 } from '../shared/format';
-import { busPlacement, switchGroupsForBranch, switchGroupsForBus } from './inspector-model';
+import {
+  busPlacement,
+  switchGroupsForBranch,
+  switchGroupsForBus,
+  switchGroupsForSwitch,
+  switchKindLabel,
+  switchSides,
+} from './inspector-model';
 import type { SwitchRow } from './inspector-model';
 
 type ListKind = 'bus' | 'branch';
@@ -60,12 +67,33 @@ export class Inspector {
   protected readonly switchGroups = computed(() => {
     const substation = this.store.caseDetail()?.substation;
     const positions = this.store.switchPositions();
+    const selectedSwitch = this.store.selectedSwitch();
+    if (selectedSwitch !== null) {
+      return switchGroupsForSwitch(substation, selectedSwitch, positions);
+    }
     const branch = this.store.selectedBranch();
     if (branch !== null) {
       return switchGroupsForBranch(substation, branch, positions);
     }
     const bus = this.store.selectedBus();
     return bus === null ? [] : switchGroupsForBus(substation, bus, positions);
+  });
+
+  protected readonly switchDetails = computed(() => {
+    const description = this.store.selectedSwitch();
+    if (description === null) {
+      return null;
+    }
+    const position = this.store.shownSwitchPositions().get(description.id);
+    return {
+      id: description.id,
+      kindLabel: switchKindLabel(description.kind),
+      bayName:
+        this.store.caseDetail()?.substation?.bays.find((bay) => bay.id === description.bay)?.name ??
+        description.bay,
+      position: position ?? description.initialPosition,
+      sides: switchSides(description, this.store.nodeConditions()),
+    };
   });
 
   protected readonly switchesEditable = computed(() => this.store.isLive() && !this.store.busy());
@@ -90,6 +118,10 @@ export class Inspector {
   protected isBranchSelected(id: string): boolean {
     const selection = this.store.selection();
     return selection?.kind === 'branch' && selection.id === id;
+  }
+
+  protected dismissRefusal(): void {
+    this.store.dismissRefusal();
   }
 
   protected operate(row: SwitchRow): void {

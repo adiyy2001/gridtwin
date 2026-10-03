@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import type { ComponentFixture } from '@angular/core/testing';
 
 import { Inspector } from './inspector';
+import { ApiError } from '../core/api-error';
 import { TwinStore } from '../core/twin-store';
 import { branchState, twinState } from '../testing/fixtures';
 import { fakeTwin } from '../testing/providers';
@@ -31,7 +32,7 @@ describe('Inspector', () => {
 
   it('lists the buses first', () => {
     expect(element().querySelectorAll('[data-entry^="bus-"]')).toHaveLength(3);
-    expect(element().textContent).toContain('Select a bus or a branch');
+    expect(element().textContent).toContain('Select a bus, a branch or a switch');
   });
 
   it('shows the details of a selected bus', async () => {
@@ -113,5 +114,28 @@ describe('Inspector', () => {
     expect(element().querySelector('[data-entry="branch-L1-2"] .alarm')?.textContent).toContain(
       'overloaded',
     );
+  });
+
+  it('shows the details of a selected switch with its bay', async () => {
+    store.selectSwitch('L2-4.QA1');
+    await fixture.whenStable();
+    const details = element().querySelector('[data-details="switch"]');
+    expect(details?.textContent).toContain('Closed');
+    expect(details?.textContent).toContain('Line to bus 2');
+    expect(element().querySelector('h3')?.textContent).toContain('Breaker L2-4.QA1');
+    expect(element().querySelector('[data-bay="L2-4"]')).not.toBeNull();
+  });
+
+  it('shows the reason of a refused operation until it is dismissed', async () => {
+    twin.api.failure = new ApiError(409, 'interlock', 'Open the breaker first.', 'L2-4.QB1');
+    store.requestSwitch('L2-4.QB1', 'CLOSED');
+    await store.confirmPending();
+    await fixture.whenStable();
+    const refusal = element().querySelector('[data-testid="refusal"]');
+    expect(refusal?.textContent).toContain('closing L2-4.QB1');
+    expect(refusal?.textContent).toContain('Open the breaker first.');
+    refusal?.querySelector('button')?.click();
+    await fixture.whenStable();
+    expect(element().querySelector('[data-testid="refusal"]')).toBeNull();
   });
 });

@@ -97,3 +97,19 @@ dd {
 .switch-position[data-position='CLOSED']::before {
   content: '\25cf  ';
 }
+
+.refusal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--danger);
+  border-radius: 6px;
+  background: #fdecea;
+}
+
+.refusal p {
+  margin: 0;
+}

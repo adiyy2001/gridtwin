@@ -114,6 +114,18 @@ describe('TwinStore', () => {
       expect(store.selectedBus()).toBeNull();
     });
 
+    it('selects a switch of the substation', () => {
+      store.selectSwitch('L2-4.QA1');
+      expect(store.selection()).toEqual({ kind: 'switch', id: 'L2-4.QA1' });
+      expect(store.selectedSwitch()?.kind).toBe('BREAKER');
+      expect(store.selectedBus()).toBeNull();
+    });
+
+    it('returns nothing for an unknown switch', () => {
+      store.selectSwitch('nope');
+      expect(store.selectedSwitch()).toBeNull();
+    });
+
     it('clears the selection', () => {
       store.selectBus(2);
       store.select(null);
@@ -171,6 +183,36 @@ describe('TwinStore', () => {
       expect(store.notice()).toMatchObject({ tone: 'error', text: 'Open the breaker first.' });
       expect(store.version()).toBe(1);
       expect(store.busy()).toBe(false);
+    });
+
+    it('keeps the refusal for the inspector and clears it on the next request', async () => {
+      api.failure = new ApiError(409, 'interlock', 'Open the breaker first.', 'QB1');
+      store.requestSwitch('QB1', 'CLOSED');
+      await store.confirmPending();
+      expect(store.refusal()).toEqual({
+        switchId: 'QB1',
+        position: 'CLOSED',
+        code: 'interlock',
+        message: 'Open the breaker first.',
+      });
+      store.requestSwitch('QB1', 'OPEN');
+      expect(store.refusal()).toBeNull();
+    });
+
+    it('does not record a refusal for other failures', async () => {
+      api.failure = new ApiError(500, 'http-error', 'The server answered 500.', null);
+      store.requestSwitch('QB1', 'CLOSED');
+      await store.confirmPending();
+      expect(store.refusal()).toBeNull();
+      expect(store.notice()?.tone).toBe('error');
+    });
+
+    it('dismisses a refusal', async () => {
+      api.failure = new ApiError(409, 'interlock', 'No.', 'QB1');
+      store.requestSwitch('QB1', 'CLOSED');
+      await store.confirmPending();
+      store.dismissRefusal();
+      expect(store.refusal()).toBeNull();
     });
 
     it('does nothing when there is nothing pending', async () => {

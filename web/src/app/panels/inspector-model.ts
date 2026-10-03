@@ -2,6 +2,7 @@ import type {
   Bay,
   BranchState,
   BusState,
+  NodeCondition,
   Position,
   Substation,
   SwitchDescription,
@@ -86,6 +87,41 @@ export function switchGroupsForBranch(
   return substation.bays
     .filter((bay) => bay.terminal?.kind === 'BRANCH' && bay.terminal.equipment === branch.id)
     .map((bay) => switchGroupForBay(substation, bay, positions));
+}
+
+export function switchGroupsForSwitch(
+  substation: Substation | null | undefined,
+  description: SwitchDescription,
+  positions: ReadonlyMap<string, Position>,
+): SwitchGroup[] {
+  const bay = substation?.bays.find((entry) => entry.id === description.bay);
+  return substation === null || substation === undefined || bay === undefined
+    ? []
+    : [switchGroupForBay(substation, bay, positions)];
+}
+
+export function switchKindLabel(kind: SwitchKind): string {
+  return KIND_LABELS[kind];
+}
+
+export function switchSides(
+  description: SwitchDescription,
+  conditions: ReadonlyMap<string, NodeCondition>,
+): readonly { readonly node: string; readonly condition: string }[] {
+  return [description.nodeA, description.nodeB]
+    .filter((node) => node !== 'EARTH')
+    .map((node) => ({ node, condition: conditionLabel(conditions.get(node)) }));
+}
+
+function conditionLabel(condition: NodeCondition | undefined): string {
+  switch (condition) {
+    case 'ENERGIZED':
+      return 'energized';
+    case 'EARTHED':
+      return 'earthed';
+    default:
+      return 'de-energized';
+  }
 }
 
 export function switchGroupsForBus(

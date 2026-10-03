@@ -32,3 +32,6 @@ export type SeverityTier = Schemas['SeverityTier'];
 export type ErrorBody = Schemas['ErrorDto'];
 export type Position = Schemas['Position'];
 export type SwitchKind = Schemas['SwitchKind'];
+export type NodeCondition = Schemas['NodeState'];
+export type BayKind = Schemas['BayKind'];
+export type TerminalKind = Schemas['TerminalKind'];

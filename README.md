@@ -10,13 +10,13 @@ Live demo: not deployed yet. <!-- ADRIAN: add the URL after the first deployment
 ![coverage](docs/badges/coverage.svg)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-This is an educational model. The networks are the public IEEE 14-bus and IEEE 30-bus test cases, and the substation that replaces bus 4 is made up. Nothing here describes a real grid, and nothing here is meant for operating one.
+This is an educational model. The networks are the public IEEE 14-bus and IEEE 30-bus test cases, and the substation that replaces bus 4 is made up: two busbars, a bus coupler and six feeder bays. Nothing here describes a real grid, and nothing here is meant for operating one.
 
 ## Why I built this
 
-My day job is software that draws single-line diagrams of high-voltage substations: Angular and diagram rendering in the browser, Java 21 and Quarkus behind it. I spend my days on breakers, disconnectors and busbars as shapes on a canvas. I wanted to know what those shapes mean electrically, so I built the other half. Open a breaker and the solver tells you where the power goes, which line overloads and how an outage spreads.
+My day job is software that draws single-line diagrams of high-voltage substations: Angular and diagram rendering in the browser, Java 21 and Quarkus behind it. I wanted to model what those drawings mean electrically, so I built the other half. Open a breaker and the solver tells you where the power goes, which line overloads and how an outage spreads.
 
-It also let me put four things in one project that I usually meet separately: the domain, numerical methods (a sparse Newton-Raphson solver checked against MATPOWER), a Java back end and a 3D front end. <!-- ADRIAN: one or two sentences of your own, for example what surprised you about the electrical side once the solver ran -->
+The project also puts my domain knowledge, numerical methods (a sparse Newton-Raphson solver checked against MATPOWER), a Java back end and a 3D front end in one place. <!-- ADRIAN: one or two sentences of your own, for example what surprised you about the electrical side once the solver ran -->
 
 ## What's hard about it
 
@@ -24,7 +24,7 @@ The solver has to agree with MATPOWER to 1e-6 pu in voltage and 1e-4 degrees in 
 
 A breaker can cut the network in two. When it does, one half may have no generator, so it has no voltage reference and no meaning for a power flow. The topology processor merges nodes with union-find, finds the islands, picks a slack for each energized one and marks the rest as de-energized with their load shed ([ADR 0005](docs/adr/0005-topology-processor-rules.md)). An island whose Newton iteration diverges is reported as a voltage collapse and the other islands still solve.
 
-A warm start can land on the wrong answer. The power flow equations have a second, low-voltage root near 0.4 pu, and a property test on random stressed networks found a warm start settling on it (restoring a branch from the solution of its outage). A solution below 0.5 pu now triggers a second run from a flat start. The same property tests showed that opening and closing a breaker did not always return the original state to 1e-9 at the brief's solver tolerance of 1e-8, so the twin solves to 1e-10.
+A warm start can land on the wrong answer. The power flow equations have a second, low-voltage root near 0.4 pu, and a property test on random stressed networks found a warm start settling on it (restoring a branch from the solution of its outage). A solution below 0.5 pu now triggers a second run from a flat start. The same property tests showed that opening and closing a breaker did not always return the original state to 1e-9 at the solver tolerance of 1e-8, so the twin solves to 1e-10.
 
 Interlocks need a notion of a live section. A disconnector may only move while its breaker is open, and an earthing switch may only close on a de-energized section. A line whose breaker is open can still be fed from its far end, so earthing it has to be refused even though nothing near the switch is energized. Refusals come back with a code and a sentence that the UI shows.
 
@@ -80,20 +80,20 @@ Hardware: 12th Gen Intel Core i7-12700H (20 logical cores), 15 GB of memory, Lin
 
 ### Solver and contingency timings
 
-`tools/bench.sh java` runs 300 warm-up and 300 measured iterations per case. The brief's targets are an IEEE 30 solve under 10 ms and an IEEE 30 N-1 run under 500 ms. Both are met with a wide margin.
+`tools/bench.sh java` runs 300 warm-up and 300 measured iterations per case. My targets are an IEEE 30 solve under 10 ms and an IEEE 30 N-1 run under 500 ms. Both are met with a wide margin.
 
 | Measurement | Median ms | p95 ms |
 | --- | --- | --- |
-| IEEE 14 solve, flat start | 0.24 | 0.62 |
-| IEEE 30 solve, flat start | 0.84 | 1.33 |
-| IEEE 30 solve, warm start | 0.60 | 0.86 |
-| IEEE 14 N-1, 25 outages, sequential | 5.68 | 7.05 |
-| IEEE 14 N-1, 20 threads | 3.42 | 5.36 |
-| IEEE 30 N-1, 47 outages, sequential | 52.1 | 117.1 |
-| IEEE 30 N-1, 2 threads | 32.5 | 41.5 |
-| IEEE 30 N-1, 8 threads | 14.5 | 19.7 |
-| IEEE 30 N-1, 20 threads | 9.87 | 13.0 |
-| IEEE 14 cascade from the outage of L2-4 | 2.06 | 3.70 |
+| IEEE 14 solve, flat start | 0.23 | 0.69 |
+| IEEE 30 solve, flat start | 0.67 | 0.93 |
+| IEEE 30 solve, warm start | 0.55 | 0.79 |
+| IEEE 14 N-1, 25 outages, sequential | 5.70 | 7.02 |
+| IEEE 14 N-1, 20 threads | 3.00 | 4.17 |
+| IEEE 30 N-1, 47 outages, sequential | 41.3 | 45.5 |
+| IEEE 30 N-1, 2 threads | 26.6 | 30.0 |
+| IEEE 30 N-1, 8 threads | 10.2 | 13.2 |
+| IEEE 30 N-1, 20 threads | 8.22 | 11.0 |
+| IEEE 14 cascade from the outage of L2-4 | 1.58 | 1.81 |
 
 ### Front end
 
@@ -101,15 +101,17 @@ Hardware: 12th Gen Intel Core i7-12700H (20 logical cores), 15 GB of memory, Lin
 
 | Command to rendered frame | Median ms | p95 ms |
 | --- | --- | --- |
-| Software renderer, with the 3D scene | 78.8 | 244.2 |
-| Without WebGL, diagram and network view only | 43.6 | 44.6 |
-| Integrated GPU, with the 3D scene | 44.2 | 45.3 |
+| Software renderer, with the 3D scene | 61.7 | 206.5 |
+| Without WebGL, diagram and network view only | 43.8 | 44.5 |
+| Integrated GPU, with the 3D scene | 44.5 | 45.2 |
 
-The target of under 100 ms holds on the GPU and without the scene. The software renderer needs 267 to 333 ms for a 1080p frame, so it misses the target in the tail.
+The target of under 100 ms holds on the GPU and without the scene. The software renderer needs about 200 ms for a 1080p frame, so it misses the target in the tail.
 
-The brief asks for 60 fps at 1080p on an integrated GPU. A continuous camera orbit at 1920x1080 on the Iris Xe gave 59.0, 52.0 and 43.8 fps in three runs of three seconds, with a median frame time of 16.7 ms (one refresh at 60 Hz) and a 95th percentile of up to 33.4 ms. The median frame meets the target, but the average over a run does not stay at 60 and the slow frames take two refreshes. I did not find the cause. Software rendering gives 3.5 to 4.1 fps, which is why this was never going to be a useful number without a GPU.
+The target is 60 fps at 1080p on an integrated GPU, and this machine does not reach it. The scene is rendered on demand, so it costs nothing while idle. To measure the worst case the benchmark orbits the camera at 1920x1080 and renders every animation frame for three runs of 10 seconds after a 3 second warm-up. On the Iris Xe through the WSL2 Direct3D 12 layer that gave 46.5, 52.2 and 46.7 fps. The median frame is 16.7 ms (one refresh at 60 Hz), and 346 of 1459 frames (24%) took two refreshes. Timer queries put the GPU time at 6.5 ms per frame, 16 draw calls and 16196 triangles, so the work fits into a refresh and the frames still slip.
 
-The initial bundle is 338 kB raw (93 kB transferred). The 3D scene is a lazy chunk of 618 kB (131 kB transferred), loaded after the first paint.
+Three controls separate the scene from the environment. A blank page, the application with an idle scene and an empty WebGL canvas with the same context settings all hold 60.0 fps and drop at most one frame in 600, before and after the scene runs. The slip comes from the scene. At 1280x720 the GPU time is 3.8 ms and the average goes up to 55 to 59 fps. I tried the usual levers. Rebuilding the shadow map only when the content changes or a blade moves took about 1 ms off the GPU time, and a Lambert material on the ground took another 1.9 ms, from 10.2 ms to between 6.5 and 7.4 ms over several runs. Switching multisampling off saves about 1.5 ms more, and Lambert materials everywhere with no multisampling reached 4.9 ms and 54 to 56 fps. That is still short of 60 and gives up the metal and porcelain look, so I kept the physically based materials and the multisampling. The WSL2 layer adds a presentation path that a native Linux or Windows driver does not have, which is my best guess for the rest, and I have no machine to check it on. `tools/bench.sh web --gpu` reproduces all of this, and on real hardware it is the command that answers the question. Software rendering gives about 5 fps, which is why that number says little without a GPU.
+
+The initial bundle is 338 kB raw (93 kB transferred). The 3D scene is a lazy chunk of 620 kB (131 kB transferred), loaded after the first paint.
 
 ## Run it locally
 
@@ -122,7 +124,7 @@ docker compose up --build
 
 Then open http://127.0.0.1:18400. The compose service binds to the loopback interface only.
 
-Without Docker you need Java 21, Node 24 and pnpm 11 (`corepack enable` is enough for pnpm):
+Without Docker you need Java 21, Node 24.15 or newer (the repository pins 24.21 in `.nvmrc`) and pnpm 11 (`corepack enable` is enough for pnpm):
 
 ```
 tools/build-all.sh
@@ -140,17 +142,18 @@ A good first minute: open the bus coupler in the diagram, select the line that t
 | Admittance matrix and Jacobian | a hand-computed 3-bus example, and every Jacobian entry against a central finite difference, including a network with a tap and a phase shift |
 | Topology processor | an open coupler splits a bus, an earthing switch on a live section is refused, islands and the slack rule |
 | Solver | MATPOWER references for both cases, four load factors and two reactive limit modes, and for every solved N-1 outage |
-| Properties | generation equals load plus losses to 1e-6 pu on random networks, opening and closing a breaker returns the original solution to 1e-9, parallel contingency analysis equals sequential |
+| Properties | generation equals load plus losses to 1e-6 pu on random networks, opening and closing a breaker returns the original solution to 1e-9, parallel contingency analysis equals sequential, all from a small harness of my own (ADR 0008) |
 | REST and WebSocket | Quarkus integration tests, plus ArchUnit rules that keep framework imports out of the domain |
 | End to end | 21 Cypress tests against the production jar, among them opening a line breaker in the diagram and seeing the line de-energized in both views while the parallel paths take more load |
 | 3D scene | Playwright screenshots in five states that I reviewed by eye, with checks that frames are not blank and that every state differs |
 | Accessibility | axe on six scenarios (no serious or critical violations) and Lighthouse (accessibility score 100) |
 
-Line coverage from `node tools/coverage-badge.mjs`, which reads the JaCoCo and Vitest reports: domain 99.3%, api 97.3%, cases 88.2%, bench 96.9%, web 98.2%, all together 98.4%. The build enforces 90% on the domain and 80% elsewhere, and 90% on the web logic files.
+Line coverage from `node tools/coverage-badge.ts`, which reads the JaCoCo and Vitest reports: domain 99.0%, api 88.5%, cases 88.2%, bench 96.9%, web 98.2%, all together 97.5%. The build enforces 90% on the domain and 80% elsewhere, and 90% on the web logic files.
 
 ```
 ./mvnw -B -ntp verify
-node --test tools/ && node tools/check-style.mjs
+node --test "tools/**/*.test.ts" && node tools/check-style.ts
+pnpm install --frozen-lockfile && pnpm run typecheck:scripts && pnpm run lint:scripts && pnpm --dir e2e run typecheck
 pnpm --dir web run lint && pnpm --dir web run typecheck && pnpm --dir web run test:ci
 tools/build-all.sh && pnpm --dir e2e run cypress:ci
 pnpm --dir e2e run a11y && pnpm --dir e2e run visual && pnpm --dir e2e run lighthouse
@@ -180,9 +183,9 @@ The decisions are recorded as ADRs in [docs/adr](docs/adr/README.md). These are 
 - The cascade is a static simplification. A branch trips the instant it passes 120% of its rating, with no protection timing, frequency or voltage dynamics. It shows an order in which overloads could spread. It does not predict anything about a real grid.
 - The thermal ratings are synthetic (125% of the base case flow, rounded up to a multiple of 5 MVA, at least 20 MVA), the IEEE 14 voltage levels are invented and the substation is fictional.
 - EJML has no fill-reducing ordering. That is irrelevant at 22 and 53 unknowns and would matter for a network with thousands of buses.
-- The web application offers IEEE 14 only. IEEE 30 is solved, validated and benchmarked, but it has no substation and no entry in the UI. The other stretch goals from the brief are not built either: a fast decoupled power flow and state estimation ([ADR 0027](docs/adr/0027-stretch-goals-not-built.md)).
+- The web application offers IEEE 14 only. IEEE 30 is solved, validated and benchmarked, but it has no substation and no entry in the UI. The other stretch goals are not built either: a fast decoupled power flow and state estimation ([ADR 0027](docs/adr/0027-stretch-goals-not-built.md)).
 - Reactive limits do not release again. A generator that hit its limit at 150% load stays a PQ bus for that solve.
-- The 60 fps target is not met steadily on the integrated GPU, as described above. The 3D scene has no pixel baselines, because they differ between GPUs and drivers.
+- The 60 fps target is not met on the integrated GPU I could test on (46 to 52 fps with the camera orbiting at 1080p, 24% of the frames slipping), as described above. The 3D scene has no pixel baselines, because they differ between GPUs and drivers.
 - Equipment cannot be operated by keyboard inside the 3D canvas. The canvas takes arrow keys for panning and plus and minus for zoom, and everything is operable in the diagram and the inspector.
 - Sessions live in memory and there is no authentication, so it is a demo and not a service. `act` was not available, so the workflow was linted with actionlint and its commands run locally, not executed by GitHub.
 - The property tests use a small harness of my own and not jqwik. I explain why in ADR 0008 and swapping it in would be mechanical.

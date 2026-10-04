@@ -4,9 +4,9 @@ A digital twin of a small transmission network in the browser: open a breaker in
 
 ![Opening the bus coupler, the overloaded line, the N-1 table and a cascade replay](docs/media/demo.gif)
 
-Live demo: not deployed yet. <!-- ADRIAN: add the URL after the first deployment -->
+Live demo: not deployed yet.
 
-[![CI](https://github.com/adrianturbinski/gridtwin/actions/workflows/ci.yml/badge.svg)](https://github.com/adrianturbinski/gridtwin/actions/workflows/ci.yml)
+[![CI](https://github.com/adiyy2001/gridtwin/actions/workflows/ci.yml/badge.svg)](https://github.com/adiyy2001/gridtwin/actions/workflows/ci.yml)
 ![coverage](docs/badges/coverage.svg)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -16,7 +16,7 @@ This is an educational model. The networks are the public IEEE 14-bus and IEEE 3
 
 My day job is software that draws single-line diagrams of high-voltage substations: Angular and diagram rendering in the browser, Java 21 and Quarkus behind it. I wanted to model what those drawings mean electrically, so I built the other half. Open a breaker and the solver tells you where the power goes, which line overloads and how an outage spreads.
 
-The project also puts my domain knowledge, numerical methods (a sparse Newton-Raphson solver checked against MATPOWER), a Java back end and a 3D front end in one place. <!-- ADRIAN: one or two sentences of your own, for example what surprised you about the electrical side once the solver ran -->
+The project also puts my domain knowledge, numerical methods (a sparse Newton-Raphson solver checked against MATPOWER), a Java back end and a 3D front end in one place.
 
 ## What's hard about it
 
@@ -118,7 +118,7 @@ The initial bundle is 338 kB raw (93 kB transferred). The 3D scene is a lazy chu
 With Docker:
 
 ```
-git clone https://github.com/adrianturbinski/gridtwin.git && cd gridtwin
+git clone https://github.com/adiyy2001/gridtwin.git && cd gridtwin
 docker compose up --build
 ```
 

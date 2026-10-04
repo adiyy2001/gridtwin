@@ -160,6 +160,8 @@ jobs:
         run: pnpm --dir e2e run lighthouse
       - name: Visual checks of the 3D scene
         run: pnpm --dir e2e run visual
+      - name: Playwright ffmpeg for the demo video
+        run: pnpm --dir e2e exec playwright install ffmpeg
       - name: Demo scenario
         run: pnpm --dir e2e run demo
       - name: Web benchmarks, quick run

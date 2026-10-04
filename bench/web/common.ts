@@ -106,7 +106,8 @@ export async function openScene(
 }
 
 export function resultName(name: string, options: BenchOptions): string {
-  return options.gpu ? `${name}-gpu` : name;
+  const suffix = options.gpu ? '-gpu' : '';
+  return options.quick ? `${name}${suffix}-quick` : `${name}${suffix}`;
 }
 
 export function writeResult(name: string, report: object): string {

@@ -46,6 +46,15 @@ export interface WebLatencyReport extends MeasurementReport {
 export interface FpsMeasurement {
   averageFps: number;
   medianFrameMs: number;
+  droppedFrames?: number;
+  frames?: number;
+}
+
+export interface FpsControl {
+  name: string;
+  averageFps: number;
+  droppedFrames: number;
+  frames: number;
 }
 
 export interface FpsReport {
@@ -53,6 +62,8 @@ export interface FpsReport {
   hardware: WebHardware;
   settings: { width: number; height: number; runs: number; durationMs: number };
   measurements: FpsMeasurement[];
+  summary?: { gpuTimePerFrameMs?: number | null };
+  controls?: FpsControl[];
 }
 
 export function milliseconds(value: number): string {
@@ -75,6 +86,23 @@ export function fpsLine(report: FpsReport): string {
   const runs = report.measurements.map((entry) => entry.averageFps.toFixed(1)).join(', ');
   const frame = report.measurements.map((entry) => entry.medianFrameMs.toFixed(1)).join(', ');
   return `${report.settings.width}x${report.settings.height}, ${report.settings.runs} runs of ${report.settings.durationMs} ms: ${runs} fps, median frame ${frame} ms, renderer ${report.hardware.renderer}`;
+}
+
+export function droppedLine(report: FpsReport): string | null {
+  const frames = report.measurements.reduce((sum, entry) => sum + (entry.frames ?? 0), 0);
+  const dropped = report.measurements.reduce((sum, entry) => sum + (entry.droppedFrames ?? 0), 0);
+  if (frames === 0) {
+    return null;
+  }
+  const gpu = report.summary?.gpuTimePerFrameMs;
+  const gpuText = typeof gpu === 'number' ? `, GPU time per frame ${milliseconds(gpu)} ms` : '';
+  return `${dropped} of ${frames} frames dropped (${((dropped / frames) * 100).toFixed(0)}%)${gpuText}`;
+}
+
+export function controlLines(report: FpsReport): string[] {
+  return (report.controls ?? []).map(
+    (control) => `control ${control.name}: ${control.averageFps.toFixed(1)} fps, ${control.droppedFrames} of ${control.frames} frames dropped`,
+  );
 }
 
 function read(name: string): unknown {
@@ -111,6 +139,11 @@ function main(): void {
     if (report !== null) {
       printWebHeader(name, report);
       console.log(fpsLine(report));
+      const dropped = droppedLine(report);
+      if (dropped !== null) {
+        console.log(dropped);
+      }
+      controlLines(report).forEach((line) => { console.log(line); });
       console.log('');
     }
   });

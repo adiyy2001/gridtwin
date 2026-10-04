@@ -1,10 +1,9 @@
 {
   "suite": "web-fps",
-  "generatedAt": "2026-10-03T23:01:08.454Z",
+  "generatedAt": "2026-10-04T00:45:44.705Z",
   "url": "http://127.0.0.1:18480",
   "hardware": {
     "cpuModel": "12th Gen Intel(R) Core(TM) i7-12700H",
-    "logicalCores": 20,
     "physicalMemoryMegabytes": 15825,
     "operatingSystem": "linux 6.6.87.2-microsoft-standard-WSL2 (x64)",
     "node": "v24.21.0",
@@ -12,57 +11,113 @@
     "version": "148.0.7778.167",
     "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
     "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "logicalCores": 20,
     "deviceMemoryGigabytes": 16
   },
   "settings": {
     "runs": 3,
     "durationMs": 3000,
+    "warmUpMs": 3000,
     "width": 1920,
     "height": 1080,
+    "droppedFrameMs": 25,
     "gpu": false
   },
-  "definition": "continuous orbit of the camera around the substation, one render per animation frame, frame intervals from requestAnimationFrame timestamps",
+  "definition": "continuous orbit of the camera around the substation, one render per animation frame, frame intervals from requestAnimationFrame timestamps, a frame counts as dropped when it took longer than droppedFrameMs",
   "target": "at least 60 fps at 1920x1080 on an integrated GPU, confirm with tools/bench.sh web --gpu on the target machine",
   "summary": {
-    "medianFps": 3.9396327050124262,
+    "medianFps": 5.161456821187778,
     "frameTime": {
       "samples": 3,
-      "medianMs": 266.6999999999998,
-      "p95Ms": 333.2999999999993,
-      "meanMs": 288.89999999999935,
-      "minMs": 266.6999999999989,
-      "maxMs": 333.2999999999993
-    }
+      "medianMs": 200,
+      "p95Ms": 216.59999999999854,
+      "meanMs": 205.53333333333285,
+      "minMs": 200,
+      "maxMs": 216.59999999999854
+    },
+    "frames": 49,
+    "droppedFrames": 46,
+    "droppedShare": 0.9387755102040817,
+    "gpuTimePerFrameMs": 178.088469
   },
+  "controls": [
+    {
+      "name": "application page, scene idle",
+      "frames": 181,
+      "averageFps": 60.00331510028178,
+      "medianFrameMs": 16.699999999999818,
+      "p95FrameMs": 16.700000000000728,
+      "droppedFrames": 0
+    },
+    {
+      "name": "blank page",
+      "frames": 166,
+      "averageFps": 55.0288404163628,
+      "medianFrameMs": 16.699999999999818,
+      "p95FrameMs": 16.800000000000068,
+      "droppedFrames": 1
+    },
+    {
+      "name": "empty WebGL canvas",
+      "frames": 105,
+      "averageFps": 34.61765949015111,
+      "medianFrameMs": 16.700000000000728,
+      "p95FrameMs": 33.400000000000546,
+      "droppedFrames": 51
+    },
+    {
+      "name": "empty WebGL canvas, after the scene runs",
+      "frames": 87,
+      "averageFps": 28.84137245151666,
+      "medianFrameMs": 33.29999999999927,
+      "p95FrameMs": 33.400000000001455,
+      "droppedFrames": 85
+    }
+  ],
   "measurements": [
     {
       "width": 1920,
       "height": 1080,
-      "frames": 13,
-      "durationMs": 3149.9,
-      "averageFps": 4.127115146512588,
-      "medianFrameMs": 266.6999999999998,
-      "p95FrameMs": 366.5999999999999,
+      "frames": 17,
+      "durationMs": 3199.9000000000015,
+      "averageFps": 5.312666020813148,
+      "medianFrameMs": 200,
+      "p95FrameMs": 216.70000000000073,
+      "droppedFrames": 16,
+      "medianRenderCallMs": 0.6000000238418579,
+      "medianGpuMs": null,
+      "drawCalls": 16,
+      "triangles": 16196,
       "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
     },
     {
       "width": 1920,
       "height": 1080,
-      "frames": 11,
-      "durationMs": 3116.6000000000004,
-      "averageFps": 3.529487261759609,
-      "medianFrameMs": 333.2999999999993,
-      "p95FrameMs": 383.2999999999993,
+      "frames": 16,
+      "durationMs": 3099.9000000000015,
+      "averageFps": 5.161456821187778,
+      "medianFrameMs": 216.59999999999854,
+      "p95FrameMs": 233.29999999999927,
+      "droppedFrames": 15,
+      "medianRenderCallMs": 0.5999999940395355,
+      "medianGpuMs": null,
+      "drawCalls": 16,
+      "triangles": 16196,
       "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
     },
     {
       "width": 1920,
       "height": 1080,
-      "frames": 13,
-      "durationMs": 3299.7999999999993,
-      "averageFps": 3.9396327050124262,
-      "medianFrameMs": 266.6999999999989,
-      "p95FrameMs": 316.7000000000007,
+      "frames": 16,
+      "durationMs": 3133.2999999999993,
+      "averageFps": 5.106437302524496,
+      "medianFrameMs": 200,
+      "p95FrameMs": 250,
+      "droppedFrames": 15,
+      "medianRenderCallMs": 0.5,
+      "medianGpuMs": null,
+      "drawCalls": 16,
+      "triangles": 16196,
       "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
     }
   ]

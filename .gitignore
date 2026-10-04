@@ -18,3 +18,4 @@ api/src/main/resources/META-INF/resources/
 .idea/
 .vscode/
 .DS_Store
+bench/results/*-quick.json

@@ -8,7 +8,16 @@ import {
 import type { Camera, Scene, Texture } from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
-import type { PixelFrame, RendererPort } from './renderer-port';
+import type { PixelFrame, RenderLoad, RendererPort } from './renderer-port';
+
+interface TimerExtension {
+  readonly TIME_ELAPSED_EXT: number;
+  readonly GPU_DISJOINT_EXT: number;
+}
+
+function isTimerExtension(value: unknown): value is TimerExtension {
+  return typeof value === 'object' && value !== null && 'TIME_ELAPSED_EXT' in value;
+}
 
 export function webglAvailable(): boolean {
   try {
@@ -29,7 +38,27 @@ export function createWebglRenderer(canvas: HTMLCanvasElement): RendererPort {
   renderer.toneMapping = ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
   renderer.shadowMap.enabled = true;
+  renderer.shadowMap.autoUpdate = false;
   renderer.shadowMap.type = PCFShadowMap;
+
+  const gpuSamples: number[] = [];
+  const pendingQueries: WebGLQuery[] = [];
+  let timer: { gl: WebGL2RenderingContext; extension: TimerExtension } | null = null;
+
+  function collectFinishedQueries(active: NonNullable<typeof timer>): void {
+    const { gl, extension } = active;
+    const first = pendingQueries[0];
+    if (first === undefined || gl.getQueryParameter(first, gl.QUERY_RESULT_AVAILABLE) !== true) {
+      return;
+    }
+    const disjoint = gl.getParameter(extension.GPU_DISJOINT_EXT) === true;
+    const nanoseconds: unknown = gl.getQueryParameter(first, gl.QUERY_RESULT);
+    if (!disjoint && typeof nanoseconds === 'number') {
+      gpuSamples.push(nanoseconds / 1e6);
+    }
+    gl.deleteQuery(first);
+    pendingQueries.shift();
+  }
 
   return {
     canvas,
@@ -37,8 +66,37 @@ export function createWebglRenderer(canvas: HTMLCanvasElement): RendererPort {
       renderer.setPixelRatio(pixelRatio);
       renderer.setSize(width, height, false);
     },
+    refreshShadows(): void {
+      renderer.shadowMap.needsUpdate = true;
+    },
     render(scene: Scene, camera: Camera): void {
+      if (timer === null) {
+        renderer.render(scene, camera);
+        return;
+      }
+      const { gl, extension } = timer;
+      const query = gl.createQuery();
+      gl.beginQuery(extension.TIME_ELAPSED_EXT, query);
       renderer.render(scene, camera);
+      gl.endQuery(extension.TIME_ELAPSED_EXT);
+      pendingQueries.push(query);
+      collectFinishedQueries(timer);
+    },
+    setGpuTiming(enabled: boolean): boolean {
+      gpuSamples.length = 0;
+      pendingQueries.length = 0;
+      const gl = renderer.getContext();
+      const extension: unknown = enabled
+        ? gl.getExtension('EXT_disjoint_timer_query_webgl2')
+        : null;
+      timer =
+        enabled && gl instanceof WebGL2RenderingContext && isTimerExtension(extension)
+          ? { gl, extension }
+          : null;
+      return !enabled || timer !== null;
+    },
+    gpuTimes(): readonly number[] {
+      return gpuSamples;
     },
     readPixels(): PixelFrame | null {
       const gl = renderer.getContext();
@@ -56,6 +114,9 @@ export function createWebglRenderer(canvas: HTMLCanvasElement): RendererPort {
           ? gl.getParameter(gl.RENDERER)
           : gl.getParameter(info.UNMASKED_RENDERER_WEBGL);
       return typeof text === 'string' ? text : 'unknown renderer';
+    },
+    load(): RenderLoad {
+      return { drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles };
     },
     createEnvironment(): Texture | null {
       const generator = new PMREMGenerator(renderer);

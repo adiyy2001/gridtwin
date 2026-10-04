@@ -69,6 +69,25 @@ describe('SceneHost', () => {
     expect(scheduler.pending).toBe(0);
   });
 
+  it('rebuilds the shadow map only when the scene content changes', () => {
+    const { renderer, scheduler, host } = create();
+    scheduler.run();
+    expect(renderer.shadowRefreshes).toBe(1);
+    host.requestRender();
+    host.topView();
+    host.resize(800, 450, 1);
+    scheduler.run();
+    expect(renderer.renders).toBeGreaterThan(1);
+    expect(renderer.shadowRefreshes).toBe(1);
+    host.setState(stateOf());
+    scheduler.run();
+    expect(renderer.shadowRefreshes).toBe(2);
+    host.setState(stateOf({ 'L3-4.QA1': 'OPEN' }));
+    const before = renderer.shadowRefreshes;
+    const ticks = scheduler.run();
+    expect(renderer.shadowRefreshes - before).toBeGreaterThanOrEqual(ticks - 1);
+  });
+
   it('resizes the renderer and the camera and ignores empty sizes', () => {
     const { renderer, host } = create();
     host.resize(800, 400, 2);
@@ -151,6 +170,11 @@ describe('SceneHost', () => {
     expect(result.averageFps).toBeCloseTo(62.5, 0);
     expect(result.medianFrameMs).toBe(16);
     expect(result.p95FrameMs).toBe(16);
+    expect(result.droppedFrames).toBe(0);
+    expect(result.drawCalls).toBe(7);
+    expect(result.triangles).toBe(1234);
+    expect(result.medianGpuMs).toBeNull();
+    expect(result.medianRenderCallMs).toBeGreaterThanOrEqual(0);
     expect(result.renderer).toBe('fake renderer');
     expect(renderer.sizes.some((size) => size.width === 640 && size.pixelRatio === 1)).toBe(true);
     expect(renderer.sizes[renderer.sizes.length - 1]).toEqual({
@@ -159,6 +183,13 @@ describe('SceneHost', () => {
       pixelRatio: 1,
     });
     expect(host.camera.position.distanceTo(before)).toBeLessThan(0.001);
+  });
+
+  it('reports the GPU time when timing is requested', async () => {
+    const { scheduler, host } = create();
+    const pending = host.measureFrames({ durationMs: 48, gpuTiming: true });
+    scheduler.run();
+    expect((await pending).medianGpuMs).toBe(5);
   });
 
   it('ignores resizes while measuring', async () => {

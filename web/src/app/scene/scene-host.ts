@@ -39,6 +39,11 @@ export interface FrameMeasurement {
   readonly averageFps: number;
   readonly medianFrameMs: number;
   readonly p95FrameMs: number;
+  readonly droppedFrames: number;
+  readonly medianRenderCallMs: number;
+  readonly medianGpuMs: number | null;
+  readonly drawCalls: number;
+  readonly triangles: number;
   readonly renderer: string;
 }
 
@@ -46,6 +51,7 @@ export interface MeasureOptions {
   readonly width?: number;
   readonly height?: number;
   readonly durationMs?: number;
+  readonly gpuTiming?: boolean;
 }
 
 export interface ScreenPoint {
@@ -65,6 +71,7 @@ export interface SceneHostOptions {
 
 export const BACKGROUND = 0xc9d3de;
 const FRAME_LIMIT_MS = 100;
+const DROPPED_FRAME_MS = 25;
 const FOCUS_OFFSET = new Vector3(12, 9, 17);
 const DEFAULT_MEASURE_MS = 3000;
 const MEASURE_WIDTH = 1920;
@@ -101,6 +108,7 @@ export class SceneHost {
   private state: SceneState | null = null;
   private disposed = false;
   private measuring = false;
+  private shadowsStale = true;
   private cssWidth = 0;
   private cssHeight = 0;
   private pixelRatio = 1;
@@ -143,6 +151,7 @@ export class SceneHost {
   setState(state: SceneState): void {
     this.state = state;
     this.options.contents.apply(state);
+    this.shadowsStale = true;
     this.requestRender();
   }
 
@@ -216,9 +225,11 @@ export class SceneHost {
   frameStats(): FrameStats | null {
     const root = this.options.contents.root;
     root.visible = false;
+    this.shadowsStale = true;
     this.renderNow(0);
     const empty = this.options.renderer.readPixels();
     root.visible = true;
+    this.shadowsStale = true;
     this.renderNow(0);
     const frame = this.options.renderer.readPixels();
     if (frame?.data.length !== empty?.data.length || frame === null || empty === null) {
@@ -256,11 +267,14 @@ export class SceneHost {
     const height = options.height ?? MEASURE_HEIGHT;
     const durationMs = options.durationMs ?? DEFAULT_MEASURE_MS;
     this.measuring = true;
+    const gpuTiming =
+      this.options.renderer.setGpuTiming(options.gpuTiming === true) && options.gpuTiming === true;
     this.options.renderer.setSize(width, height, 1);
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     const home = this.camera.position.clone();
     const intervals: number[] = [];
+    const renderCalls: number[] = [];
     return new Promise((resolve) => {
       let previous: number | null = null;
       let started: number | null = null;
@@ -276,16 +290,21 @@ export class SceneHost {
           .applyAxisAngle(new Vector3(0, 1, 0), 0.01)
           .add(this.center);
         this.camera.lookAt(this.center);
+        const renderStart = performance.now();
         this.options.renderer.render(this.scene, this.camera);
+        renderCalls.push(performance.now() - renderStart);
         if (elapsed < durationMs) {
           this.options.scheduler.request(step);
           return;
         }
         this.measuring = false;
+        const gpuTimes = [...this.options.renderer.gpuTimes()].sort((a, b) => a - b);
+        this.options.renderer.setGpuTiming(false);
         this.camera.position.copy(home);
         this.resize(this.cssWidth, this.cssHeight, this.pixelRatio);
         const sorted = [...intervals].sort((a, b) => a - b);
         const total = intervals.reduce((sum, value) => sum + value, 0);
+        const load = this.options.renderer.load();
         resolve({
           width,
           height,
@@ -294,6 +313,14 @@ export class SceneHost {
           averageFps: total === 0 ? 0 : (intervals.length / total) * 1000,
           medianFrameMs: percentile(sorted, 0.5),
           p95FrameMs: percentile(sorted, 0.95),
+          droppedFrames: intervals.filter((interval) => interval > DROPPED_FRAME_MS).length,
+          medianRenderCallMs: percentile(
+            [...renderCalls].sort((a, b) => a - b),
+            0.5,
+          ),
+          medianGpuMs: gpuTiming && gpuTimes.length > 0 ? percentile(gpuTimes, 0.5) : null,
+          drawCalls: load.drawCalls,
+          triangles: load.triangles,
           renderer: this.options.renderer.describeRenderer(),
         });
       };
@@ -340,7 +367,12 @@ export class SceneHost {
   }
 
   private renderNow(delta: number): boolean {
+    const wasAnimating = this.options.contents.isAnimating();
     const animating = this.options.contents.advance(delta);
+    if (this.shadowsStale || wasAnimating) {
+      this.options.renderer.refreshShadows();
+      this.shadowsStale = false;
+    }
     this.controls.update();
     this.options.contents.fadeLabels(this.camera.position);
     this.options.renderer.render(this.scene, this.camera);

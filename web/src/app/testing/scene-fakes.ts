@@ -1,7 +1,7 @@
 import { Texture } from 'three';
 import type { Camera, Scene } from 'three';
 
-import type { PixelFrame, RendererPort } from '../scene/renderer-port';
+import type { PixelFrame, RenderLoad, RendererPort } from '../scene/renderer-port';
 import type { LabelFactory, LabelTexture } from '../scene/scene-builders';
 import type { FrameScheduler } from '../scene/scene-host';
 import type { LabelTone } from '../scene/scene-state';
@@ -48,6 +48,8 @@ export class ManualScheduler implements FrameScheduler {
 export class FakeRenderer implements RendererPort {
   readonly canvas: HTMLCanvasElement;
   renders = 0;
+  shadowRefreshes = 0;
+  gpuTimingEnabled = false;
   sizes: { width: number; height: number; pixelRatio: number }[] = [];
   disposed = false;
   frames: PixelFrame[] = [];
@@ -68,12 +70,29 @@ export class FakeRenderer implements RendererPort {
     this.renders += 1;
   }
 
+  refreshShadows(): void {
+    this.shadowRefreshes += 1;
+  }
+
   readPixels(): PixelFrame | null {
     return this.frames.shift() ?? null;
   }
 
   describeRenderer(): string {
     return 'fake renderer';
+  }
+
+  setGpuTiming(enabled: boolean): boolean {
+    this.gpuTimingEnabled = enabled;
+    return true;
+  }
+
+  gpuTimes(): readonly number[] {
+    return this.gpuTimingEnabled ? [4, 5, 6] : [];
+  }
+
+  load(): RenderLoad {
+    return { drawCalls: 7, triangles: 1234 };
   }
 
   createEnvironment(): Texture | null {

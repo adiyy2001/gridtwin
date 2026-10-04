@@ -13,6 +13,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   MeshPhysicalMaterial,
+  MeshLambertMaterial,
   MeshStandardMaterial,
   PlaneGeometry,
   Quaternion,
@@ -312,9 +313,7 @@ export function buildSceneContents(plan: ScenePlan, labels: LabelFactory): Scene
 
   const ground = new Mesh(
     disposables.geometry(new PlaneGeometry(1, 1)),
-    disposables.material(
-      new MeshStandardMaterial({ color: GROUND_COLOUR, roughness: 1, metalness: 0 }),
-    ),
+    disposables.material(new MeshLambertMaterial({ color: GROUND_COLOUR })),
   );
   const center = planCenter(plan);
   const groundWidth = plan.bounds.max.x - plan.bounds.min.x + 56;

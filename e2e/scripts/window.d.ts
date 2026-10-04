@@ -30,6 +30,11 @@ interface GridtwinFrameMeasurement {
   averageFps: number;
   medianFrameMs: number;
   p95FrameMs: number;
+  droppedFrames: number;
+  medianRenderCallMs: number;
+  medianGpuMs: number | null;
+  drawCalls: number;
+  triangles: number;
   renderer: string;
 }
 
@@ -37,6 +42,7 @@ interface GridtwinFrameMeasureOptions {
   width?: number;
   height?: number;
   durationMs?: number;
+  gpuTiming?: boolean;
 }
 
 interface GridtwinScene {

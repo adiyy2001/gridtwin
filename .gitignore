@@ -3,6 +3,7 @@ NOTES_FOR_ADRIAN.md
 PLAN.md
 
 node_modules/
+.pnpm-store/
 target/
 dist/
 .angular/

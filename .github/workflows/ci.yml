@@ -22,9 +22,28 @@ jobs:
         with:
           node-version-file: .nvmrc
       - name: Style gate tests
-        run: node --test tools/
+        run: node --test "tools/**/*.test.ts"
       - name: Style gate
-        run: node tools/check-style.mjs
+        run: node tools/check-style.ts
+
+  scripts:
+    runs-on: ubuntu-latest
+    env:
+      CYPRESS_INSTALL_BINARY: '0'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --filter gridtwin --filter gridtwin-e2e
+      - name: Type check the tooling scripts
+        run: pnpm run typecheck:scripts
+      - name: Type check the Cypress specs
+        run: pnpm --dir e2e run typecheck
+      - name: Lint the tooling scripts and the Cypress specs
+        run: pnpm run lint:scripts
 
   java:
     runs-on: ubuntu-latest
@@ -35,8 +54,17 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
-      - name: Format, lint, tests and coverage
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - name: Format, lint, unit, validation and integration tests, coverage
         run: ./mvnw -B -ntp verify
+      - name: Third-party license list is up to date
+        run: tools/licenses.sh --check
+      - uses: actions/upload-artifact@v7
+        with:
+          name: jacoco-csv
+          path: '*/target/site/jacoco/jacoco.csv'
       - uses: actions/upload-artifact@v7
         if: failure()
         with:
@@ -52,7 +80,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: pnpm
-      - run: pnpm install --frozen-lockfile --filter web...
+      - run: pnpm install --frozen-lockfile --filter gridtwin-web...
       - name: Lint
         run: pnpm --dir web run lint
       - name: Type check
@@ -67,6 +95,27 @@ jobs:
           name: web-coverage
           path: web/coverage/
           if-no-files-found: ignore
+
+  coverage:
+    needs: [java, web]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - uses: actions/download-artifact@v8
+        with:
+          name: jacoco-csv
+          path: .
+      - uses: actions/download-artifact@v8
+        with:
+          name: web-coverage
+          path: web/coverage
+      - name: The committed badge matches the measured coverage
+        run: |
+          node tools/coverage-badge.ts
+          git diff --exit-code docs/badges/coverage.svg
 
   e2e:
     runs-on: ubuntu-latest
@@ -123,7 +172,7 @@ jobs:
       - name: Start the compose stack
         run: docker compose up --build --wait --wait-timeout 180
       - name: Smoke test the running container
-        run: node tools/smoke-api.mjs http://127.0.0.1:18400
+        run: node tools/smoke-api.ts http://127.0.0.1:18400
       - name: Show the container log on failure
         if: failure()
         run: docker compose logs

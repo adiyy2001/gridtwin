@@ -22,4 +22,4 @@ When WebGL is not available the 3D panel shows a message and the rest of the app
 
 ## Consequences
 
-The 60 fps target is measured by `bench/web/fps.ts`, which also reports dropped frames, GPU time from timer queries and three controls that render nothing. On the Iris Xe behind the WSL2 Direct3D 12 layer the orbit runs at 46 to 52 fps, so the target is not met there. The README states which numbers came from where, and a native machine has to confirm the result.
+The 60 fps target is measured by `bench/web/fps.ts`, which also reports dropped frames, GPU time from timer queries and three controls that render nothing. On the Iris Xe behind the WSL2 Direct3D 12 layer the orbit runs at 46 to 52 fps, so the target is not met there. On the same laptop under native Windows, with Chrome on Direct3D 11, the same GPU holds the 165 Hz refresh rate of the panel at 1080p with no dropped frames and 2.2 ms of GPU time per frame, so the target is met on a native driver and the shortfall belongs to the WSL2 layer. The README states which numbers came from where.

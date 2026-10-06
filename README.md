@@ -66,7 +66,7 @@ and every iteration solves $J \, \Delta x = \Delta F$ with an analytic sparse Ja
 
 Every number below comes from a script in this repository and was produced on the machine described here. The result files are in [bench/results](bench/results).
 
-Hardware: 12th Gen Intel Core i7-12700H (20 logical cores), 15 GB of memory, Linux 6.6 under WSL2, OpenJDK 21.0.12. For the browser: Chromium 148 in headless mode, once with the SwiftShader software renderer and once on the integrated Intel Iris Xe GPU through the WSL2 Direct3D 12 layer. Other builds were running on the machine at the same time, so the tails of the timings are noisy.
+Hardware: 12th Gen Intel Core i7-12700H (20 logical cores), 15 GB of memory, Linux 6.6 under WSL2, OpenJDK 21.0.12. For the browser: Chromium 148 in headless mode, once with the SwiftShader software renderer and once on the integrated Intel Iris Xe GPU through the WSL2 Direct3D 12 layer. The GPU runs were repeated natively on Windows 11 on the same laptop, on mains power, with headless Chrome 154 on the Iris Xe through Direct3D 11 (the panel is 1920x1080 at 165 Hz). The server stayed in WSL2 for those runs and Chrome reached it through the WSL2 localhost forwarding. Other builds were running on the machine at the same time, so the tails of the timings are noisy.
 
 ### Accuracy against MATPOWER
 
@@ -103,13 +103,18 @@ Hardware: 12th Gen Intel Core i7-12700H (20 logical cores), 15 GB of memory, Lin
 | --- | --- | --- |
 | Software renderer, with the 3D scene | 61.7 | 206.5 |
 | Without WebGL, diagram and network view only | 43.8 | 44.5 |
-| Integrated GPU, with the 3D scene | 44.5 | 45.2 |
+| Integrated GPU through WSL2, with the 3D scene | 44.5 | 45.2 |
+| Integrated GPU on native Windows, with the 3D scene | 25.5 | 54.7 |
 
-The target of under 100 ms holds on the GPU and without the scene. The software renderer needs about 200 ms for a 1080p frame, so it misses the target in the tail.
+The target of under 100 ms holds on the GPU and without the scene. On native Windows the round trip also crosses the WSL2 network bridge, which is where the spread in the tail comes from. The software renderer needs about 200 ms for a 1080p frame, so it misses the target in the tail.
 
-The target is 60 fps at 1080p on an integrated GPU, and this machine does not reach it. The scene is rendered on demand, so it costs nothing while idle. To measure the worst case the benchmark orbits the camera at 1920x1080 and renders every animation frame for three runs of 10 seconds after a 3 second warm-up. On the Iris Xe through the WSL2 Direct3D 12 layer that gave 46.5, 52.2 and 46.7 fps. The median frame is 16.7 ms (one refresh at 60 Hz), and 346 of 1459 frames (24%) took two refreshes. Timer queries put the GPU time at 6.5 ms per frame, 16 draw calls and 16196 triangles, so the work fits into a refresh and the frames still slip.
+The target is 60 fps at 1080p on an integrated GPU. The scene is rendered on demand, so it costs nothing while idle. To measure the worst case the benchmark orbits the camera at 1920x1080 and renders every animation frame for three runs of 10 seconds after a 3 second warm-up.
 
-Three controls separate the scene from the environment. A blank page, the application with an idle scene and an empty WebGL canvas with the same context settings all hold 60.0 fps and drop at most one frame in 600, before and after the scene runs. The slip comes from the scene. At 1280x720 the GPU time is 3.8 ms and the average goes up to 55 to 59 fps. I tried the usual levers. Rebuilding the shadow map only when the content changes or a blade moves took about 1 ms off the GPU time, and a Lambert material on the ground took another 1.9 ms, from 10.2 ms to between 6.5 and 7.4 ms over several runs. Switching multisampling off saves about 1.5 ms more, and Lambert materials everywhere with no multisampling reached 4.9 ms and 54 to 56 fps. That is still short of 60 and gives up the metal and porcelain look, so I kept the physically based materials and the multisampling. The WSL2 layer adds a presentation path that a native Linux or Windows driver does not have, which is my best guess for the rest, and I have no machine to check it on. `tools/bench.sh web --gpu` reproduces all of this, and on real hardware it is the command that answers the question. Software rendering gives about 5 fps, which is why that number says little without a GPU.
+On native Windows the Iris Xe meets the target with room to spare. The three runs gave 165.0, 165.0 and 164.8 fps, which is the refresh rate of the panel, with a median frame of 6.1 ms, a p95 of 6.2 ms and none of the 4951 frames dropped. Timer queries put the GPU time at 2.2 ms per frame for 16 draw calls and 16196 triangles. The three controls (a blank page, the application with an idle scene and an empty WebGL canvas) run at the same 165 fps.
+
+Under WSL2 the same GPU does not reach the target. Through the WSL2 Direct3D 12 layer the runs gave 46.5, 52.2 and 46.7 fps, the median frame was 16.7 ms (one refresh at 60 Hz) and 346 of 1459 frames (24%) took two refreshes, with a GPU time of 6.5 ms per frame. The controls held 60.0 fps there and dropped at most one frame in 600, before and after the scene runs, so the slip came from the scene running on that layer. At 1280x720 the GPU time was 3.8 ms and the average went up to 55 to 59 fps. Before I had the native number I tried the usual levers. Rebuilding the shadow map only when the content changes or a blade moves took about 1 ms off the GPU time, and a Lambert material on the ground took another 1.9 ms, from 10.2 ms to between 6.5 and 7.4 ms over several runs. Switching multisampling off saves about 1.5 ms more, and Lambert materials everywhere with no multisampling reached 4.9 ms and 54 to 56 fps. That gave up the metal and porcelain look and was still short of 60, so I kept the physically based materials and the multisampling. The native run confirms that the rest was the WSL2 presentation path and not the scene. Software rendering gives about 5 fps, which is why that number says little without a GPU.
+
+`tools/bench.sh web --gpu` reproduces the WSL2 or Linux numbers. For the Windows numbers I ran the server in WSL2 and the two scripts with Windows Node and Playwright: `node bench/web/fps.ts --gpu` and `node bench/web/command-latency.ts --gpu` with `CHROME_PATH` set to the Windows `chrome.exe` and `GRIDTWIN_BASE_URL=http://localhost:18480`. The results are in `bench/results/*-gpu-windows.json`.
 
 The initial bundle is 338 kB raw (93 kB transferred). The 3D scene is a lazy chunk of 620 kB (131 kB transferred), loaded after the first paint.
 
@@ -185,9 +190,9 @@ The decisions are recorded as ADRs in [docs/adr](docs/adr/README.md). These are 
 - EJML has no fill-reducing ordering. That is irrelevant at 22 and 53 unknowns and would matter for a network with thousands of buses.
 - The web application offers IEEE 14 only. IEEE 30 is solved, validated and benchmarked, but it has no substation and no entry in the UI. The other stretch goals are not built either: a fast decoupled power flow and state estimation ([ADR 0027](docs/adr/0027-stretch-goals-not-built.md)).
 - Reactive limits do not release again. A generator that hit its limit at 150% load stays a PQ bus for that solve.
-- The 60 fps target is not met on the integrated GPU I could test on (46 to 52 fps with the camera orbiting at 1080p, 24% of the frames slipping), as described above. The 3D scene has no pixel baselines, because they differ between GPUs and drivers.
+- The 60 fps target holds on the Iris Xe under native Windows (165 fps at 1080p, no dropped frames) but not through the WSL2 Direct3D 12 layer (46 to 52 fps, 24% of the frames slipping), as described above. I have not measured it on macOS or on a native Linux driver. The 3D scene has no pixel baselines, because they differ between GPUs and drivers.
 - Equipment cannot be operated by keyboard inside the 3D canvas. The canvas takes arrow keys for panning and plus and minus for zoom, and everything is operable in the diagram and the inspector.
-- Sessions live in memory and there is no authentication, so it is a demo and not a service. `act` was not available, so the workflow was linted with actionlint and its commands run locally, not executed by GitHub.
+- Sessions live in memory and there is no authentication, so it is a demo and not a service.
 - The property tests use a small harness of my own and not jqwik. I explain why in ADR 0008 and swapping it in would be mechanical.
 
 Next I would build the second substation for IEEE 30 with a selector, then the fast decoupled solver with an accuracy and speed comparison, and then state estimation from noisy measurements.

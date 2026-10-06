@@ -1,0 +1,124 @@
+{
+  "suite": "web-fps",
+  "generatedAt": "2026-10-06T17:47:33.689Z",
+  "url": "http://localhost:18480",
+  "hardware": {
+    "cpuModel": "12th Gen Intel(R) Core(TM) i7-12700H",
+    "physicalMemoryMegabytes": 32436,
+    "operatingSystem": "win32 10.0.26200 (x64)",
+    "node": "v24.15.0",
+    "browser": "chromium",
+    "version": "154.0.8037.98",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A6) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "logicalCores": 20,
+    "deviceMemoryGigabytes": 32
+  },
+  "settings": {
+    "runs": 3,
+    "durationMs": 10000,
+    "warmUpMs": 3000,
+    "width": 1920,
+    "height": 1080,
+    "droppedFrameMs": 25,
+    "gpu": true
+  },
+  "definition": "continuous orbit of the camera around the substation, one render per animation frame, frame intervals from requestAnimationFrame timestamps, a frame counts as dropped when it took longer than droppedFrameMs",
+  "target": "at least 60 fps at 1920x1080 on an integrated GPU, confirm with tools/bench.sh web --gpu on the target machine",
+  "summary": {
+    "medianFps": 165.02243945345694,
+    "frameTime": {
+      "samples": 3,
+      "medianMs": 6.099999999998545,
+      "p95Ms": 6.099999999998545,
+      "meanMs": 6.099999999998545,
+      "minMs": 6.099999999998545,
+      "maxMs": 6.099999999998545
+    },
+    "frames": 4951,
+    "droppedFrames": 0,
+    "droppedShare": 0,
+    "gpuTimePerFrameMs": 2.240937
+  },
+  "controls": [
+    {
+      "name": "application page, scene idle",
+      "frames": 1651,
+      "averageFps": 165.02573841771203,
+      "medianFrameMs": 6.099999999999454,
+      "p95FrameMs": 6.2000000000000455,
+      "droppedFrames": 0
+    },
+    {
+      "name": "blank page",
+      "frames": 1651,
+      "averageFps": 165.02738794930227,
+      "medianFrameMs": 6.099999999999454,
+      "p95FrameMs": 6.199999999999989,
+      "droppedFrames": 0
+    },
+    {
+      "name": "empty WebGL canvas",
+      "frames": 1628,
+      "averageFps": 162.72351994562553,
+      "medianFrameMs": 6.099999999998545,
+      "p95FrameMs": 6.200000000000728,
+      "droppedFrames": 1
+    },
+    {
+      "name": "empty WebGL canvas, after the scene runs",
+      "frames": 1649,
+      "averageFps": 164.8695650782866,
+      "medianFrameMs": 6.099999999998545,
+      "p95FrameMs": 6.200000000004366,
+      "droppedFrames": 0
+    }
+  ],
+  "measurements": [
+    {
+      "width": 1920,
+      "height": 1080,
+      "frames": 1651,
+      "durationMs": 10004.5,
+      "averageFps": 165.02573841771203,
+      "medianFrameMs": 6.099999999998545,
+      "p95FrameMs": 6.200000000004366,
+      "droppedFrames": 0,
+      "medianRenderCallMs": 0.30000000074505806,
+      "medianGpuMs": null,
+      "drawCalls": 16,
+      "triangles": 16196,
+      "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A6) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "frames": 1651,
+      "durationMs": 10004.699999999997,
+      "averageFps": 165.02243945345694,
+      "medianFrameMs": 6.099999999998545,
+      "p95FrameMs": 6.200000000004366,
+      "droppedFrames": 0,
+      "medianRenderCallMs": 0.40000000037252903,
+      "medianGpuMs": null,
+      "drawCalls": 16,
+      "triangles": 16196,
+      "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A6) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "frames": 1649,
+      "durationMs": 10004.5,
+      "averageFps": 164.82582837723027,
+      "medianFrameMs": 6.099999999998545,
+      "p95FrameMs": 6.200000000004366,
+      "droppedFrames": 0,
+      "medianRenderCallMs": 0.30000000074505806,
+      "medianGpuMs": null,
+      "drawCalls": 16,
+      "triangles": 16196,
+      "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A6) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    }
+  ]
+}

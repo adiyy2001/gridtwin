@@ -4,7 +4,7 @@ A digital twin of a small transmission network in the browser: open a breaker in
 
 ![Opening the bus coupler, the overloaded line, the N-1 table and a cascade replay](docs/media/demo.gif)
 
-Live demo: [commancenter.tailb2ecdc.ts.net:8443](https://commancenter.tailb2ecdc.ts.net:8443/). It runs in one container on my home server, sessions live in memory and the container restarts every hour, so whatever you switched is gone after that.
+Live demo: [gridtwin.adrianturbinski.pl](https://gridtwin.adrianturbinski.pl/). It runs in one container on my home server, sessions live in memory and the container restarts every hour, so whatever you switched is gone after that.
 
 [![CI](https://github.com/adiyy2001/gridtwin/actions/workflows/ci.yml/badge.svg)](https://github.com/adiyy2001/gridtwin/actions/workflows/ci.yml)
 ![coverage](docs/badges/coverage.svg)

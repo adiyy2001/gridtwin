@@ -14,9 +14,9 @@ This is an educational model. The networks are the public IEEE 14-bus and IEEE 3
 
 ## Why I built this
 
-My day job is software that draws single-line diagrams of high-voltage substations: Angular and diagram rendering in the browser, Java 21 and Quarkus behind it. I wanted to model what those drawings mean electrically, so I built the other half. Open a breaker and the solver tells you where the power goes, which line overloads and how an outage spreads.
+I design software for high-voltage substation single-line diagrams. The diagramming is done with Angular and diagram rendering in the browser, with Java 21 and Quarkus behind it. A breaker at work is a symbol with a state on a drawing. I wanted to know what that state does to the network, so I created the other half. By opening a breaker, the solver shows where the power goes, which line overloads, and how an outage spreads.
 
-The project also puts my domain knowledge, numerical methods (a sparse Newton-Raphson solver checked against MATPOWER), a Java back end and a 3D front end in one place.
+I was also able to combine my domain knowledge, numerical methods (a sparse Newton-Raphson solver checked against MATPOWER), a Java back end and a 3D front end into one project.
 
 ## What's hard about it
 

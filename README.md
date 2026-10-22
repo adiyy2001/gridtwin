@@ -1,16 +1,16 @@
 # gridtwin
 
-A digital twin of a small transmission network in the browser: open a breaker in a 3D substation or its single-line diagram and watch an AC power flow redistribute the load, overload a line and, if you keep going, cascade into an outage.
+A browser-based digital twin of a small transmission network. Open a breaker in the 3D substation model or its single-line diagram and watch an AC power flow redistribute the load, overload a line and, if you keep going, cascade into an outage.
 
 ![Opening the bus coupler, the overloaded line, the N-1 table and a cascade replay](docs/media/demo.gif)
 
-Live demo: [gridtwin.adrianturbinski.pl](https://gridtwin.adrianturbinski.pl/). It runs in one container on my home server, sessions live in memory and the container restarts every hour, so whatever you switched is gone after that.
+Live demo: [gridtwin.adrianturbinski.pl](https://gridtwin.adrianturbinski.pl/). It runs in a single container on my home server, sessions are stored in memory and the container restarts every hour, so whatever you toggled is gone after that.
 
 [![CI](https://github.com/adiyy2001/gridtwin/actions/workflows/ci.yml/badge.svg)](https://github.com/adiyy2001/gridtwin/actions/workflows/ci.yml)
 ![coverage](docs/badges/coverage.svg)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-This is an educational model. The networks are the public IEEE 14-bus and IEEE 30-bus test cases, and the substation that replaces bus 4 is made up: two busbars, a bus coupler and six feeder bays. Nothing here describes a real grid, and nothing here is meant for operating one.
+Nothing here models an actual grid. The networks are the public IEEE 14-bus and IEEE 30-bus test cases, and the substation replacing bus 4 is made up: two busbars, a bus coupler and six feeder bays. This is an educational model, and nothing here is intended for operating a grid.
 
 ## Why I built this
 
@@ -20,15 +20,15 @@ I was also able to combine my domain knowledge, numerical methods (a sparse Newt
 
 ## What's hard about it
 
-The solver has to agree with MATPOWER to 1e-6 pu in voltage and 1e-4 degrees in angle, and small modelling differences already break that. Where the tap sits on a transformer, whether reactive limits convert all violating generators at once or one at a time, and whether the slack generator is limited all change the third decimal. I generated 16 base case reference solutions and 4 N-1 reference files by running MATPOWER under GNU Octave in Docker, wrote down each convention in [ADR 0004](docs/adr/0004-newton-raphson-modelling-choices.md) and compared everything number by number. The worst deviation over all of it is in the validation section below.
+The solver must agree with MATPOWER to 1e-6 pu on voltage and 1e-4 degrees on angle, and small modelling differences already break that. Where the tap sits on a transformer, whether reactive limits convert all violating generators at once or one at a time, and whether the slack generator is limited all change the third decimal place. I created 16 base case reference solutions and 4 N-1 reference files by running MATPOWER through GNU Octave in Docker, documented each convention in [ADR 0004](docs/adr/0004-newton-raphson-modelling-choices.md), and cross-checked everything number by number. The largest deviation across the board is in the validation section below.
 
-A breaker can cut the network in two. When it does, one half may have no generator, so it has no voltage reference and no meaning for a power flow. The topology processor merges nodes with union-find, finds the islands, picks a slack for each energized one and marks the rest as de-energized with their load shed ([ADR 0005](docs/adr/0005-topology-processor-rules.md)). An island whose Newton iteration diverges is reported as a voltage collapse and the other islands still solve.
+Opening a breaker can split the network in two. One side may end up without a generator, so it has no voltage reference and a power flow there is meaningless. The topology processor uses union-find to merge nodes, detects the islands, chooses a slack for each energized island and flags the rest as de-energized with their load shed ([ADR 0005](docs/adr/0005-topology-processor-rules.md)). An island whose Newton iteration diverges is reported as a voltage collapse, and the other islands still solve.
 
-A warm start can land on the wrong answer. The power flow equations have a second, low-voltage root near 0.4 pu, and a property test on random stressed networks found a warm start settling on it (restoring a branch from the solution of its outage). A solution below 0.5 pu now triggers a second run from a flat start. The same property tests showed that opening and closing a breaker did not always return the original state to 1e-9 at the solver tolerance of 1e-8, so the twin solves to 1e-10.
+A warm start can converge to the wrong answer. The power flow equations have a second, low-voltage solution near 0.4 pu, and a property test on random stressed networks found a warm start settling on that solution (when restoring a branch from the solution of its outage). A solution below 0.5 pu now triggers a second solve from a flat start. The same property tests revealed that opening and closing a breaker did not always lead back to the original state to within 1e-9 at a solver tolerance of 1e-8, so the twin solves to 1e-10.
 
-Interlocks need a notion of a live section. A disconnector may only move while its breaker is open, and an earthing switch may only close on a de-energized section. A line whose breaker is open can still be fed from its far end, so earthing it has to be refused even though nothing near the switch is energized. Refusals come back with a code and a sentence that the UI shows.
+Interlocks require the concept of a live section. You can only move a disconnector while its breaker is open, and you can only close an earthing switch on a de-energized section. A line with its breaker open can still be fed from its far end, so earthing it has to be refused even though nothing near the switch is energized. Refusals come back with a code and a message that the UI displays.
 
-Three views of one state have to stay in sync, and the 3D one is the least accessible. Selection, hover and every operation live in one store. The diagram and the inspector are fully keyboard operable with visible focus and an announcer for refusals, and the 3D scene is an enhancement on top. The scene exposes a `describe()` hook so the end-to-end tests can check what it shows without reading pixels.
+Three representations of one state need to stay in sync, and the least accessible of these is the 3D view. Selection, hover and every operation reside in a single store. The diagram and the inspector are fully keyboard operable, with visible focus and an announcer for refusals, and the 3D scene is an enhancement on top. The scene also exposes a `describe()` hook so the end-to-end tests can verify what it displays without reading pixels.
 
 ## How it works
 
@@ -195,7 +195,7 @@ The decisions are recorded as ADRs in [docs/adr](docs/adr/README.md). These are 
 - Sessions live in memory and there is no authentication, so it is a demo and not a service.
 - The property tests use a small harness of my own and not jqwik. I explain why in ADR 0008 and swapping it in would be mechanical.
 
-Next I would build the second substation for IEEE 30 with a selector, then the fast decoupled solver with an accuracy and speed comparison, and then state estimation from noisy measurements.
+Next I would build the second substation for IEEE 30 with a selector, followed by the fast decoupled solver with an accuracy and speed comparison. After that I would build state estimation from noisy measurements.
 
 ## Credits and license
 

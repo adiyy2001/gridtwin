@@ -16,7 +16,7 @@ Nothing here models an actual grid. The networks are the public IEEE 14-bus and 
 
 I design software for high-voltage substation single-line diagrams. The diagramming is done with Angular and diagram rendering in the browser, with Java 21 and Quarkus behind it. A breaker at work is a symbol with a state on a drawing. I wanted to know what that state does to the network, so I created the other half. By opening a breaker, the solver shows where the power goes, which line overloads, and how an outage spreads.
 
-I was also able to combine my domain knowledge, numerical methods (a sparse Newton-Raphson solver checked against MATPOWER), a Java back end and a 3D front end into one project.
+I was also able to combine my domain knowledge, numerical methods (a sparse Newton-Raphson solver checked against MATPOWER), a Java back end and a 3D front end into one project. A drawing of a breaker opening means little if the numbers behind it are wrong, so my solver has to agree with MATPOWER to 1e-6 pu in voltage.
 
 ## What's hard about it
 
